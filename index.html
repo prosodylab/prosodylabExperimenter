@@ -1,0 +1,213 @@
+<!doctype html>
+<!-- prosodylab.jsexperimenter chael@mcgill.ca-->
+
+<html>
+  
+  <head>
+    <title>prosodylab</title>
+    <!--general-->
+    <script src="papaparse.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js"></script>
+    
+    <!-- country/region select -->
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
+    <link rel="stylesheet" href="node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
+    <link rel="gettext" type="application/x-po" href="node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po" />
+    <script type="text/javascript" src="node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
+    
+    <!-- other country seelction 
+    <script type="text/javascript" src="country-regions-country-region-selector-619110c/dist/crs.min.js"
+    window.onload = function()
+      {
+          init();
+      };
+    ></script>
+    -->
+    
+    <!-- jspsych -->
+    <script src="jspsych-6.1.0/jspsych.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-audio-button-response.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-survey-text"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-survey-likert"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-survey-html-form"></script>
+
+    <!-- prosodylab -->
+    <script src="prosodylab/prosodylab-helper.js"></script>
+    <script src="prosodylab/musicQuestionnaire.js"></script>
+    
+    <!-- css -->
+    <link href="jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+  </head>
+  
+  <body></body>
+
+  <script>
+
+// ---- switches ----
+
+// display data at the end for testing
+var displayData = 1;
+
+
+// ----- experiment specific information ----
+
+  var experiment = {
+        soundCheckFile: 'experiment/audio/da_equal.wav',
+        stimuliFile: "experiment/noncitl_shortest.txt",
+        helloFile: 'experiment/hello.md',
+        instructionsFile: "experiment/instructions.md",
+        consentFile: 'experiment/consent_audio.md',
+        goodbyeFile: 'experiment/goodbye.md'
+        };
+
+
+  // unique random code for participant
+  var participantCode = (Math.floor(Math.random() * 899999 +100000)).toString();
+  // use random code for data file name
+  var dataFilename = 'data_'+ participantCode;
+
+
+  //  ----- load files ----
+
+  // load experiment file
+  experiment.stimuli = prosodylab.loadCSV(experiment.stimuliFile);
+  // loadwelcome txt
+  experiment.hello=prosodylab.loadMD(experiment.helloFile);
+  // load  consent txt
+  experiment.consent=prosodylab.loadMD(experiment.consentFile);
+  // load instructions
+  experiment.instructions = prosodylab.loadMD(experiment.instructionsFile);
+  // load goodbye text
+  experiment.goodbye = prosodylab.loadMD(experiment.goodbyeFile);
+
+
+  //  ---- set-up  ----
+
+  var timeline = [];
+  var timeline_variables = [];
+
+  //  ---- pre experiment  ----
+  
+  prosodylab.screen('hello',experiment.hello,'Click here to continue');
+  //prosodylab.screen('consent',experiment.consent,'I consent');
+
+  // ---- language questionnaire ---
+
+
+  //prosodylab.languageQuestionnaire();
+  
+  // ---- sound check
+  
+  prosodylab.soundCheck(experiment.soundCheckFile);
+  
+  // ---- instructions ----
+  
+  prosodylab.screen('instructions',experiment.instructions,
+                        'Click here to start the experiment','center');
+
+  //  ---- experimental trials  ----
+  
+  var experiment_procedure ={
+    
+      timeline: [
+      
+        {type: 'html-keyboard-response',
+         stimulus: '<div style="font-size:60px;">+</div>',
+         choices: jsPsych.NO_KEYS,
+         trial_duration: 1000,
+         data: {type: 'experiment',
+                part: 'fixation' 
+                }},
+
+        {type:"html-keyboard-response",
+          stimulus: function(){
+                var html="<table>"+
+                    "<tr><th> <audio autoplay> <source src='experiment/audio/"+
+                    jsPsych.timelineVariable('contextFile', true)+
+                    "'></audio> </th> </tr>"+
+                    "<style> .centered {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);}</style>" + 
+                    '<img src="prosodylab/headphones.jpg" alt="headphones" width="90">'+
+                    "</table>"
+                return html;
+                },
+          choices: jsPsych.NO_KEYS,
+          trial_duration: 4000,
+          data: {experimentPart: 'trial',
+                 trialPart: 'sound',
+                 soundFile: jsPsych.timelineVariable('contextFile'),
+                 item: jsPsych.timelineVariable('item'),
+                 condition: jsPsych.timelineVariable('condition')
+                 }},
+
+        {type:"html-keyboard-response",
+         stimulus: '<p style="font-size:150%;"> Which word did you  hear? </p>'+
+            '<p>1 = baga &nbsp; 2=  gaba</p>',
+         choices: ['1','2'],
+         data: {experimentPart: 'trial',
+                trialPart: 'responseQ',
+                }},
+          
+        {type:"html-keyboard-response",
+         stimulus: function(){
+            var text =  '<p style="font-size:150%;"> Which word did you hear? </p>';
+            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            if(lastTrial.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('1')){
+                return text+"<p>1 = BAga &nbsp; 2=  baGA</p>";
+            } else {
+                return text+"<p>1 = GAba &nbsp; 2=  gaBA</p>"
+            }},
+            data: {experimentPart: 'trial',
+                   trialPart: 'responseQ2'}}
+
+      ],
+      timeline_variables: experiment.stimuli.data,
+      randomize_order: true
+  }
+
+  timeline.push(experiment_procedure);
+  
+  
+  // ---- debriefing ---
+  
+  // prosodylab.debriefing();
+
+  
+  // ---- music questionnaire ---
+  
+  //musicQuestionnaire();
+  
+  // ---- goodbye ----
+  
+  prosodylab.screen('goodbye',experiment.goodbye,'Click to send data','center',participantCode);
+  
+  //  ---- data processing  ----
+
+
+  //Save Data
+  function saveData(name, data){
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'write_data.php');
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify({filename: name, filedata: data}));
+      }
+
+  // call the saveData function after the experiment is over
+
+  jsPsych.init({
+      timeline: timeline,
+      on_finish: function(){
+                  saveData(dataFilename, jsPsych.data.get().csv());
+                  if (displayData) {jsPsych.data.displayData();}
+                 }, 
+  })
+
+  </script>
+</html>
