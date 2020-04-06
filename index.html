@@ -61,7 +61,7 @@ var displayData = 1;
 
   var experiment = {
         soundCheckFile: 'experiment/audio/da_equal.wav',
-        stimuliFile: "experiment/noncitl_shortest.txt",
+        stimuliFile: "experiment/noncitl_short.txt",
         helloFile: 'experiment/hello.md',
         instructionsFile: "experiment/instructions.md",
         consentFile: 'experiment/consent_audio.md',
@@ -69,8 +69,8 @@ var displayData = 1;
         };
 
 
-  // unique random code for participant
-  var participantCode = (Math.floor(Math.random() * 899999 +100000)).toString();
+  // unique particpiant code (used also as completion code for mturk)
+  var participantCode = jsPsych.randomization.randomID(6);
   // use random code for data file name
   var dataFilename = 'data_'+ participantCode;
 
@@ -97,12 +97,12 @@ var displayData = 1;
   //  ---- pre experiment  ----
   
   prosodylab.screen('hello',experiment.hello,'Click here to continue');
-  //prosodylab.screen('consent',experiment.consent,'I consent');
+  prosodylab.screen('consent',experiment.consent,'I consent');
 
   // ---- language questionnaire ---
 
 
-  //prosodylab.languageQuestionnaire();
+  prosodylab.languageQuestionnaire();
   
   // ---- sound check
   
@@ -177,12 +177,12 @@ var displayData = 1;
   
   // ---- debriefing ---
   
-  // prosodylab.debriefing();
+   prosodylab.debriefing();
 
   
   // ---- music questionnaire ---
   
-  //musicQuestionnaire();
+  musicQuestionnaire();
   
   // ---- goodbye ----
   

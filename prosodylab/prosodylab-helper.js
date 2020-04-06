@@ -142,9 +142,151 @@ prosodylab  = {
                  }
                 timeline.push(loop_node);
                 
+              },
+              
+              latinsquareConditionSelection: function(items, conditions, pListN) {
+              
+                var result = [];
+                for (var i = 0; i < items; i++) {
+                  for (var j = 0; j < conditions; j++) {
+                    result.push(1+ (j + pListN-1) % conditions);
+                  }
+                }
+                return result;
+              },
+               
+              withinConditionSelection: function(items, conditions, pListN) {
+
+                var result = [];
+                var block = [];
+                var pListBlock = [];
+                // randomize order of blocks after the first
+                var conditionBlock = digitSequence(1, conditions);
+                var index = conditionBlock.indexOf(pListN);
+                if (index !== -1) conditionBlock.splice(index, 1);
+                conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
+                conditionBlock = [pListN, ...conditionBlock];
+                
+                for (var i = 0; i < conditions; i++) {
+                  block = conditionBlock[i];
+                  result[i] = latinsquareConditionSelection(items, conditions, block);
+                }
+                return result;
+               },
+               
+
+               blockedConditionSelection: function(items, conditions, playListN) {
+
+                   // pListN is condition # of first block
+                   // randomize order of conditions other than first
+                   var conditionBlock = digitSequence(1, conditions);
+                   var index = conditionBlock.indexOf(playListN);
+                   if (index !== -1) conditionBlock.splice(index, 1);
+                   conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
+                   conditionBlock = [playListN,...conditionBlock];
+  
+                   var result = [];
+
+                   for (var i = 0; i < conditions; i++) {
+                     result[i] = [];
+                     for (var j = 0; j < items; j++) {
+                       result[i].push(conditionBlock[i]);
+                     }
+                   }
+                   return result;
+              },
+              
+              
+              // assigns playList
+              getPlaylist: function(design,conditions){
+                  var playList = 1;
+                  return playList
+              },
+              
+              // generate sequence of integers
+              digitSequence: function(lowEnd,highEnd){
+                lowEnd=highEnd-lowEnd+1;
+                c=[];
+                while(lowEnd--)c[lowEnd]=highEnd--;
+                return c
+              },
+              
+              
+              generatePlayList: function(stimuli){
+                var conditions = Math.max(...stimuli.map(value => value.condition));
+                var items = Math.max(...stimuli.map(value => value.item));
+                var design = [...new Set(stimuli.map(value => value.design))];
+                
+                pList = getPlaylist(design);
+                playList = [];
+                
+                if (design=='Between') {  
+                
+                    // same condition from each item
+                    for (var i = 1; i <= items; i++) {
+                        playList[i] = stimuli.find(obj => {
+                               return obj.item == i && obj.condition == pList
+                        })
+                    // randomize order of trials
+                    playList = jsPsych.randomization.repeat(playList, 1);;
+                    }
+                    
+                } else if (design == 'Blocked') {
+                
+                    // all stimuli, organized in blocks by condition
+                    var conditionSelection = blockedConditionSelection(items, conditions, pList);
+                     for (var j = 0; j < conditions; j++) {
+                        blockList = [];
+                        for (var i = 0; i < items; i++) {
+                           blockList[i] = stimuli.find(obj => {
+                            return obj.item == (i+1) && obj.condition == conditionSelection[(j)][i]
+                           })
+                         }
+                     // randomize order of trials within block
+                     blockList = jsPsych.randomization.repeat(blockList, 1);
+                     // add block to playList
+                     playList = [...playList,...blockList];
+                        
+                } else if (design == 'LatinSquare') {
+
+                    // one condition from each item, balanced # conditons
+                    var conditionSelection = latinsquareConditionSelection(items, conditions, pList);
+                    for (var i = 0; i < items; i++) {
+                      playList[i] = stimuli.find(obj => {
+                        return obj.item == (i + 1) && obj.condition == conditionSelection[i]
+                      })
+                    }
+                    // randomize order of trials
+                    playList = jsPsych.randomization.repeat(playList, 1);;
+                    
+                } else if (design == 'Within') {
+
+                    // all stimuli in pseudorandom order, a sequence several LQ blocks
+                    var conditionSelection = withinConditionSelection(items, conditions, pList);
+                    for (var j = 0; j < conditions; j++) {
+                        blockList = [];
+                        for (var i = 0; i < items; i++) {
+                          //console.log([i,j,conditionSelection[j][i]]);
+                          blockList[i] = stimuli.find(obj => {
+                            return obj.item == (i + 1) && obj.condition == conditionSelection[j][i]
+                          })
+                        }
+                        // randomize order of trials within block
+                        //blockList = jsPsych.randomization.repeat(blockList, 1);
+                        // add block to playList
+                        playList = [...playList, ...blockList];
+                    }
+                  
+                } else if(design=='Random') {
+                
+                     // random stimulus order
+                     playList = jsPsych.randomization.repeat(stimuli, 1);
+                     
+                } else // fixed stimulus order
+                     playList = stimuli;
+                }
               }
-             
+
             }
             
-           
            

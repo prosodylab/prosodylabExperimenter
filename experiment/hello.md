@@ -13,7 +13,9 @@ This study consists of several parts:
 
 * A consent page 
 
-* A page with  a language background questionnaire    
+* A page with  a language background questionnaire
+
+* A Sound check to adjust the volume on your headphones
 
 * An experiment in  which you will listen to soundfiles and answer questions about them
 
