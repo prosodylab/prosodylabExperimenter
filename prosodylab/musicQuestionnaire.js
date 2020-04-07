@@ -3,6 +3,7 @@
 Chin, T.-C., Coutinho, E., Scherer, K. R., and Rickard, N. S. (2018). Musebaq: A modular tool for music research to assess musicianship, musical capacity, music preferences, and motivations for music use. Music Perception: An Interdisciplinary Journal, 35(3):376–399.
 
 Module 1: musicianship
+
 */
 
 
@@ -46,7 +47,7 @@ var musicQuestionnaire = function (modules) {
                            {prompt: "How often did or do you practice or rehearse with an instrument or singing?", name: 'M1Q5', labels: scaleHowOften, required: 1},
                            {prompt: "How often do you engage in music making as a hobby or as an amateur?", name: 'M1Q6', labels: scaleHowOften, required: 1}
                          ],
-                         randomize_question_order: true,
+                         randomize_question_order: false,
                  };
                  timeline.push(moduleMusicianship);
 

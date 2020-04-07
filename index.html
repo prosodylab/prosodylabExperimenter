@@ -38,6 +38,7 @@
     <script src="jspsych-6.1.0/plugins/jspsych-survey-text"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-survey-likert"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-survey-html-form"></script>
+    <!--  <script src="jsPsych.randomization"></script> -->
 
     <!-- prosodylab -->
     <script src="prosodylab/prosodylab-helper.js"></script>
@@ -59,13 +60,16 @@ var displayData = 1;
 
 // ----- experiment specific information ----
 
-  var experiment = {
-        soundCheckFile: 'experiment/audio/da_equal.wav',
-        stimuliFile: "experiment/noncitl_short.txt",
-        helloFile: 'experiment/hello.md',
-        instructionsFile: "experiment/instructions.md",
-        consentFile: 'experiment/consent_audio.md',
-        goodbyeFile: 'experiment/goodbye.md'
+
+  var pathMaterials = 'materials/';
+
+  var materials = {
+        soundCheckFile: pathMaterials + 'audio/da_equal.wav',
+        stimuliFile: pathMaterials + 'noncitl.txt',
+        helloFile: pathMaterials +'hello.md',
+        consentFile: pathMaterials + 'consent_audio.md',
+        instructionsFile: pathMaterials + 'instructions.md',
+        goodbyeFile: pathMaterials + 'goodbye.md'
         };
 
 
@@ -78,15 +82,15 @@ var displayData = 1;
   //  ----- load files ----
 
   // load experiment file
-  experiment.stimuli = prosodylab.loadCSV(experiment.stimuliFile);
+  materials.stimuli = prosodylab.loadCSV(materials.stimuliFile);
   // loadwelcome txt
-  experiment.hello=prosodylab.loadMD(experiment.helloFile);
+  materials.hello=prosodylab.loadMD(materials.helloFile);
   // load  consent txt
-  experiment.consent=prosodylab.loadMD(experiment.consentFile);
+  materials.consent=prosodylab.loadMD(materials.consentFile);
   // load instructions
-  experiment.instructions = prosodylab.loadMD(experiment.instructionsFile);
+  materials.instructions = prosodylab.loadMD(materials.instructionsFile);
   // load goodbye text
-  experiment.goodbye = prosodylab.loadMD(experiment.goodbyeFile);
+  materials.goodbye = prosodylab.loadMD(materials.goodbyeFile);
 
 
   //  ---- set-up  ----
@@ -96,88 +100,49 @@ var displayData = 1;
 
   //  ---- pre experiment  ----
   
-  prosodylab.screen('hello',experiment.hello,'Click here to continue');
-  prosodylab.screen('consent',experiment.consent,'I consent');
+  prosodylab.screen('hello',materials.hello,'Click here to continue');
+  
+  //  ---- consent page  ----
+  
+  prosodylab.screen('consent',materials.consent,'I consent');
 
   // ---- language questionnaire ---
-
 
   prosodylab.languageQuestionnaire();
   
   // ---- sound check
   
-  prosodylab.soundCheck(experiment.soundCheckFile);
+  prosodylab.soundCheck(materials.soundCheckFile);
   
   // ---- instructions ----
   
-  prosodylab.screen('instructions',experiment.instructions,
+  prosodylab.screen('instructions',materials.instructions,
                         'Click here to start the experiment','center');
 
-  //  ---- experimental trials  ----
+  //  ---- build experiment  ----
   
-  var experiment_procedure ={
+  var playList = [];
+  
+  if (!materials.stimuli.data.session) {var sessions = 1}
+  
+  for (i=0; i<sessions;i++) {
+  
+    session = [];
+    playList = prosodylab.generatePlaylist(materials.stimuli.data);
+  
+    for (i=0;i<playList.length;i++) {
+      session = prosodylab.addTrial(session,playList[i]);
+    }
+  
+    timeline = [...timeline, ...session];
     
-      timeline: [
-      
-        {type: 'html-keyboard-response',
-         stimulus: '<div style="font-size:60px;">+</div>',
-         choices: jsPsych.NO_KEYS,
-         trial_duration: 1000,
-         data: {type: 'experiment',
-                part: 'fixation' 
-                }},
-
-        {type:"html-keyboard-response",
-          stimulus: function(){
-                var html="<table>"+
-                    "<tr><th> <audio autoplay> <source src='experiment/audio/"+
-                    jsPsych.timelineVariable('contextFile', true)+
-                    "'></audio> </th> </tr>"+
-                    "<style> .centered {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);}</style>" + 
-                    '<img src="prosodylab/headphones.jpg" alt="headphones" width="90">'+
-                    "</table>"
-                return html;
-                },
-          choices: jsPsych.NO_KEYS,
-          trial_duration: 4000,
-          data: {experimentPart: 'trial',
-                 trialPart: 'sound',
-                 soundFile: jsPsych.timelineVariable('contextFile'),
-                 item: jsPsych.timelineVariable('item'),
-                 condition: jsPsych.timelineVariable('condition')
-                 }},
-
-        {type:"html-keyboard-response",
-         stimulus: '<p style="font-size:150%;"> Which word did you  hear? </p>'+
-            '<p>1 = baga &nbsp; 2=  gaba</p>',
-         choices: ['1','2'],
-         data: {experimentPart: 'trial',
-                trialPart: 'responseQ',
-                }},
-          
-        {type:"html-keyboard-response",
-         stimulus: function(){
-            var text =  '<p style="font-size:150%;"> Which word did you hear? </p>';
-            var lastTrial = jsPsych.data.get().last(1).values()[0];
-            if(lastTrial.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('1')){
-                return text+"<p>1 = BAga &nbsp; 2=  baGA</p>";
-            } else {
-                return text+"<p>1 = GAba &nbsp; 2=  gaBA</p>"
-            }},
-            data: {experimentPart: 'trial',
-                   trialPart: 'responseQ2'}}
-
-      ],
-      timeline_variables: experiment.stimuli.data,
-      randomize_order: true
+    console.log('length:',playList.length,'timeline',timeline);
   }
 
-  timeline.push(experiment_procedure);
-  
-  
+
   // ---- debriefing ---
   
-   prosodylab.debriefing();
+  prosodylab.debriefing();
 
   
   // ---- music questionnaire ---
@@ -186,7 +151,7 @@ var displayData = 1;
   
   // ---- goodbye ----
   
-  prosodylab.screen('goodbye',experiment.goodbye,'Click to send data','center',participantCode);
+  prosodylab.screen('goodbye',materials.goodbye,'Click to send data','center',participantCode);
   
   //  ---- data processing  ----
 

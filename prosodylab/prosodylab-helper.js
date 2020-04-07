@@ -19,7 +19,7 @@ prosodylab  = {
                     },
                   is_html: true,
                   stimulus: text,
-                  data: {experimentPart: name,
+                  data: {component: name,
                          buttonResponseText: buttonText
                          }
                   };
@@ -61,7 +61,7 @@ prosodylab  = {
                 return txt;
              },
              
-             // Debriefing questions
+             // Debriefing questions (this should   really be an html form)
              debriefing: function() {
                 var debriefingSurvey = {
                   type: 'survey-text',
@@ -70,8 +70,9 @@ prosodylab  = {
                        rows: 10, columns: 80, name: 'guessExperimentGoal',required: 1}, 
                     {prompt: "Which problems/typos did you notice (if any)? Or any other feedback?", 
                        rows: 10, columns: 80, name: 'feedback'}
+                    //{prompt: "How much do you know about the field of linguistics?", name: 'lingustics', labels: scaleHowOften, required: 1}
                   ],
-                  data: {experimentPart: 'Debriefing'}
+                  data: {component: 'Debriefing'}
                 };
                 timeline.push(debriefingSurvey);
              },
@@ -83,7 +84,7 @@ prosodylab  = {
                         type: 'survey-html-form',
                         preamble: '<h2> Language Background Questionnaire</h2><br>',
                         html: lq,
-                        data: {experimentPart: 'Language Questionnaire'},
+                        data: {component: 'Language Questionnaire'},
                         on_load: function() { gds.init() }
                 };
                 timeline.push(languageQuestionnaire);
@@ -102,7 +103,7 @@ prosodylab  = {
                      on_trial_start: function() { 
                          setTimeout(function() {setDisplay("jspsych-btn","")}, 1000)
                      },
-                     data: {experimentPart: 'soundCheckInstructions',
+                     data: {component: 'soundCheckInstructions',
                             choices: buttonText
                             },
                  }
@@ -123,7 +124,7 @@ prosodylab  = {
                    on_trial_start: function() { 
                      setTimeout(function() {setDisplay("jspsych-btn","")}, 1000)
                     },
-                   data: {experimentPart: 'soundCheck',
+                   data: {component: 'soundCheck',
                          choices:  [choiceOne,choiceTwo]
                          },
                    button_html: '<button class="jspsych-btn">%choice% </button>'
@@ -161,7 +162,7 @@ prosodylab  = {
                 var block = [];
                 var pListBlock = [];
                 // randomize order of blocks after the first
-                var conditionBlock = digitSequence(1, conditions);
+                var conditionBlock = this.digtitSequence(1, conditions);
                 var index = conditionBlock.indexOf(pListN);
                 if (index !== -1) conditionBlock.splice(index, 1);
                 conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
@@ -179,7 +180,7 @@ prosodylab  = {
 
                    // pListN is condition # of first block
                    // randomize order of conditions other than first
-                   var conditionBlock = digitSequence(1, conditions);
+                   var conditionBlock = this.digtitSequence(1, conditions);
                    var index = conditionBlock.indexOf(playListN);
                    if (index !== -1) conditionBlock.splice(index, 1);
                    conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
@@ -198,8 +199,11 @@ prosodylab  = {
               
               
               // assigns playList
-              getPlaylist: function(design,conditions){
-                  var playList = 1;
+              getPlaylist: function(conditions){
+                  // xx right now: random
+                  // xx next step: based on # participants
+                  // xx even better: actual participant# that completed playlists based on log
+                  var playList = Math.floor((Math.random() * conditions) + 1);;
                   return playList
               },
               
@@ -212,12 +216,12 @@ prosodylab  = {
               },
               
               
-              generatePlayList: function(stimuli){
+              generatePlaylist: function(stimuli){
                 var conditions = Math.max(...stimuli.map(value => value.condition));
                 var items = Math.max(...stimuli.map(value => value.item));
                 var design = [...new Set(stimuli.map(value => value.design))];
                 
-                pList = getPlaylist(design);
+                pList = this.getPlaylist(conditions);
                 playList = [];
                 
                 if (design=='Between') {  
@@ -228,51 +232,50 @@ prosodylab  = {
                                return obj.item == i && obj.condition == pList
                         })
                     // randomize order of trials
-                    playList = jsPsych.randomization.repeat(playList, 1);;
+                    playList = jsPsych.randomization.shuffle(playList);;
                     }
                     
                 } else if (design == 'Blocked') {
                 
                     // all stimuli, organized in blocks by condition
-                    var conditionSelection = blockedConditionSelection(items, conditions, pList);
+                    var conditionSelection = this.blockedConditionSelection(items, conditions, pList);
                      for (var j = 0; j < conditions; j++) {
                         blockList = [];
                         for (var i = 0; i < items; i++) {
                            blockList[i] = stimuli.find(obj => {
                             return obj.item == (i+1) && obj.condition == conditionSelection[(j)][i]
                            })
-                         }
-                     // randomize order of trials within block
-                     blockList = jsPsych.randomization.repeat(blockList, 1);
-                     // add block to playList
-                     playList = [...playList,...blockList];
-                        
+                        }
+                        // randomize order of trials within block
+                        blockList = jsPsych.randomization.shuffle(blockList);
+                        // add block to playList
+                        playList = [...playList,...blockList];
+                     }
                 } else if (design == 'LatinSquare') {
 
                     // one condition from each item, balanced # conditons
-                    var conditionSelection = latinsquareConditionSelection(items, conditions, pList);
+                    var conditionSelection = this.latinsquareConditionSelection(items, conditions, pList);
                     for (var i = 0; i < items; i++) {
                       playList[i] = stimuli.find(obj => {
                         return obj.item == (i + 1) && obj.condition == conditionSelection[i]
                       })
                     }
                     // randomize order of trials
-                    playList = jsPsych.randomization.repeat(playList, 1);;
+                    playList = jsPsych.randomization.shuffle(playList);
                     
                 } else if (design == 'Within') {
 
                     // all stimuli in pseudorandom order, a sequence several LQ blocks
-                    var conditionSelection = withinConditionSelection(items, conditions, pList);
+                    var conditionSelection = this.withinConditionSelection(items, conditions, pList);
                     for (var j = 0; j < conditions; j++) {
                         blockList = [];
                         for (var i = 0; i < items; i++) {
-                          //console.log([i,j,conditionSelection[j][i]]);
                           blockList[i] = stimuli.find(obj => {
                             return obj.item == (i + 1) && obj.condition == conditionSelection[j][i]
                           })
                         }
                         // randomize order of trials within block
-                        //blockList = jsPsych.randomization.repeat(blockList, 1);
+                        blockList = jsPsych.randomization.shuffle(blockList);
                         // add block to playList
                         playList = [...playList, ...blockList];
                     }
@@ -280,13 +283,106 @@ prosodylab  = {
                 } else if(design=='Random') {
                 
                      // random stimulus order
-                     playList = jsPsych.randomization.repeat(stimuli, 1);
+                     playList = jsPsych.randomization.shuffle(stimuli);
                      
-                } else // fixed stimulus order
+                } else {// fixed stimulus order
                      playList = stimuli;
                 }
+                return playList;
+              }, //  end of this.generatePlaylist
+              
+              fixation: function(experiment) {
+                var result =  {
+                   type: 'html-keyboard-response',
+                   stimulus: '<div style="font-size:60px;">+</div>',
+                   choices: jsPsych.NO_KEYS,
+                   // xx what does this duration exactly specify? maxlength?
+                   trial_duration: 1000,
+                   data: {
+                     component: experiment,
+                     trialPart: 'fixation' 
+                   }
+                };
+                return result;
+              },
+              
+              playSound: function(soundFile,experiment){
+                
+                var result = {
+                   type:"html-keyboard-response",
+                   stimulus: function(){
+                     var html="<table>"+
+                         "<tr><th> <audio autoplay> <source src='"+pathMaterials+"audio/"+
+                         soundFile+
+                         "'></audio> </th> </tr>"+
+                         "<style> .centered {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);}</style>" + 
+                         '<img src="prosodylab/headphones.jpg" alt="headphones" width="90">'+
+                         "</table>"
+                     return html;
+                     },
+                   choices: jsPsych.NO_KEYS,
+                   trial_duration: 4000,
+                   data: {component: experiment,
+                           trialPart: soundFile
+                   }
+                  }
+                  return result;
+              },
+              
+              
+              addTrial: function(session,trial) {
+                  
+                  if (trial.contextFile) {
+                      session.push(this.fixation(trial.experiment));
+                      session.push(this.playSound(trial.contextFile,trial.experiment));
+                  }
+                  
+                  if (trial.question) {
+                    var question = {
+                      type:"html-keyboard-response",
+                      //stimulus = trial.question;
+                      stimulus: '<p style="font-size:150%;"> Which word did you hear? </p>'+
+                        '<p>1 = baga &nbsp; 2=  gaba</p>',
+                      choices: ['1','2'],
+                      data: {
+                         component: trial.experiment,
+                         trialPart: 'question',
+                      }
+                    }
+                    session.push(question);  
+                  }
+                  
+                  if (trial.question2) {
+                    var question = {
+                      type:"html-keyboard-response",
+                      //stimulus = trial.question;
+                      stimulus: function(){
+                        var text =  '<p style="font-size:150%;"> Which word did you hear? </p>';
+                        var lastTrial = jsPsych.data.get().last(1).values()[0];
+                        if(lastTrial.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode('1')){
+                             return text+"<p>1 = BAga &nbsp; 2=  baGA</p>";
+                        } else {
+                             return text+"<p>1 = GAba &nbsp; 2=  gaBA</p>"
+                        }
+                      },
+                      choices: ['1','2'],
+                      data: {
+                         component: trial.experiment,
+                         trialPart: 'question2',
+                      }
+                    }
+                    session.push(question);  
+                  }
+              
+                return session;
+                
+                console.log(session);
               }
+              
+              
+        } // end of  object prosodylab
+              
 
-            }
+            
             
            
