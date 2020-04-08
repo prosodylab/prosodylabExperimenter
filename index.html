@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- prosodylab.jsexperimenter chael@mcgill.ca-->
+<!-- prosodylab-jspsych-helper Michael Wagner chael@mcgill.ca-->
 
 <html>
   
@@ -34,6 +34,7 @@
     <script src="jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-audio-button-response.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-audio-keyboard-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-instructions.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-survey-text"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-survey-likert"></script>
@@ -61,15 +62,15 @@ var displayData = 1;
 // ----- experiment specific information ----
 
 
-  var pathMaterials = 'materials/';
+  var pathMaterials = 'materials'; // needs to have audio/img if applicable
 
   var materials = {
-        soundCheckFile: pathMaterials + 'audio/da_equal.wav',
-        stimuliFile: pathMaterials + 'noncitl.txt',
-        helloFile: pathMaterials +'hello.md',
-        consentFile: pathMaterials + 'consent_audio.md',
-        instructionsFile: pathMaterials + 'instructions.md',
-        goodbyeFile: pathMaterials + 'goodbye.md'
+        stimuliFile: `${pathMaterials}/noncitl_shortest.txt`,
+        soundCheckFile: `${pathMaterials}/audio/da_equal.mp3`,
+        helloFile: `${pathMaterials}/hello.md`,
+        consentFile: `${pathMaterials}/consent_audio.md`,
+        instructionsFile: `${pathMaterials}/instructions.md`,
+        goodbyeFile: `${pathMaterials}/goodbye.md`
         };
 
 
@@ -87,11 +88,8 @@ var displayData = 1;
   materials.hello=prosodylab.loadMD(materials.helloFile);
   // load  consent txt
   materials.consent=prosodylab.loadMD(materials.consentFile);
-  // load instructions
-  materials.instructions = prosodylab.loadMD(materials.instructionsFile);
   // load goodbye text
   materials.goodbye = prosodylab.loadMD(materials.goodbyeFile);
-
 
   //  ---- set-up  ----
 
@@ -100,54 +98,107 @@ var displayData = 1;
 
   //  ---- pre experiment  ----
   
-  prosodylab.screen('hello',materials.hello,'Click here to continue');
+  //prosodylab.screen('hello',materials.hello,'Click here to continue');
   
   //  ---- consent page  ----
   
-  prosodylab.screen('consent',materials.consent,'I consent');
+  //prosodylab.screen('consent',materials.consent,'I consent');
 
   // ---- language questionnaire ---
 
-  prosodylab.languageQuestionnaire();
+  //prosodylab.languageQuestionnaire();
   
   // ---- sound check
   
-  prosodylab.soundCheck(materials.soundCheckFile);
+  //prosodylab.soundCheck(materials.soundCheckFile);
   
-  // ---- instructions ----
-  
-  prosodylab.screen('instructions',materials.instructions,
-                        'Click here to start the experiment','center');
 
   //  ---- build experiment  ----
   
+  var session = [];
+  var experimentN = [];
+  var sessionStimuli = [];
+  var sessionExperiments = [];
+  var maxLength = 0;
   var playList = [];
+  var instructions = [];
   
-  if (!materials.stimuli.data.session) {var sessions = 1}
+  if (!materials.stimuli.session) {
+    materials.stimuli.session = 1
+  }
   
-  for (i=0; i<sessions;i++) {
+  sessions = Math.max(...materials.stimuli.map(value => value.session));
   
+  // cycle through sessions and add trials
+  for (iSession=0; iSession<sessions;iSession++) {
+  
+    console.log('Session:',iSession+1,'of',sessions);
+  
+    // reset variables for session
     session = [];
-    playList = prosodylab.generatePlaylist(materials.stimuli.data);
-  
-    for (i=0;i<playList.length;i++) {
-      session = prosodylab.addTrial(session,playList[i]);
+    experimentN = [];
+    sessionStimuli = [];
+    sessionExperiments = [];
+    maxLength = 0;
+    playList = [];
+    instructions = [];
+    
+    // Subset of stimuli for this session
+    sessionStimuli = materials.stimuli.filter(obj => obj.session == (iSession+1));
+    sessionExperiments = [...new Set(sessionStimuli.map(value => value.experiment))];
+    experimentN = sessionExperiments.length;
+
+    
+    // load and display session instructions
+    instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
+    instructions = prosodylab.loadMD(`${pathMaterials}/${instructionsFile}`);
+    prosodylab.screen('instructions',instructions, 'Click here to start the experiment','center');
+
+    var experimentStimuli=[];
+        
+    // separate out stimuli for each experiment in this session
+    for (j=0;j<experimentN;j++) {
+    
+       // subset of stimuli of this experiment
+       playList[j] = sessionStimuli.filter(obj => obj.experiment == sessionExperiments[j]);
+             
+       // generate playlist for this experiment:
+       playList[j] = prosodylab.generatePlaylist(playList[j]);
+       
+       // keep track of how long longest experiment is
+       maxLength = Math.max(maxLength,playList[j].length);
+       // show information about experiment in console:
+       console.log('experiment:',sessionExperiments[j],
+           'length: ',playList[j].length,'design: ',
+           [...new Set(sessionStimuli.map(value => value.design))]);
     }
+    
+    
+    // add trials for experiment, interspersing them
+    for (j=0;j<maxLength;j++){
+        for (k=0;k<experimentN;k++){
+          // if end of experiment has not been reached, add trial
+                    
+          if ((j+1)<=playList[k].length) {
+            session = prosodylab.addTrial(session,playList[k][j]);
+          }
+        }
+    }
+    
   
     timeline = [...timeline, ...session];
     
-    console.log('length:',playList.length,'timeline',timeline);
   }
 
 
   // ---- debriefing ---
   
-  prosodylab.debriefing();
+  //prosodylab.debriefing();
 
   
   // ---- music questionnaire ---
   
-  musicQuestionnaire();
+  //musicQuestionnaire();
   
   // ---- goodbye ----
   

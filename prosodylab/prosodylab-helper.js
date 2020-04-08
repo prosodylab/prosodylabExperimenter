@@ -1,4 +1,4 @@
-// chael@mcgill.ca  April 2020
+/* prosodylab-jspsych-helper Michael Wagner chael@mcgill.ca */
 
 prosodylab = {
 
@@ -60,19 +60,19 @@ prosodylab = {
 
   // load markdown file and convert to html
   loadMD: function(fileName) {
-    txt = this.loadTxt(fileName);
+    var txt = this.loadTxt(fileName);
     txt = this.md2html(txt);
     return txt;
   },
 
   // load tab-delimited csv and convert to html
   loadCSV: function(fileName) {
-    txt = this.loadTxt(fileName);
+    var txt = this.loadTxt(fileName);
     txt = Papa.parse(txt, {
       header: true,
       delimiter: '\t'
     });;
-    return txt;
+    return txt.data;
   },
 
   // Debriefing questions (this should   really be an html form)
@@ -196,15 +196,15 @@ prosodylab = {
     var block = [];
     var pListBlock = [];
     // randomize order of blocks after the first
-    var conditionBlock = this.digtitSequence(1, conditions);
+    var conditionBlock = this.digitSequence(1, conditions);
     var index = conditionBlock.indexOf(pListN);
-    if (index !== -1) conditionBlock.splice(index, 1);
+    if (index !== -1) {conditionBlock.splice(index, 1)};
     conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
     conditionBlock = [pListN, ...conditionBlock];
 
     for (var i = 0; i < conditions; i++) {
       block = conditionBlock[i];
-      result[i] = latinsquareConditionSelection(items, conditions, block);
+      result[i] = this.latinsquareConditionSelection(items, conditions, block);
     }
     return result;
   },
@@ -214,7 +214,7 @@ prosodylab = {
 
     // pListN is condition # of first block
     // randomize order of conditions other than first
-    var conditionBlock = this.digtitSequence(1, conditions);
+    var conditionBlock = this.digitSequence(1, conditions);
     var index = conditionBlock.indexOf(playListN);
     if (index !== -1) conditionBlock.splice(index, 1);
     conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
@@ -244,9 +244,9 @@ prosodylab = {
   // generate sequence of integers
   digitSequence: function(lowEnd, highEnd) {
     lowEnd = highEnd - lowEnd + 1;
-    c = [];
+    var result = [];
     while (lowEnd--) c[lowEnd] = highEnd--;
-    return c
+    return result
   },
 
 
@@ -254,9 +254,10 @@ prosodylab = {
     var conditions = Math.max(...stimuli.map(value => value.condition));
     var items = Math.max(...stimuli.map(value => value.item));
     var design = [...new Set(stimuli.map(value => value.design))];
-
-    pList = this.getPlaylist(conditions);
-    playList = [];
+    
+    var pList = this.getPlaylist(conditions);
+    var playList = [];
+    var conditionSelection = [];
 
     if (design == 'Between') {
 
@@ -266,13 +267,13 @@ prosodylab = {
           return obj.item == i && obj.condition == pList
         })
         // randomize order of trials
-        playList = jsPsych.randomization.shuffle(playList);;
+        playList = jsPsych.randomization.shuffle(playList);
       }
 
     } else if (design == 'Blocked') {
 
       // all stimuli, organized in blocks by condition
-      var conditionSelection = this.blockedConditionSelection(items, conditions, pList);
+      conditionSelection = this.blockedConditionSelection(items, conditions, pList);
       for (var j = 0; j < conditions; j++) {
         blockList = [];
         for (var i = 0; i < items; i++) {
@@ -288,11 +289,11 @@ prosodylab = {
     } else if (design == 'LatinSquare') {
 
       // one condition from each item, balanced # conditons
-      var conditionSelection = this.latinsquareConditionSelection(items, conditions, pList);
+      conditionSelection = this.latinsquareConditionSelection(items, conditions, pList);
       for (var i = 0; i < items; i++) {
         playList[i] = stimuli.find(obj => {
-          return obj.item == (i + 1) && obj.condition == conditionSelection[i]
-        })
+          return obj.item == (i + 1) && obj.condition == conditionSelection[i];
+        });
       }
       // randomize order of trials
       playList = jsPsych.randomization.shuffle(playList);
@@ -300,7 +301,8 @@ prosodylab = {
     } else if (design == 'Within') {
 
       // all stimuli in pseudorandom order, a sequence several LQ blocks
-      var conditionSelection = this.withinConditionSelection(items, conditions, pList);
+      conditionSelection = this.withinConditionSelection(items, conditions, pList);
+      var blockList = [];
       for (var j = 0; j < conditions; j++) {
         blockList = [];
         for (var i = 0; i < items; i++) {
@@ -322,6 +324,7 @@ prosodylab = {
     } else { // fixed stimulus order
       playList = stimuli;
     }
+
     return playList;
   }, //  end of this.generatePlaylist
 
@@ -343,19 +346,15 @@ prosodylab = {
   playSound: function(soundFile, experiment) {
 
     var result = {
-      type: "html-keyboard-response",
-      stimulus: function() {
-        var html = "<table>" +
-          "<tr><th> <audio autoplay> <source src='" + pathMaterials + "audio/" +
-          soundFile +
-          "'></audio> </th> </tr>" +
-          "<style> .centered {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);}</style>" +
-          '<img src="prosodylab/headphones.jpg" alt="headphones" width="90">' +
-          "</table>"
+      type: "audio-keyboard-response",
+      prompt: function() {
+        var html = `<style> .centered {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);}</style>
+          <img src="prosodylab/headphones.jpg" alt="headphones" width="90">`
         return html;
       },
+      stimulus: soundFile,
       choices: jsPsych.NO_KEYS,
-      trial_duration: 4000,
+      trial_ends_after_audio: true,
       data: {
         component: experiment,
         trialPart: soundFile
@@ -365,32 +364,98 @@ prosodylab = {
   },
 
 
+  generateKeyChoices: function(nChoices){
+  
+    var result = [];
+    for (i=1;i<=nChoices;i++){
+        result.push(`${i}`)
+    }
+    return result;
+  },
+
   addTrial: function(session, trial) {
 
     if (trial.contextFile) {
       session.push(this.fixation(trial.experiment));
-      session.push(this.playSound(trial.contextFile, trial.experiment));
+      session.push(this.playSound(`${pathMaterials}/audio/${trial.contextFile}`, trial.experiment));
     }
 
     if (trial.question) {
-      var question = {
-        type: "html-keyboard-response",
-        //stimulus = trial.question;
-        stimulus: '<p style="font-size:150%;"> Which word did you hear? </p>' +
-          '<p>1 = baga &nbsp; 2=  gaba</p>',
-        choices: ['1', '2'],
-        data: {
-          component: trial.experiment,
-          trialPart: 'question',
+      // determine text for choices
+      var questionText = '';
+      var options = '';
+      var keyChoices = [];
+      
+      if (trial.questionFixedChoices){
+         var options = eval(trial.questionFixedChoices);
+         keyChoices = this.generateKeyChoices(options.length);
+         if (options.length<=2){
+           seperatorChoices = '&nbsp&nbsp;'
+           } else{
+           seperatorChoices = '<br><br>'
+           }
+         for (i=0; i<options.length; i++){
+           questionText = `${questionText}${i+1} = ${options[i]}${seperatorChoices}`;
+          } 
+          questionTest = `${this.md2html(trial.question)} <br/><br/> ${questionText}`
+      } else if (trial.questionChoices){
+         var options = jsPsych.randomization.shuffle(eval(trial.questionChoices));
+         keyChoices = this.generateKeyChoices(options.length);
+         
+         if (options.length<=2){
+           seperatorChoices = '&nbsp;&nbsp;&nbsp;&nbsp;'
+           } else{
+           seperatorChoices = '<br><br>'
+           }
+         for (i=0; i<options.length; i++){
+           questionText = `${questionText}${i+1} = ${options[i]}${seperatorChoices}`;
+         } 
+         questionTest = `${this.md2html(trial.question)} <br/><br/> ${questionText}`
+      } else {// Likert scale as default
+         var endPoints=[];
+         if (!trial.questionLikert){ // use naturalness scale  as default
+             endPoints = ['Completely unnatural','Completely natural']
+         } else {
+             endPoints = eval(trial.questionLikert);
+         }
+         // default likert scale with even number of choices in order
+         // to avoid 3-partite partition into 'low','neutral/don't  know', 'high'
+         // I use 6 as the default number of options
+         if (!trial.likertScale){
+           keyChoices=this.generateKeyChoices(6);
+         } else {
+           keyChoices = eval(endPoints,trial.likertScale)
+         }
+         options = keyChoices;
+         questionText = `${this.md2html(trial.question)} <br/><br/>  
+            <em>Rate on a scale between: <br> 
+            ${keyChoices[0]} = ${endPoints[0]} and 
+            ${keyChoices[keyChoices.length-1]} = ${endPoints[1]}</em>`;
+       }
+        
+       var question = {
+         type: "html-keyboard-response",
+         stimulus: questionText,
+         choices: keyChoices,
+         data: {
+            component: trial.experiment,
+            trialPart: 'question',
+            actualChoices: options,
+            chosen: 'chosen option' // xx needs to be implemented
+          }
         }
-      }
-      session.push(question);
+        
+        console.log('Q1 options',options,'keyChoices',keyChoices,'text',questionText); 
+          
+         session.push(question);
+         
     }
 
     if (trial.question2) {
+      console.log('question2');
       var question = {
         type: "html-keyboard-response",
-        //stimulus = trial.question;
+        // stimulus: this.md2html(trial.question2),
         stimulus: function() {
           var text = '<p style="font-size:150%;"> Which word did you hear? </p>';
           var lastTrial = jsPsych.data.get().last(1).values()[0];
@@ -411,7 +476,6 @@ prosodylab = {
 
     return session;
 
-    console.log(session);
   }
 
 
