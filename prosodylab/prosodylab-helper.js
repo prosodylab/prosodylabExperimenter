@@ -74,6 +74,36 @@ prosodylab = {
     });;
     return txt.data;
   },
+  
+  consent: function(consentText) {
+    var buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
+    consentText = consentText.substring(0,consentText.lastIndexOf('<p>'))
+    consentText = `${consentText}<br><br>`
+    buttonText = `<button class="jspsych-btn" 
+     style="white-space:normal; text-align: justify; font-size: 18px;width:95%;"> 
+     <b>${buttonText}</b></button><br><br><br><br><br>`
+    //this.screen('consent', consentTxt, buttonText, 'justify');
+    
+    var screenObject = {
+      type: 'html-button-response',
+      timing_post_trial: 0,
+      choices: [buttonText],
+      button_html: buttonText,
+      on_trial_start: function() {
+        setTimeout(function() {
+          setDisplay("jspsych-btn", "")
+        }, 1000)
+      },
+      is_html: true,
+      stimulus: consentText,
+      data: {
+        component: 'consent',
+        buttonResponseText: buttonText
+      }
+    };
+    timeline.push(screenObject);
+  
+  },
 
   // Debriefing questions (this should   really be an html form)
   debriefing: function() {
@@ -196,7 +226,7 @@ prosodylab = {
     var block = [];
     var pListBlock = [];
     // randomize order of blocks after the first
-    var conditionBlock = this.digitSequence(1, conditions);
+    var conditionBlock = this.digitSequence(conditions);
     var index = conditionBlock.indexOf(pListN);
     if (index !== -1) {conditionBlock.splice(index, 1)};
     conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
@@ -214,7 +244,7 @@ prosodylab = {
 
     // pListN is condition # of first block
     // randomize order of conditions other than first
-    var conditionBlock = this.digitSequence(1, conditions);
+    var conditionBlock = this.digitSequence(conditions);
     var index = conditionBlock.indexOf(playListN);
     if (index !== -1) conditionBlock.splice(index, 1);
     conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
@@ -242,10 +272,11 @@ prosodylab = {
   },
 
   // generate sequence of integers
-  digitSequence: function(lowEnd, highEnd) {
-    lowEnd = highEnd - lowEnd + 1;
+  digitSequence: function(length) {
     var result = [];
-    while (lowEnd--) c[lowEnd] = highEnd--;
+    for (var i = 1; i <= length; i++) {
+      result.push(i);
+    }
     return result
   },
 
@@ -445,7 +476,7 @@ prosodylab = {
           }
         }
         
-        console.log('Q1 options',options,'keyChoices',keyChoices,'text',questionText); 
+        //console.log('Q1 options',options,'keyChoices',keyChoices,'text',questionText); 
           
          session.push(question);
          
