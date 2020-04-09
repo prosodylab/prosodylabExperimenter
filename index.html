@@ -29,6 +29,7 @@
     
     <!-- jspsych -->
     <script src="jspsych-6.1.0/jspsych.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-fullscreen.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
@@ -57,14 +58,14 @@
 
 // display data at the end for testing
 var displayData = 1;
-
+var fullScreen  = 1;
 
 // ----- experiment specific information ----
 
-  var pathMaterials = 'rhyme'; // needs to have audio/img if applicable
+  var pathMaterials = 'noncitl'; // needs to have audio/img if applicable
 
   var materials = {
-        stimuliFile: `${pathMaterials}/rhymeShort.txt`,
+        stimuliFile: `${pathMaterials}/noncitl_shortest.txt`,
         soundCheckFile: `${pathMaterials}/audio/da_equal.mp3`,
         helloFile: `${pathMaterials}/hello.md`,
         consentFile: `${pathMaterials}/consent.md`,
@@ -94,6 +95,7 @@ var displayData = 1;
   var timeline = [];
   var timeline_variables = [];
 
+
   //  ---- pre experiment  ----
   
   //prosodylab.screen('hello',materials.hello,'Click here to continue');
@@ -117,6 +119,15 @@ var displayData = 1;
   
 
   //  ---- build experiment  ----
+  
+  if (fullScreen) {
+    timeline.push({
+      type: 'fullscreen',
+      message: `<p> All set! Please click the button below
+       to enter full screen mode and start the experiment</p>`,
+      fullscreen_mode: true
+    });
+  }
   
   var session = [];
   var experimentN = [];
@@ -207,6 +218,15 @@ var displayData = 1;
   
   prosodylab.screen('goodbye',materials.goodbye,'Click to send data','center',participantCode);
   
+  if (fullScreen) {
+  
+  timeline.push({
+    type: 'fullscreen',
+    fullscreen_mode: false
+  });
+
+  }
+  
   //  ---- data processing  ----
 
 
@@ -222,10 +242,13 @@ var displayData = 1;
 
   jsPsych.init({
       timeline: timeline,
+      on_close: function(){
+                  saveData(`closed-${dataFilename}`, jsPsych.data.get().csv());
+                 },
       on_finish: function(){
                   saveData(dataFilename, jsPsych.data.get().csv());
                   if (displayData) {jsPsych.data.displayData();}
-                 }, 
+                 } 
   })
 
   </script>

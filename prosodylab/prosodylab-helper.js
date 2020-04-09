@@ -471,13 +471,14 @@ prosodylab = {
          data: {
             component: trial.experiment,
             trialPart: 'question',
-            actualChoices: options,
-            chosen: 'chosen option' // xx needs to be implemented
-          }
+            options: options,
+          },
+          on_finish: function(data) {
+            var keyPressed = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press);
+            data.chosenOption = options[parseInt(keyPressed)-1];
+         }
         }
-        
-        //console.log('Q1 options',options,'keyChoices',keyChoices,'text',questionText); 
-          
+    
          session.push(question);
          
     }
