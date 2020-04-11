@@ -7,14 +7,13 @@ prosodylab = {
     if (!align) {
       var align = 'left';
     }
-    if (!buttonText) {
+    if (!buttonText) { // default button text
       buttonText = 'Click here to continue!'
     }
-    text = '<div style="text-align: ' + align + '">' +
-      text +
-      '</div><br>';
-    if (code) {
-      text = text + '<b>' + code + '</b>' + '<br><br><br>'
+    text = `<div style="text-align: ${align}"> ${text} 
+       </div><br>`;
+    if (code) { // completion code for final screen
+      text = `${text} <b>${code}</b> <br><br><br>`
     }
     var screenObject = {
       type: 'html-button-response',
@@ -37,20 +36,24 @@ prosodylab = {
 
   // convert markdown to html
   md2html: function(text) {
-    var //showdown  = require('showdown'),
-      converter = new showdown.Converter(),
-      text = text,
+     //showdown  = require('showdown'),
+      var converter = new showdown.Converter(),
       html = converter.makeHtml(text);
     return html;
   },
 
   // load text file
   loadTxt: function(fileName) {
+    var file = [];
     $.ajax({
       type: "Get",
       async: false,
       cache: false,
       url: fileName,
+      error: function() {
+        file = `File not found: ${fileName}!`
+        console.error(file)
+      },
       success: function(txt) {
         file = txt
       }
@@ -440,8 +443,8 @@ prosodylab = {
   addTrial: function(session, trial) {
 
     if (trial.contextFile) {
-      session.push(this.fixation(trial.experiment));
-      session.push(this.playSound(`${pathMaterials}/audio/${trial.contextFile}`, trial.experiment));
+      //session.push(this.fixation(trial.experiment));
+      //session.push(this.playSound(`${pathMaterials}/audio/${trial.contextFile}`, trial.experiment));
     }
 
     // replace with while loop
@@ -601,7 +604,7 @@ prosodylab = {
            }
            
            
-      } else if (qType=='LikertSlider'){
+      } else if (qType=='Slider'){
       
           question.type = 'html-slider-response';
           

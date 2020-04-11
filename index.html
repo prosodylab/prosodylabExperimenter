@@ -17,18 +17,11 @@
     <link rel="stylesheet" href="node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
     <link rel="gettext" type="application/x-po" href="node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po" />
     <script type="text/javascript" src="node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
-    
-    <!-- other country seelction 
-    <script type="text/javascript" src="country-regions-country-region-selector-619110c/dist/crs.min.js"
-    window.onload = function()
-      {
-          init();
-      };
-    ></script>
-    -->
+     
     
     <!-- jspsych -->
     <script src="jspsych-6.1.0/jspsych.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-call-function.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-fullscreen.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
@@ -59,14 +52,14 @@
 
 // display data at the end for testing
 var displayData = 1;
-var fullScreen  = 1;
+var fullScreen  = 0;
 
 // ----- experiment specific information ----
 
   var pathMaterials = 'experiment'; // needs to have audio/img if applicable
 
   var materials = {
-        stimuliFile: `${pathMaterials}/rhymeShort.txt`,
+        stimuliFile: `${pathMaterials}/rhymeShortest.txt`,
         soundCheckFile: `${pathMaterials}/audio/da_equal.mp3`,
         helloFile: `${pathMaterials}/hello.md`,
         consentFile: `${pathMaterials}/consent.md`,
@@ -76,7 +69,7 @@ var fullScreen  = 1;
   // unique particpiant code (used also as completion code for mturk)
   var participantCode = jsPsych.randomization.randomID(6);
   // use random code for data file name
-  var dataFilename = 'data_'+ participantCode;
+  var dataFilename = `data_${participantCode}`;
 
 
   //  ----- load files ----
@@ -98,24 +91,24 @@ var fullScreen  = 1;
 
   //  ---- pre experiment  ----
   
-  prosodylab.screen('hello',materials.hello,'Click here to continue');
+  // prosodylab.screen('hello',materials.hello,'Click here to continue');
   
   //  ---- consent page  ----
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  prosodylab.consent(materials.consent);
+  // prosodylab.consent(materials.consent);
   
   //// Use this code instead if you do not want to use the last paragraph as button
   //prosodylab.screen('consent',materials.consent,'I consent');
 
   // ---- language questionnaire ---
 
-  prosodylab.languageQuestionnaire();
+  // prosodylab.languageQuestionnaire();
   
   // ---- sound check
   
-  prosodylab.soundCheck(materials.soundCheckFile);
+  // prosodylab.soundCheck(materials.soundCheckFile);
   
 
   //  ---- build experiment  ----
@@ -123,8 +116,8 @@ var fullScreen  = 1;
   if (fullScreen) {
     timeline.push({
       type: 'fullscreen',
-      message: `<p> All set! Please click the button below
-       to enter full screen mode and start the experiment</p>`,
+      message: `<p> <b>All set!</b> <br><br> <em>Please click the button below
+       to enter full screen mode and start the experiment</em></p>`,
       fullscreen_mode: true
     });
   }
@@ -136,6 +129,7 @@ var fullScreen  = 1;
   var maxLength = 0;
   var playList = [];
   var instructions = [];
+  var instructionsFile = [];
   
   if (!materials.stimuli.session) {
     materials.stimuli.session = 1
@@ -164,8 +158,22 @@ var fullScreen  = 1;
 
     
     // load and display session instructions
-    instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
-    instructions = prosodylab.loadMD(`${pathMaterials}/${instructionsFile}`);
+    console.log(sessionStimuli);
+    
+    if (!sessionStimuli[0].instructions){// default name for instructions file
+      instructionsFile='instructions.md'
+    } else {
+      instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
+    }
+    
+    if (instructionsFile.length==1) {
+        instructions = prosodylab.loadMD(`${pathMaterials}/${instructionsFile}`);
+    } else {
+        instructions = `There has to be a unique instructions file per session. 
+           Session: ${iSession+1} has instructions: ${instructionsFile.toString()}`
+        console.error(instructionsFile);
+    }
+    
     prosodylab.screen('instructions',instructions, 'Click here to start the experiment','center');
 
     var experimentStimuli=[];
@@ -187,7 +195,6 @@ var fullScreen  = 1;
            [...new Set(sessionStimuli.map(value => value.design))]);
     }
     
-    
     // add trials for experiment, interspersing them
     for (j=0;j<maxLength;j++){
         for (k=0;k<experimentN;k++){
@@ -199,56 +206,65 @@ var fullScreen  = 1;
         }
     }
     
-  
     timeline = [...timeline, ...session];
     
   }
 
-
   // ---- debriefing ---
   
-  prosodylab.debriefing();
+  //prosodylab.debriefing();
 
   
   // ---- music questionnaire ---
   
-  musicQuestionnaire();
+  //musicQuestionnaire();
   
-  // ---- goodbye ----
   
-  prosodylab.screen('goodbye',materials.goodbye,'Click to send data','center',participantCode);
-  
-  if (fullScreen) {
-  
-  timeline.push({
-    type: 'fullscreen',
-    fullscreen_mode: false
-  });
-
-  }
-  
-  //  ---- data processing  ----
-
-
-  //Save Data
+  //save Data function that calls php script
   function saveData(name, data){
       var xhr = new XMLHttpRequest();
       xhr.open('POST', 'write_data.php');
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.send(JSON.stringify({filename: name, filedata: data}));
-      }
+  }
+
+
+  timeline.push({ 
+    type: 'call-function',
+    func: function(data){
+        saveData(`data/${dataFilename}.csv`, jsPsych.data.get().csv());
+        saveData(`data/${dataFilename}.json`, jsPsych.data.get().json());
+    }
+  });
+
+
+  
+  if (fullScreen) {
+    timeline.push({
+      type: 'fullscreen',
+      fullscreen_mode: false
+    });
+  }
+  
+  
+  // ---- goodbye ----
+  
+  prosodylab.screen('goodbye',materials.goodbye,'Click to leave experiment','center',participantCode);
+
+  
+  //  ---- data processing  ----
 
   // call the saveData function after the experiment is over
 
   jsPsych.init({
       timeline: timeline,
-      on_close: function(){
-                  saveData(`closed-${dataFilename}`, jsPsych.data.get().csv());
-                 },
+      //on_close:  function(){
+      //  saveData(`data/onclose_${dataFilename}.csv`, jsPsych.data.get().csv());
+      //  saveData(`data/onclose_${dataFilename}.json`, jsPsych.data.get().json());
+      //},
       on_finish: function(){
-                  saveData(dataFilename, jsPsych.data.get().csv());
-                  if (displayData) {jsPsych.data.displayData();}
-                 } 
+        if (displayData) {jsPsych.data.displayData();}
+      }
   })
 
   </script>
