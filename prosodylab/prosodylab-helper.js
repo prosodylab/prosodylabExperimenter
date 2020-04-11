@@ -380,7 +380,7 @@ prosodylab = {
       stimulus: '<div style="font-size:60px;">+</div>',
       choices: jsPsych.NO_KEYS,
       // xx what does this duration exactly specify? maxlength?
-      trial_duration: 1000,
+      //trial_duration: 1000,
       data: {
         component: experiment,
         trialPart: 'fixation'
@@ -443,8 +443,8 @@ prosodylab = {
   addTrial: function(session, trial) {
 
     if (trial.contextFile) {
-      //session.push(this.fixation(trial.experiment));
-      //session.push(this.playSound(`${pathMaterials}/audio/${trial.contextFile}`, trial.experiment));
+      session.push(this.fixation(trial.experiment));
+      session.push(this.playSound(`${pathMaterials}/audio/${trial.contextFile}`, trial.experiment));
     }
 
     // replace with while loop
