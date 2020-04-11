@@ -130,13 +130,25 @@ prosodylab = {
     };
     timeline.push(debriefingSurvey);
   },
+  
+    // Debriefing questions (this should   really be an html form)
+  debriefing: function() {
+    var debriefing = [];
+    debriefing.html = prosodylab.loadTxt('prosodylab/debriefing.html');
+    debriefing.type = 'survey-html-form';
+    debriefing.data = {
+        component: 'Debriefing'
+    };
+    
+    timeline.push(debriefing);
+  },
+
 
   languageQuestionnaire: function() {
 
-    var lq = prosodylab.loadTxt('prosodylab/languageQuestionnaire.html')
+    var lq = prosodylab.loadTxt('prosodylab/languageQuestionnaire.html');
     var languageQuestionnaire = {
       type: 'survey-html-form',
-      preamble: '<h2> Language Background Questionnaire</h2><br>',
       html: lq,
       data: {
         component: 'Language Questionnaire'
@@ -379,8 +391,9 @@ prosodylab = {
     var result = {
       type: "audio-keyboard-response",
       prompt: function() {
-        var html = `<style> .centered {position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);}</style>
-          <img src="prosodylab/headphones.jpg" alt="headphones" width="90">`
+        var html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
         return html;
       },
       stimulus: soundFile,
@@ -404,87 +417,235 @@ prosodylab = {
     return result;
   },
 
+  
+  questionKeyOptions: function(question){
+
+   question.choices = this.generateKeyChoices(question.data.options.length);
+   question.stimulus = [];
+   
+    if (question.data.options.length<=2){
+        seperator = '&nbsp&nbsp;'
+    } else{
+        seperator = '<br><br>'
+    }
+    for (i=0; i<question.data.options.length; i++){
+      question.stimulus = `${question.stimulus}${question.choices[i]} = ${question.data.options[i]}${seperator}`;
+    } 
+    question.stimulus = `${question.data.text} <br/> ${question.stimulus}`;
+    
+    return question
+  },
+  
+ 
   addTrial: function(session, trial) {
 
     if (trial.contextFile) {
       session.push(this.fixation(trial.experiment));
-      session.push(this.playSound(`${pathMaterials}/audio/${trial.contextFile}`, trial.experiment));
+      //session.push(this.playSound(`${pathMaterials}/audio/${trial.contextFile}`, trial.experiment));
     }
 
-    if (trial.question) {
-      // determine text for choices
-      var questionText = '';
-      var options = '';
-      var keyChoices = [];
+    // replace with while loop
+    for (questionN=1;questionN<=3;questionN++){
       
-      if (trial.questionFixedChoices){
-         var options = eval(trial.questionFixedChoices);
-         keyChoices = this.generateKeyChoices(options.length);
-         if (options.length<=2){
-           seperatorChoices = '&nbsp&nbsp;'
-           } else{
-           seperatorChoices = '<br><br>'
+    if (trial[`question${questionN}`]) { //  build question 1
+      var question = [];
+      
+      // default question type
+      question.type = "html-keyboard-response";
+      // convert question text from markdown into html:
+      question.data = {text: this.md2html(trial[`question${questionN}`])};
+      question.data.component = trial.experiment;
+      question.data.trialPart =  'question';
+      
+      // determine text for choices
+      
+      if (trial[`question${questionN}FixedOptions`]){
+          // choice between n options, using number keys
+          question.data.options = eval(trial[`question${questionN}FixedOptions`]);
+          console.log(question.data.options);
+          question = this.questionKeyOptions(question);
+          
+      } else if (trial[`question${questionN}Options`]){
+          // same as fixed choices, but order randomized
+          question.data.options = jsPsych.randomization.shuffle( eval(trial[`question${questionN}Options`]));
+          question = this.questionKeyOptions(question);
+          
+      } else if (trial[`question${questionN}ConditionalFixedOptions`]){
+          // question options dependent on prior question, fixed option  order
+            
+          question.data.conditionalOptions = eval(trial[`question${questionN}ConditionalFixedOptions`]);          
+          
+          question.choices  = function(){
+            var  choices = [];
+            // get data from last trial
+            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            // cycle through array of conditonal options
+            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2+1]) {
+                choices = question.data.conditionalOptions[(choice+1)*2];
+                choices = this.generateKeyChoices(choices.length);
+                return choices
+              }
+            
+            }
+           }     
+                
+          question.stimulus  = function(){
+            var  stimulus = [];
+            // get data from last trial
+            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            // cycle through array of conditonal options
+            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+              
+              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
+                var options = question.data.conditionalOptions[choice*2+1];
+                
+                if (options.length<=2){
+                   seperator = '&nbsp&nbsp;'
+                } else{
+                   seperator = '<br><br>'
+                }
+                
+                for (i=0; i<options.length; i++){
+                   stimulus = `${stimulus}${i+1} = ${options[i]}${seperator}`;
+                }
+                
+                stimulus = `${question.data.text} <br/> ${stimulus}`;
+                
+                return stimulus
+              }
+            }
            }
-         for (i=0; i<options.length; i++){
-           questionText = `${questionText}${i+1} = ${options[i]}${seperatorChoices}`;
-          } 
-          questionTest = `${this.md2html(trial.question)} <br/><br/> ${questionText}`
-      } else if (trial.questionChoices){
-         var options = jsPsych.randomization.shuffle(eval(trial.questionChoices));
-         keyChoices = this.generateKeyChoices(options.length);
-         
-         if (options.length<=2){
-           seperatorChoices = '&nbsp;&nbsp;&nbsp;&nbsp;'
-           } else{
-           seperatorChoices = '<br><br>'
+           
+          question.data.options  = function(){
+            // get data from last trial
+            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            // cycle through array of conditonal options
+            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+              
+              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
+                var options = question.data.conditionalOptions[choice*2+1];
+                return options
+              }
+            }
+          }
+      } else if (trial[`question${questionN}ConditionalOptions`]){
+          // question options dependent on prior question, random option  order
+          // xx 'question.data.chosen'  will not  be computed  for  this yet
+            
+          question.data.conditionalOptions = eval(trial[`question${questionN}ConditionalOptions`]);          
+          
+          question.choices  = function(){
+            var  choices = [];
+            // get data from last trial
+            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            // cycle through array of conditonal options
+            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2+1]) {
+                choices = question.data.conditionalOptions[(choice+1)*2];
+                choices = this.generateKeyChoices(choices.length);
+                return choices
+              }
+            
+            }
+           }     
+                
+          question.stimulus  = function(){
+            var  stimulus = [];
+            // get data from last trial
+            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            // cycle through array of conditonal options
+            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+              
+              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
+                var options = question.data.conditionalOptions[choice*2+1];
+                options = jsPsych.randomization.shuffle(options);
+                
+                if (options.length<=2){
+                   seperator = '&nbsp&nbsp;'
+                } else{
+                   seperator = '<br><br>'
+                }
+                
+                for (i=0; i<options.length; i++){
+                   stimulus = `${stimulus}${i+1} = ${options[i]}${seperator}`;
+                }
+                
+                stimulus = `${question.data.text} <br/> ${stimulus}`;
+                
+                return stimulus
+              }
+            }
            }
-         for (i=0; i<options.length; i++){
-           questionText = `${questionText}${i+1} = ${options[i]}${seperatorChoices}`;
-         } 
-         questionTest = `${this.md2html(trial.question)} <br/><br/> ${questionText}`
-      } else {// Likert scale as default
-         var endPoints=[];
-         if (!trial.questionLikert){ // use naturalness scale  as default
-             endPoints = ['Completely unnatural','Completely natural']
+           
+           
+      } else if (trial[`question${questionN}ConditionalOptionsTest`]){
+          // question dependent on prior question
+          console.log('here2');
+            
+          question = function(){
+            var fQuestion = {
+              type: "html-keyboard-response",
+              choices: ['1','2'],
+              stimulus: 'test'
+            }
+            return fQuestion 
+        }
+             
+      } else if (trial[`question${questionN}LikertSlider`]){
+      
+          question.type = 'html-slider-response';
+          question.labels = trial[`question${questionN}LikertSlider`];
+          question.prompt = question.data.text;
+          question.button_label = 'Continue';
+          require_movement = true;
+        
+      } else if (trial[`question${questionN}Likert`]){
+          if (!trial[`question${questionN}LikertScale`]){
+             question.choices=this.generateKeyChoices(6)
          } else {
-             endPoints = eval(trial.questionLikert);
+             question.choices = eval(trial[`question${questionN}LikertScale`])
+         }
+          question.type = 'survey-likert',
+          question.labels = question.choices,
+          question.prompt = question.data.text
+         
+      } else {// Likert scale with number key response as default
+         // use naturalness scale  as default endpoint labels
+         if (!trial[`question${questionN}questionLikertKey`]){ 
+             question.endPoints = ['Completely unnatural','Completely natural']
+         } else { // or else use endpoint labels given in experiment spreadsheet
+             question.endPoints = eval(trial[`question${questionN}questionLikertKey`])
          }
          // default likert scale with even number of choices in order
          // to avoid 3-partite partition into 'low','neutral/don't  know', 'high'
          // I use 6 as the default number of options
-         if (!trial.likertScale){
-           keyChoices=this.generateKeyChoices(6);
+         if (!trial[`question${questionN}LikertScale`]){
+             question.choices=this.generateKeyChoices(6)
          } else {
-           keyChoices = eval(endPoints,trial.likertScale)
+             question.choices = eval(trial[`question${questionN}LikertScale`])
          }
-         options = keyChoices;
-         questionText = `${this.md2html(trial.question)} <br/><br/>  
-            <em>Rate on a scale between: <br> 
-            ${keyChoices[0]} = ${endPoints[0]} and 
-            ${keyChoices[keyChoices.length-1]} = ${endPoints[1]}</em>`;
-       }
-        
-       var question = {
-         type: "html-keyboard-response",
-         stimulus: questionText,
-         choices: keyChoices,
-         data: {
-            component: trial.experiment,
-            trialPart: 'question',
-            options: options,
-          },
-          on_finish: function(data) {
-            var keyPressed = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press);
-            data.chosenOption = options[parseInt(keyPressed)-1];
-         }
-        }
-    
-         session.push(question);
          
-    }
+         question.data.options = question.choices;
+         question.stimulus = `${question.data.text} <br/><br/>  
+            <em>Rate on a scale between: <br><br> 
+            ${question.choices[0]} = <b>${question.endPoints[0]}</b> and 
+            ${question.choices[question.choices.length-1]} = <b>${question.endPoints[1]}</b></em>`;
+       }
 
-    if (trial.question2) {
-      console.log('question2');
+       if (question.type=='html-keyboard-response'&&(!trial[`question${questionN}ConditionalOptions`])) {
+         question.on_finish = function(data) {
+           var keyPressed = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press);
+           data.chosenOption = data.options[parseInt(keyPressed)-1];
+         }
+       }
+
+       session.push(question);
+         
+    }}
+
+/*    if (trial.question2) {
+
       var question = {
         type: "html-keyboard-response",
         // stimulus: this.md2html(trial.question2),
@@ -504,7 +665,7 @@ prosodylab = {
         }
       }
       session.push(question);
-    }
+    }*/
 
     return session;
 

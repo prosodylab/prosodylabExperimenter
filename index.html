@@ -37,8 +37,9 @@
     <script src="jspsych-6.1.0/plugins/jspsych-audio-button-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-audio-keyboard-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-instructions.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-survey-text"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-survey-likert"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
+    <script src="jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
     <script src="jspsych-6.1.0/plugins/jspsych-survey-html-form"></script>
     <!--  <script src="jsPsych.randomization"></script> -->
 
@@ -58,7 +59,7 @@
 
 // display data at the end for testing
 var displayData = 1;
-var fullScreen  = 1;
+var fullScreen  = 0;
 
 // ----- experiment specific information ----
 
@@ -104,7 +105,7 @@ var fullScreen  = 1;
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  prosodylab.consent(materials.consent);
+  //prosodylab.consent(materials.consent);
   
   //// Use this code instead if you do not want to use the last paragraph as button
   //prosodylab.screen('consent',materials.consent,'I consent');
