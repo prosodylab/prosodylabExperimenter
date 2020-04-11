@@ -1,4 +1,0 @@
-AuthUserFile /home/linguistics/chael/.htpasswd
-AuthName "Bibliography"
-AuthType Basic
-Require valid-user
