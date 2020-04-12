@@ -59,7 +59,7 @@ var fullScreen  = 0;
   var experiment = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
   
   experiment = {...experiment, 
-    stimuliFile: `${experiment.path}/rhymeShort.txt`,
+    stimuliFile: `${experiment.path}/rhymeShortest.txt`,
     soundCheckFile: `${experiment.path}/audio/da_equal.mp3`,
     helloFile: `${experiment.path}/hello.md`,
     consentFile: `${experiment.path}/consent.md`,
@@ -85,8 +85,6 @@ var fullScreen  = 0;
   experiment.goodbye = prosodylab.loadMD(experiment.goodbyeFile);
 
 
-  console.log('experiment.stimuli',experiment.stimuli);
-  
   //  ---- set-up timeline for experiment ----
 
   var timeline = [];
@@ -239,7 +237,7 @@ var fullScreen  = 0;
 
   // ---- music questionnaire ---
   
-  prosodylab.musicQuestionnaire('MusicianShip',participantCode);
+  // prosodylab.musicQuestionnaire('MusicianShip',participantCode);
   
   
   // ----  save data ----
