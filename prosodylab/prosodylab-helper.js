@@ -79,14 +79,27 @@ prosodylab = {
     return txt.data;
   },
   
-  //save Data function that calls php script
-  // from https://www.jspsych.org/overview/data/
-  saveData: function(fileName, data){
-   console.log('fileName',fileName);
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'prosodylab/write_data.php');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({filename: fileName, filedata: data}));
+
+  saveData: function(fileName){
+
+    var saveData = {
+      type: 'call-function',
+      async: true,
+      func: function(done){
+          var data = jsPsych.data.get().json();
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var response_data = xhr.responseText;
+                done(response_data);
+            }
+          }
+          xhr.open('POST', 'prosodylab/write_data.php');
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.send(JSON.stringify({filename: fileName, filedata: data}));
+       }
+    };
+    return saveData;
   },
   
   consent: function(consentText,participantCode) {

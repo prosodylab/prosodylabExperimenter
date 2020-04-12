@@ -242,12 +242,15 @@ var fullScreen  = 0;
   
   // ----  save data ----
   
-  timeline.push({ 
+/*  timeline.push({ 
     type: 'call-function',
     func: function(data){
         prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json`, jsPsych.data.get().json());
     }
   });
+  */
+  
+    timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json`));
 
    // exit full screen
   
