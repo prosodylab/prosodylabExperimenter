@@ -1,19 +1,13 @@
 
-### Rhyme  practice
+### Evaluating naturalness
 
 
-You will be to listening to sequences of repetitions of words, and then answer some questions about them. 
+This study consists of two parts. 
 
-For example, you might her a stream of words that might sound either like repetitions of 'baga' or 'gaba'.
+In this first part you will be evaluating how natural certain utterances sound, according to your intuition as a native speaker of English.
 
-Your task is first to answer which words you heard (e.g., baga vs. gaba).
+On each trial, you'll first hear a sentence, and are then asked how natural it sounded to you. 
 
-You are then asked which syllable in the word was **stressed**. 
-
-Word stress will be marked  by **CAPital** **LEtters** on the stressed syllable.
-
-For example, in the word 'CARgo', the first syllable is stressed: (CARgo not carGO).
-
-But in the word 'atTEMPT', the second syllable is stressed (attEMPT, not ATTempt).
+Let's look at two examples, before proceeding to the experiment.
 
 

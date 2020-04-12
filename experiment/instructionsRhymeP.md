@@ -1,19 +1,10 @@
 
-### Rhyme  practice
+### Evaluating rhymes
 
 
-You will be to listening to sequences of repetitions of words, and then answer some questions about them. 
+In the second part of the study you will be evaluating how good or bad you find some rhymes, according  to your own intuitions about rhyming.
 
-For example, you might her a stream of words that might sound either like repetitions of 'baga' or 'gaba'.
+On each trial, you'll first hear a sence with two parts that rhyme (a 'couplet'), and are then asked how good the rhyme sounded to you. 
 
-Your task is first to answer which words you heard (e.g., baga vs. gaba).
-
-You are then asked which syllable in the word was **stressed**. 
-
-Word stress will be marked  by **CAPital** **LEtters** on the stressed syllable.
-
-For example, in the word 'CARgo', the first syllable is stressed: (CARgo not carGO).
-
-But in the word 'atTEMPT', the second syllable is stressed (attEMPT, not ATTempt).
-
+Let's look again at two examples, before proceeding to the experiment.
 

@@ -50,8 +50,9 @@
 // ---- switches ----
 
 // display data at the end for testing
-var displayData = 1;
-var fullScreen  = 0;
+var displayData = true;
+var fullScreen  = false;
+var showProgressBar = true;
 
 // ----- experiment specific information ----
 
@@ -267,8 +268,16 @@ var fullScreen  = 0;
       //on_close:  function(){
       //  prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json, jsPsych.data.get().json());
       //},
+      show_progress_bar: showProgressBar,
       on_finish: function(){
-        if (displayData) {jsPsych.data.displayData();}
+        if (displayData) {
+           jsPsych.data.displayData();
+           
+           var experimentData = jsPsych.data.get();
+           console.log('experimentData.csv',experimentData.csv());
+           
+           
+           }
       }
   })
 
