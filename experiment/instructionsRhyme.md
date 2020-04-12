@@ -2,8 +2,6 @@
 ### Rhyme experiment
 
 
-
-
 Instructions here...
 
 

@@ -3,7 +3,7 @@
 prosodylab = {
 
   // render screen with button to press
-  screen: function(name, text, buttonText, align, code) {
+  screen: function(name, text, buttonText, participantCode, align, code) {
     if (!align) {
       var align = 'left';
     }
@@ -28,6 +28,7 @@ prosodylab = {
       stimulus: text,
       data: {
         component: name,
+        participant: participantCode,
         buttonResponseText: buttonText
       }
     };
@@ -78,7 +79,7 @@ prosodylab = {
     return txt.data;
   },
   
-  consent: function(consentText) {
+  consent: function(consentText,participantCode) {
     var buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
     consentText = consentText.substring(0,consentText.lastIndexOf('<p>'))
     consentText = `${consentText}<br><br>`
@@ -100,7 +101,8 @@ prosodylab = {
       is_html: true,
       stimulus: consentText,
       data: {
-        component: 'consent',
+        component: 'Consent',
+        participant: participantCode,
         buttonResponseText: buttonText
       }
     };
@@ -108,53 +110,29 @@ prosodylab = {
   
   },
 
-  // Debriefing questions (this should   really be an html form)
-  debriefing: function() {
-    var debriefingSurvey = {
-      type: 'survey-text',
-      questions: [{
-          prompt: "What do you think the experiment was about? (required)",
-          rows: 10,
-          columns: 80,
-          name: 'guessExperimentGoal',
-          required: 1
-        },
-        {
-          prompt: "Which problems/typos did you notice (if any)? Or any other feedback?",
-          rows: 10,
-          columns: 80,
-          name: 'feedback'
-        }
-        //{prompt: "How much do you know about the field of linguistics?", name: 'lingustics', labels: scaleHowOften, required: 1}
-      ],
-      data: {
-        component: 'Debriefing'
-      }
-    };
-    timeline.push(debriefingSurvey);
-  },
-  
-    // Debriefing questions (this should   really be an html form)
-  debriefing: function() {
+  // Debriefing questions
+  debriefing: function(participantCode) {
     var debriefing = [];
     debriefing.html = prosodylab.loadTxt('prosodylab/debriefing.html');
     debriefing.type = 'survey-html-form';
     debriefing.data = {
-        component: 'Debriefing'
+        component: 'Debriefing',
+        participant: participantCode
     };
     
     timeline.push(debriefing);
   },
 
 
-  languageQuestionnaire: function() {
+  languageQuestionnaire: function(participantCode) {
 
     var lq = prosodylab.loadTxt('prosodylab/languageQuestionnaire.html');
     var languageQuestionnaire = {
       type: 'survey-html-form',
       html: lq,
       data: {
-        component: 'Language Questionnaire'
+        component: 'Language Questionnaire',
+        participant: participantCode
       },
       on_load: function() {
         gds.init()
@@ -164,7 +142,62 @@ prosodylab = {
   },
 
 
-  soundCheck: function(soundFile) {
+  musicQuestionnaire: function (modules,participantCode) {
+  /*Chin, T.-C., Coutinho, E., Scherer, K. R., and Rickard, N. S. (2018). Musebaq: A modular tool for music research to assess musicianship, musical capacity, music preferences, and motivations for music use. Music Perception: An Interdisciplinary Journal, 35(3):376–399.
+
+So far only implemented: Module 1, musicianship
+*/
+
+                 if(!modules) { var modules = 'MusicianShip';}
+                 
+                 var scaleYears = [ 'None',
+                                    '1 year',
+                                    '2 years',
+                                    '3 years',
+                                    '4 years',
+                                    '5 years',
+                                    '6 years', 
+                                    '7 years',
+                                    '8 years',
+                                    'more than 8 years'
+                                    ];
+                                    
+                 var scaleHowMuch = ['Nothing',
+                                     'A little',
+                                     'A fair amount',
+                                     'A moderate amount',
+                                     'A great deal'
+                                     ]; 
+                                     
+                 var scaleHowOften = ['Never',
+                                     'Rarely',
+                                     'Sometimes',
+                                     'Often',
+                                     'All the time'
+                                     ]; 
+                                     
+                 var moduleMusicianship = {
+                         type: 'survey-likert',
+                         questions: [
+                           {prompt: "How many years of formal music training (theory) have you had?", name: 'M1Q1', labels: scaleYears, required: 1},
+                           {prompt: "How much do you know about music structure and theory?", name: 'M1Q2', labels: scaleHowMuch, required: 1},
+                           {prompt: "How many years of formal music training (practice) have you had?", name: 'M1Q3', labels: scaleYears, required: 1},
+                           {prompt: "How often do you engage in professional music making (e.g., singing, playing an instrument, composing)?", name: 'M1Q4', labels: scaleHowOften, required: 1},
+                           {prompt: "How often did or do you practice or rehearse with an instrument or singing?", name: 'M1Q5', labels: scaleHowOften, required: 1},
+                           {prompt: "How often do you engage in music making as a hobby or as an amateur?", name: 'M1Q6', labels: scaleHowOften, required: 1}
+                         ],
+                         randomize_question_order: false,
+                         data: {
+                           component: 'Music Questionnaire',
+                           participant: participantCode
+                         }
+                 };
+                 timeline.push(moduleMusicianship);
+
+},
+
+
+  soundCheck: function(soundFile,participantCode) {
 
     var buttonText = ['Play Sound'];
     var soundCheckObject = {
@@ -179,8 +212,9 @@ prosodylab = {
         }, 1000)
       },
       data: {
-        component: 'soundCheckInstructions',
-        choices: buttonText
+        component: 'Sound check instructions',
+        choices: buttonText,
+        participant: participantCode
       },
     }
     timeline.push(soundCheckObject);
@@ -203,8 +237,9 @@ prosodylab = {
         }, 1000)
       },
       data: {
-        component: 'soundCheck',
-        choices: [choiceOne, choiceTwo]
+        component: 'Sound check',
+        choices: [choiceOne, choiceTwo],
+        participant: participantCode
       },
       button_html: '<button class="jspsych-btn">%choice% </button>'
     };
@@ -374,45 +409,20 @@ prosodylab = {
     return playList;
   }, //  end of this.generatePlaylist
 
-  fixation: function(experiment) {
+  fixation: function(trialInfo) {
     var result = {
       type: 'html-keyboard-response',
       stimulus: '<div style="font-size:60px;">+</div>',
       choices: jsPsych.NO_KEYS,
-      // xx what does this duration exactly specify? maxlength?
-      //trial_duration: 1000,
-      data: {
-        component: experiment,
-        trialPart: 'fixation'
-      }
+      trial_duration: 1000,
+      data: trialInfo,
     };
-    return result;
-  },
-
-  playSound: function(soundFile, experiment) {
-
-    var result = {
-      type: "audio-keyboard-response",
-      prompt: function() {
-        var html = `<style> .centered {position: fixed; top: 50%; 
-          left: 50%; transform: translate(-50%, -50%);}</style>
-          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
-        return html;
-      },
-      stimulus: soundFile,
-      choices: jsPsych.NO_KEYS,
-      trial_ends_after_audio: true,
-      data: {
-        component: experiment,
-        trialPart: soundFile
-      }
-    }
+    result.data.trialPart = 'fixation';
     return result;
   },
 
 
   generateKeyChoices: function(nChoices){
-  
     var result = [];
     for (i=1;i<=nChoices;i++){
         result.push(`${i}`)
@@ -440,12 +450,28 @@ prosodylab = {
   },
   
  
-  addTrial: function(session, trial) {
+  addTrial: function(session, trial,trialInfo) {
 
     if (trial.contextFile) {
-      session.push(this.fixation(trial.experiment));
-      session.push(this.playSound(`${pathMaterials}/audio/${trial.contextFile}`, trial.experiment));
+      session.push(this.fixation(trialInfo));
+     
+      var playSound =  {
+        type: 'audio-keyboard-response',
+        prompt: function() {
+        var html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
+          return html;
+        },
+        stimulus: `${pathMaterials}/audio/${trial.contextFile}`,
+        choices: jsPsych.NO_KEYS,
+        trial_ends_after_audio: true,
+        data: trialInfo
+      }
     }
+      
+    session.push(playSound);
+
 
     // replace with while loop
     for (questionN=1;questionN<=3;questionN++){
@@ -465,8 +491,8 @@ prosodylab = {
       question.type = "html-keyboard-response";
       // convert question text from markdown into html:
       question.data = {text: this.md2html(trial[`question${questionN}`])};
-      question.data.component = trial.experiment;
       question.data.trialPart =  'question';
+      question.data = {...question.data,...trialInfo};
       
       
       if (qType=='FixedButtonOptions'){

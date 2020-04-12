@@ -38,7 +38,6 @@
 
     <!-- prosodylab -->
     <script src="prosodylab/prosodylab-helper.js"></script>
-    <script src="prosodylab/musicQuestionnaire.js"></script>
     
     <!-- css -->
     <link href="jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
@@ -91,24 +90,24 @@ var fullScreen  = 0;
 
   //  ---- pre experiment  ----
   
-  // prosodylab.screen('hello',materials.hello,'Click here to continue');
+   prosodylab.screen('hello',materials.hello,'Click here to continue',participantCode);
   
   //  ---- consent page  ----
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  // prosodylab.consent(materials.consent);
+  prosodylab.consent(materials.consent, participantCode);
   
   //// Use this code instead if you do not want to use the last paragraph as button
-  //prosodylab.screen('consent',materials.consent,'I consent');
+  //prosodylab.screen('Consent',materials.consent,'I consent',${participantCode},'justify');
 
   // ---- language questionnaire ---
 
-  // prosodylab.languageQuestionnaire();
+  prosodylab.languageQuestionnaire(participantCode);
   
   // ---- sound check
   
-  // prosodylab.soundCheck(materials.soundCheckFile);
+  prosodylab.soundCheck(materials.soundCheckFile,participantCode);
   
 
   //  ---- build experiment  ----
@@ -117,8 +116,12 @@ var fullScreen  = 0;
     timeline.push({
       type: 'fullscreen',
       message: `<p> <b>All set!</b> <br><br> <em>Please click the button below
-       to enter full screen mode and start the experiment</em></p>`,
-      fullscreen_mode: true
+       to enter full screen mode and start with the experiment</em></p>`,
+      fullscreen_mode: true,
+      data: {
+       component: 'full screen',
+       participant: participantCode
+      }
     });
   }
   
@@ -136,7 +139,8 @@ var fullScreen  = 0;
   }
   
   sessions = Math.max(...materials.stimuli.map(value => value.session));
-  
+  trialInfo = [];
+
   // cycle through sessions and add trials
   for (iSession=0; iSession<sessions;iSession++) {
   
@@ -158,7 +162,7 @@ var fullScreen  = 0;
 
     
     // load and display session instructions
-    console.log(sessionStimuli);
+    console.log('SessionStimuli',sessionStimuli);
     
     if (!sessionStimuli[0].instructions){// default name for instructions file
       instructionsFile='instructions.md'
@@ -174,7 +178,7 @@ var fullScreen  = 0;
         console.error(instructionsFile);
     }
     
-    prosodylab.screen('instructions',instructions, 'Click here to start the experiment','center');
+    prosodylab.screen('Instructions',instructions, 'Click here to start the experiment',participantCode,'center');
 
     var experimentStimuli=[];
         
@@ -196,12 +200,24 @@ var fullScreen  = 0;
     }
     
     // add trials for experiment, interspersing them
+    sessionTrial = 0;
     for (j=0;j<maxLength;j++){
         for (k=0;k<experimentN;k++){
           // if end of experiment has not been reached, add trial
                     
           if ((j+1)<=playList[k].length) {
-            session = prosodylab.addTrial(session,playList[k][j]);
+            sessionTrial++;
+            trialInfo = {
+              participant: participantCode,
+              component: 'Experiment',
+              session: iSession+1,
+              experiment: sessionExperiments[k],
+              item: playList[k][j].item,
+              condition: playList[k][j].condition,
+              sessionTrial: sessionTrial,
+              experimentTrial: j+1,
+            };
+            session = prosodylab.addTrial(session,playList[k][j],trialInfo);
           }
         }
     }
@@ -212,12 +228,12 @@ var fullScreen  = 0;
 
   // ---- debriefing ---
   
-  //prosodylab.debriefing();
+  prosodylab.debriefing(participantCode);
 
   
   // ---- music questionnaire ---
   
-  //musicQuestionnaire();
+  prosodylab.musicQuestionnaire('MusicianShip',participantCode);
   
   
   //save Data function that calls php script
@@ -232,7 +248,6 @@ var fullScreen  = 0;
   timeline.push({ 
     type: 'call-function',
     func: function(data){
-        saveData(`data/${dataFilename}.csv`, jsPsych.data.get().csv());
         saveData(`data/${dataFilename}.json`, jsPsych.data.get().json());
     }
   });
@@ -249,7 +264,7 @@ var fullScreen  = 0;
   
   // ---- goodbye ----
   
-  prosodylab.screen('goodbye',materials.goodbye,'Click to leave experiment','center',participantCode);
+  prosodylab.screen('Goodbye',materials.goodbye,'Click to leave experiment',participantCode,'center');
 
   
   //  ---- data processing  ----
