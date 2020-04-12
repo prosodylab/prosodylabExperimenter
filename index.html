@@ -242,14 +242,6 @@ var fullScreen  = 0;
   
   // ----  save data ----
   
-/*  timeline.push({ 
-    type: 'call-function',
-    func: function(data){
-        prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json`, jsPsych.data.get().json());
-    }
-  });
-  */
-  
     timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json`));
 
    // exit full screen
@@ -263,7 +255,7 @@ var fullScreen  = 0;
   
   // ---- goodbye screen (with completion code if applicable )----
   
-  //prosodylab.screen('Goodbye',experiment.goodbye,'Click to leave experiment',participantCode,'center','showCode');
+  prosodylab.screen('Goodbye',experiment.goodbye,`I've noted down the participant code and want to  leave the experiment now.`,participantCode,'center','showCode');
 
   
   //  ---- data processing  ----

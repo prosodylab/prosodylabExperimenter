@@ -1,6 +1,7 @@
 
 **Thanks for participating!**
 
-Please take note of the completion code below on mechanical turk.    
+*Your data has been saved.*    
+*Please take note of the completion code below, and enter on Mechanical Turk.*    
 
 
