@@ -243,7 +243,8 @@ var showProgressBar = true;
   
   // ----  save data ----
   
-    timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json`));
+  // choose 'csv' as second argument if you want to save  as .csv instead  of json
+  timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}`,'json'));
 
    // exit full screen
   
@@ -265,15 +266,19 @@ var showProgressBar = true;
 
   jsPsych.init({
       timeline: timeline,
+      //// uncomment to save data on close (but closing the tab could mean wihdrawn consent!)
       //on_close:  function(){
       //  prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json, jsPsych.data.get().json());
+      //  prosodylab.saveData(`${experiment.path}/data/${dataFilename}.csv, jsPsych.data.get().csv());
       //},
       show_progress_bar: showProgressBar,
       on_finish: function(){
         if (displayData) {
+           // output full data to tab
            jsPsych.data.displayData();
            
-           var experimentData = jsPsych.data.get();
+           // output results for question1 to console
+           var experimentData = jsPsych.data.get().filter({ trialPart: "question1"});
            console.log('experimentData.csv',experimentData.csv());
            
            

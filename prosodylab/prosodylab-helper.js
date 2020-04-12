@@ -80,13 +80,37 @@ prosodylab = {
   },
   
 
-  saveData: function(fileName){
-
-    var saveData = {
-      type: 'call-function',
-      async: true,
-      func: function(done){
-          var data = jsPsych.data.get().json();
+  saveData: function(fileName,format){
+    // save  as json by default
+    if (!format){ format = 'json';}
+    // add extension
+    fileName = `${fileName}.${format}`
+    // create saveData object
+    var saveData = [];
+    if (format == 'json') {
+        saveData = {
+          type: 'call-function',
+          async: true,
+          func: function(done){
+            var data = jsPsych.data.get().json();
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+              if (this.readyState == 4 && this.status == 200) {
+                  var response_data = xhr.responseText;
+                  done(response_data);
+              }
+            }
+            xhr.open('POST', 'prosodylab/write_data.php');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({filename: fileName, filedata: data}));
+          }
+        }
+      } else {
+        saveData = {
+          type: 'call-function',
+          async: true,
+          func: function(done){
+          var data = jsPsych.data.get().csv();
           var xhr = new XMLHttpRequest();
           xhr.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -97,8 +121,9 @@ prosodylab = {
           xhr.open('POST', 'prosodylab/write_data.php');
           xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.send(JSON.stringify({filename: fileName, filedata: data}));
-       }
-    };
+         }
+        }
+      }
     return saveData;
   },
   
@@ -131,6 +156,8 @@ prosodylab = {
     timeline.push(screenObject);
   
   },
+  
+  
 
   // Debriefing questions
   debriefing: function(participantCode) {
@@ -437,9 +464,8 @@ So far only implemented: Module 1, musicianship
       stimulus: '<div style="font-size:60px;">+</div>',
       choices: jsPsych.NO_KEYS,
       trial_duration: 1000,
-      data: trialInfo,
+      data: {...trialInfo, trialPartL:'Fixation' } 
     };
-    result.data.trialPart = 'fixation';
     return result;
   },
 
@@ -488,7 +514,8 @@ So far only implemented: Module 1, musicianship
         stimulus: `${trial.path}/audio/${trial.contextFile}`,
         choices: jsPsych.NO_KEYS,
         trial_ends_after_audio: true,
-        data: trialInfo
+        data: trialInfo,
+        trialPart: 'Listen to sound'
       }
     }
       
@@ -513,7 +540,7 @@ So far only implemented: Module 1, musicianship
       question.type = "html-keyboard-response";
       // convert question text from markdown into html:
       question.data = {text: this.md2html(trial[`question${questionN}`])};
-      question.data.trialPart =  'question';
+      question.data.trialPart =  `question${questionN}`;
       question.data = {...question.data,...trialInfo};
       
       
