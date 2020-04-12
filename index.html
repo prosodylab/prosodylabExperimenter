@@ -55,15 +55,17 @@ var fullScreen  = 0;
 
 // ----- experiment specific information ----
 
-  var pathMaterials = 'experiment'; // needs to have audio/img if applicable
 
-  var materials = {
-        stimuliFile: `${pathMaterials}/rhymeShortest.txt`,
-        soundCheckFile: `${pathMaterials}/audio/da_equal.mp3`,
-        helloFile: `${pathMaterials}/hello.md`,
-        consentFile: `${pathMaterials}/consent.md`,
-        goodbyeFile: `${pathMaterials}/goodbye.md`
-        };
+  var experiment = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
+  
+  experiment = {...experiment, 
+    stimuliFile: `${experiment.path}/rhymeShort.txt`,
+    soundCheckFile: `${experiment.path}/audio/da_equal.mp3`,
+    helloFile: `${experiment.path}/hello.md`,
+    consentFile: `${experiment.path}/consent.md`,
+    goodbyeFile: `${experiment.path}/goodbye.md`
+  };
+
 
   // unique particpiant code (used also as completion code for mturk)
   var participantCode = jsPsych.randomization.randomID(6);
@@ -71,45 +73,47 @@ var fullScreen  = 0;
   var dataFilename = `data_${participantCode}`;
 
 
-  //  ----- load files ----
+  //  ----- load experiment files ----
 
-  // load experiment file
-  materials.stimuli = prosodylab.loadCSV(materials.stimuliFile);
-  // loadwelcome txt
-  materials.hello=prosodylab.loadMD(materials.helloFile);
-  // load  consent txt
-  materials.consent=prosodylab.loadMD(materials.consentFile);
+  // load spreadsheet with all experiments
+  experiment.stimuli = prosodylab.loadCSV(experiment.stimuliFile);
+  // load welcome txt
+  experiment.hello=prosodylab.loadMD(experiment.helloFile);
+  // load consent text
+  experiment.consent=prosodylab.loadMD(experiment.consentFile);
   // load goodbye text
-  materials.goodbye = prosodylab.loadMD(materials.goodbyeFile);
+  experiment.goodbye = prosodylab.loadMD(experiment.goodbyeFile);
 
-  //  ---- set-up  ----
+
+  console.log('experiment.stimuli',experiment.stimuli);
+  
+  //  ---- set-up timeline for experiment ----
 
   var timeline = [];
   var timeline_variables = [];
 
-
-  //  ---- pre experiment  ----
+  //  ---- pre experiment ----
   
-   prosodylab.screen('hello',materials.hello,'Click here to continue',participantCode);
+   prosodylab.screen('hello',experiment.hello,'Click here to continue',participantCode);
   
   //  ---- consent page  ----
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  prosodylab.consent(materials.consent, participantCode);
+  prosodylab.consent(experiment.consent, participantCode);
   
   //// Use this code instead if you do not want to use the last paragraph as button
-  //prosodylab.screen('Consent',materials.consent,'I consent',${participantCode},'justify');
+  //prosodylab.screen('Consent',experiment.consent,'I consent',${participantCode},'justify');
 
   // ---- language questionnaire ---
 
   prosodylab.languageQuestionnaire(participantCode);
   
-  // ---- sound check
+  // ---- sound check (if audio is involved)
   
-  prosodylab.soundCheck(materials.soundCheckFile,participantCode);
+  prosodylab.soundCheck(experiment.soundCheckFile,participantCode);
   
-
+  
   //  ---- build experiment  ----
   
   if (fullScreen) {
@@ -133,19 +137,18 @@ var fullScreen  = 0;
   var playList = [];
   var instructions = [];
   var instructionsFile = [];
+  var trial = [];
   
-  if (!materials.stimuli.session) {
-    materials.stimuli.session = 1
+  if (!experiment.stimuli.session) {
+    experiment.stimuli.session = 1
   }
   
-  sessions = Math.max(...materials.stimuli.map(value => value.session));
+  sessions = Math.max(...experiment.stimuli.map(value => value.session));
   trialInfo = [];
 
   // cycle through sessions and add trials
   for (iSession=0; iSession<sessions;iSession++) {
-  
-    console.log('Session:',iSession+1,'of',sessions);
-  
+    
     // reset variables for session
     session = [];
     experimentN = [];
@@ -156,14 +159,12 @@ var fullScreen  = 0;
     instructions = [];
     
     // Subset of stimuli for this session
-    sessionStimuli = materials.stimuli.filter(obj => obj.session == (iSession+1));
+    sessionStimuli = experiment.stimuli.filter(obj => obj.session == (iSession+1));
     sessionExperiments = [...new Set(sessionStimuli.map(value => value.experiment))];
     experimentN = sessionExperiments.length;
 
     
-    // load and display session instructions
-    console.log('SessionStimuli',sessionStimuli);
-    
+    // load and display session instructions    
     if (!sessionStimuli[0].instructions){// default name for instructions file
       instructionsFile='instructions.md'
     } else {
@@ -171,7 +172,7 @@ var fullScreen  = 0;
     }
     
     if (instructionsFile.length==1) {
-        instructions = prosodylab.loadMD(`${pathMaterials}/${instructionsFile}`);
+        instructions = prosodylab.loadMD(`${experiment.path}/${instructionsFile}`);
     } else {
         instructions = `There has to be a unique instructions file per session. 
            Session: ${iSession+1} has instructions: ${instructionsFile.toString()}`
@@ -196,7 +197,7 @@ var fullScreen  = 0;
        // show information about experiment in console:
        console.log('experiment:',sessionExperiments[j],
            'length: ',playList[j].length,'design: ',
-           [...new Set(sessionStimuli.map(value => value.design))]);
+           [...new Set(playList[j].map(value => value.design))],'playList',playList[j]);
     }
     
     // add trials for experiment, interspersing them
@@ -217,42 +218,40 @@ var fullScreen  = 0;
               sessionTrial: sessionTrial,
               experimentTrial: j+1,
             };
+            
+            trial = playList[k][j];
+            trial.path = experiment.path;
             session = prosodylab.addTrial(session,playList[k][j],trialInfo);
           }
         }
     }
     
+    console.log('Session',iSession+1,'of',sessions,': ',sessionTrial,'trials');
     timeline = [...timeline, ...session];
     
   }
 
+  // Post Experiment 
+  
   // ---- debriefing ---
   
   prosodylab.debriefing(participantCode);
 
-  
   // ---- music questionnaire ---
   
   prosodylab.musicQuestionnaire('MusicianShip',participantCode);
   
   
-  //save Data function that calls php script
-  function saveData(name, data){
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'write_data.php');
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.send(JSON.stringify({filename: name, filedata: data}));
-  }
-
-
+  // ----  save data ----
+  
   timeline.push({ 
     type: 'call-function',
     func: function(data){
-        saveData(`data/${dataFilename}.json`, jsPsych.data.get().json());
+        prosodylab.saveData(`data/${dataFilename}.json`, jsPsych.data.get().json());
     }
   });
 
-
+   // exit full screen
   
   if (fullScreen) {
     timeline.push({
@@ -261,10 +260,9 @@ var fullScreen  = 0;
     });
   }
   
+  // ---- goodbye screen (with completion code if applicable )----
   
-  // ---- goodbye ----
-  
-  prosodylab.screen('Goodbye',materials.goodbye,'Click to leave experiment',participantCode,'center');
+  prosodylab.screen('Goodbye',experiment.goodbye,'Click to leave experiment',participantCode,'center','showCode');
 
   
   //  ---- data processing  ----
@@ -274,8 +272,8 @@ var fullScreen  = 0;
   jsPsych.init({
       timeline: timeline,
       //on_close:  function(){
-      //  saveData(`data/onclose_${dataFilename}.csv`, jsPsych.data.get().csv());
-      //  saveData(`data/onclose_${dataFilename}.json`, jsPsych.data.get().json());
+      //  prosodylab.saveData(`data/onclose_${dataFilename}.csv`, jsPsych.data.get().csv());
+      //  prosodylab.saveData(`data/onclose_${dataFilename}.json`, jsPsych.data.get().json());
       //},
       on_finish: function(){
         if (displayData) {jsPsych.data.displayData();}

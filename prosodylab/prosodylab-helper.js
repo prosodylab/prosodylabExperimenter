@@ -3,7 +3,7 @@
 prosodylab = {
 
   // render screen with button to press
-  screen: function(name, text, buttonText, participantCode, align, code) {
+  screen: function(name, text, buttonText, participantCode, align,showCode) {
     if (!align) {
       var align = 'left';
     }
@@ -12,8 +12,8 @@ prosodylab = {
     }
     text = `<div style="text-align: ${align}"> ${text} 
        </div><br>`;
-    if (code) { // completion code for final screen
-      text = `${text} <b>${code}</b> <br><br><br>`
+    if (showCode) { // completion code for final screen
+      text = `${text} <b>${participantCode}</b> <br><br><br>`
     }
     var screenObject = {
       type: 'html-button-response',
@@ -79,6 +79,15 @@ prosodylab = {
     return txt.data;
   },
   
+  //save Data function that calls php script
+  // verbatim from https://www.jspsych.org/overview/data/
+  saveData: function(name, data){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'write_data.php');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({filename: name, filedata: data}));
+  },
+  
   consent: function(consentText,participantCode) {
     var buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
     consentText = consentText.substring(0,consentText.lastIndexOf('<p>'))
@@ -86,7 +95,6 @@ prosodylab = {
     buttonText = `<button class="jspsych-btn" 
      style="white-space:normal; text-align: justify; font-size: 18px;width:95%;"> 
      <b>${buttonText}</b></button><br><br><br><br><br>`
-    //this.screen('consent', consentTxt, buttonText, 'justify');
     
     var screenObject = {
       type: 'html-button-response',
@@ -463,7 +471,7 @@ So far only implemented: Module 1, musicianship
           <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
           return html;
         },
-        stimulus: `${pathMaterials}/audio/${trial.contextFile}`,
+        stimulus: `${trial.path}/audio/${trial.contextFile}`,
         choices: jsPsych.NO_KEYS,
         trial_ends_after_audio: true,
         data: trialInfo
