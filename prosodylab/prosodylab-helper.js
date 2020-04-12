@@ -80,12 +80,13 @@ prosodylab = {
   },
   
   //save Data function that calls php script
-  // verbatim from https://www.jspsych.org/overview/data/
-  saveData: function(name, data){
+  // from https://www.jspsych.org/overview/data/
+  saveData: function(fileName, data){
+   console.log('fileName',fileName);
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', 'write_data.php');
+    xhr.open('POST', 'prosodylab/write_data.php');
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({filename: name, filedata: data}));
+    xhr.send(JSON.stringify({filename: fileName, filedata: data}));
   },
   
   consent: function(consentText,participantCode) {

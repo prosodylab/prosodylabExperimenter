@@ -6,41 +6,41 @@
   <head>
     <title>prosodylab</title>
     <!--general-->
-    <script src="papaparse.min.js"></script>
+    <script src="javascripts/papaparse.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="http://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js"></script>
     
     <!-- country/region select -->
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
-    <link rel="stylesheet" href="node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
-    <link rel="gettext" type="application/x-po" href="node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po" />
-    <script type="text/javascript" src="node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
+    <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
+    <link rel="stylesheet" href="javascripts/node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
+    <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po" />
+    <script type="text/javascript" src="javascripts/node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
      
     
     <!-- jspsych -->
-    <script src="jspsych-6.1.0/jspsych.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-call-function.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-fullscreen.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-audio-button-response.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-audio-keyboard-response.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-instructions.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-survey-text.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
-    <script src="jspsych-6.1.0/plugins/jspsych-survey-html-form"></script>
+    <script src="javascripts/jspsych-6.1.0/jspsych.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-call-function.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-fullscreen.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-audio-button-response.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-audio-keyboard-response.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-instructions.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-survey-text.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
+    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-survey-html-form"></script>
     <!--  <script src="jsPsych.randomization"></script> -->
 
     <!-- prosodylab -->
     <script src="prosodylab/prosodylab-helper.js"></script>
     
     <!-- css -->
-    <link href="jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+    <link href="javascripts/jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
   </head>
   
   <body></body>
@@ -92,24 +92,24 @@ var fullScreen  = 0;
 
   //  ---- pre experiment ----
   
-   prosodylab.screen('hello',experiment.hello,'Click here to continue',participantCode);
+   //prosodylab.screen('hello',experiment.hello,'Click here to continue',participantCode);
   
   //  ---- consent page  ----
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  prosodylab.consent(experiment.consent, participantCode);
+  //prosodylab.consent(experiment.consent, participantCode);
   
   //// Use this code instead if you do not want to use the last paragraph as button
   //prosodylab.screen('Consent',experiment.consent,'I consent',${participantCode},'justify');
 
   // ---- language questionnaire ---
 
-  prosodylab.languageQuestionnaire(participantCode);
+  //prosodylab.languageQuestionnaire(participantCode);
   
   // ---- sound check (if audio is involved)
   
-  prosodylab.soundCheck(experiment.soundCheckFile,participantCode);
+  //prosodylab.soundCheck(experiment.soundCheckFile,participantCode);
   
   
   //  ---- build experiment  ----
@@ -233,7 +233,7 @@ var fullScreen  = 0;
   
   // ---- debriefing ---
   
-  prosodylab.debriefing(participantCode);
+  //prosodylab.debriefing(participantCode);
 
   // ---- music questionnaire ---
   
@@ -245,7 +245,7 @@ var fullScreen  = 0;
   timeline.push({ 
     type: 'call-function',
     func: function(data){
-        prosodylab.saveData(`data/${dataFilename}.json`, jsPsych.data.get().json());
+        prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json`, jsPsych.data.get().json());
     }
   });
 
@@ -260,7 +260,7 @@ var fullScreen  = 0;
   
   // ---- goodbye screen (with completion code if applicable )----
   
-  prosodylab.screen('Goodbye',experiment.goodbye,'Click to leave experiment',participantCode,'center','showCode');
+  //prosodylab.screen('Goodbye',experiment.goodbye,'Click to leave experiment',participantCode,'center','showCode');
 
   
   //  ---- data processing  ----
@@ -270,8 +270,7 @@ var fullScreen  = 0;
   jsPsych.init({
       timeline: timeline,
       //on_close:  function(){
-      //  prosodylab.saveData(`data/onclose_${dataFilename}.csv`, jsPsych.data.get().csv());
-      //  prosodylab.saveData(`data/onclose_${dataFilename}.json`, jsPsych.data.get().json());
+      //  prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json, jsPsych.data.get().json());
       //},
       on_finish: function(){
         if (displayData) {jsPsych.data.displayData();}
