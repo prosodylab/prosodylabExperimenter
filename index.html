@@ -60,7 +60,7 @@ var showProgressBar = true;
   var experiment = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
   
   experiment = {...experiment, 
-    stimuliFile: `${experiment.path}/rhymeShortest.txt`,
+    stimuliFile: `${experiment.path}/rhymeShort.txt`,
     soundCheckFile: `${experiment.path}/audio/da_equal.mp3`,
     helloFile: `${experiment.path}/hello.md`,
     consentFile: `${experiment.path}/consent.md`,
@@ -93,20 +93,20 @@ var showProgressBar = true;
 
   //  ---- pre experiment ----
   
-   //prosodylab.screen('hello',experiment.hello,'Click here to continue',participantCode);
+  prosodylab.screen('hello',experiment.hello,'Click here to continue',participantCode);
   
   //  ---- consent page  ----
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  //prosodylab.consent(experiment.consent, participantCode);
+  prosodylab.consent(experiment.consent, participantCode);
   
   //// Use this code instead if you do not want to use the last paragraph as button
-  //prosodylab.screen('Consent',experiment.consent,'I consent',${participantCode},'justify');
+  //prosodylab.screen('Consent',experiment.consent,'I consent',participantCode,'justify');
 
   // ---- language questionnaire ---
 
-  //prosodylab.languageQuestionnaire(participantCode);
+  prosodylab.languageQuestionnaire(participantCode);
   
   // ---- sound check (if audio is involved)
   
@@ -234,11 +234,11 @@ var showProgressBar = true;
   
   // ---- debriefing ---
   
-  //prosodylab.debriefing(participantCode);
+  prosodylab.debriefing(participantCode);
 
   // ---- music questionnaire ---
   
-  // prosodylab.musicQuestionnaire('MusicianShip',participantCode);
+  prosodylab.musicQuestionnaire('MusicianShip',participantCode);
   
   
   // ----  save data ----

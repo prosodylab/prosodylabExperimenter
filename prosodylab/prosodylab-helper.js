@@ -228,12 +228,12 @@ So far only implemented: Module 1, musicianship
                  var moduleMusicianship = {
                          type: 'survey-likert',
                          questions: [
-                           {prompt: "How many years of formal music training (theory) have you had?", name: 'M1Q1', labels: scaleYears, required: 1},
-                           {prompt: "How much do you know about music structure and theory?", name: 'M1Q2', labels: scaleHowMuch, required: 1},
-                           {prompt: "How many years of formal music training (practice) have you had?", name: 'M1Q3', labels: scaleYears, required: 1},
-                           {prompt: "How often do you engage in professional music making (e.g., singing, playing an instrument, composing)?", name: 'M1Q4', labels: scaleHowOften, required: 1},
-                           {prompt: "How often did or do you practice or rehearse with an instrument or singing?", name: 'M1Q5', labels: scaleHowOften, required: 1},
-                           {prompt: "How often do you engage in music making as a hobby or as an amateur?", name: 'M1Q6', labels: scaleHowOften, required: 1}
+                           {prompt: "How many years of formal music training (theory) have you had?", name: 'M1Q1-YearsTrainingTheory', labels: scaleYears, required: 1},
+                           {prompt: "How much do you know about music structure and theory?", name: 'M1Q2-KnowledgeTheory', labels: scaleHowMuch, required: 1},
+                           {prompt: "How many years of formal music training (practice) have you had?", name: 'M1Q3-YearsTrainingPractice', labels: scaleYears, required: 1},
+                           {prompt: "How often do you engage in professional music making (e.g., singing, playing an instrument, composing)?", name: 'M1Q4-HowOftenProfessionalMusicMaking', labels: scaleHowOften, required: 1},
+                           {prompt: "How often did or do you practice or rehearse with an instrument or singing?", name: 'M1Q5-HowOftenMusicPractice', labels: scaleHowOften, required: 1},
+                           {prompt: "How often do you engage in music making as a hobby or as an amateur?", name: 'M1Q6-HowOftenAmateurMusicMaking', labels: scaleHowOften, required: 1}
                          ],
                          randomize_question_order: false,
                          data: {
@@ -464,7 +464,7 @@ So far only implemented: Module 1, musicianship
       stimulus: '<div style="font-size:60px;">+</div>',
       choices: jsPsych.NO_KEYS,
       trial_duration: 1000,
-      data: {...trialInfo, trialPartL:'Fixation' } 
+      data: {...trialInfo, trialPart:'Fixation' } 
     };
     return result;
   },
@@ -519,7 +519,7 @@ So far only implemented: Module 1, musicianship
       }
     }
       
-    session.push(playSound);
+    //session.push(playSound);
 
 
     // replace with while loop

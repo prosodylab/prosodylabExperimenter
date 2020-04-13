@@ -3,7 +3,9 @@
 ._.DS_Store
 **/.DS_Store
 **/._.DS_Store
-.htaccess
 
+
+.htaccess
+experiment/processData.nb.html
 # ignore result files
 experiment/data/
