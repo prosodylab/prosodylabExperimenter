@@ -4,8 +4,14 @@
 **/.DS_Store
 **/._.DS_Store
 
-
+# setting for www access
 .htaccess
+
+# rmd notebook from processing script
 experiment/processData.nb.html
+
+# ignore local experiments
+experiments
+
 # ignore result files
 experiment/data/

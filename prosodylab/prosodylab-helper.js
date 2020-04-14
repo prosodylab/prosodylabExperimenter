@@ -3,7 +3,7 @@
 prosodylab = {
 
   // render screen with button to press
-  screen: function(name, text, buttonText, participantCode, align,showCode) {
+  screen: function(name, text, buttonText, align, participantCode) {
     if (!align) {
       var align = 'left';
     }
@@ -12,7 +12,7 @@ prosodylab = {
     }
     text = `<div style="text-align: ${align}"> ${text} 
        </div><br>`;
-    if (showCode) { // completion code for final screen
+    if (participantCode) { // completion code for final screen
       text = `${text} <b>${participantCode}</b> <br><br><br>`
     }
     var screenObject = {
@@ -28,7 +28,6 @@ prosodylab = {
       stimulus: text,
       data: {
         component: name,
-        participant: participantCode,
         buttonResponseText: buttonText
       }
     };
@@ -127,7 +126,7 @@ prosodylab = {
     return saveData;
   },
   
-  consent: function(consentText,participantCode) {
+  consent: function(consentText) {
     var buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
     consentText = consentText.substring(0,consentText.lastIndexOf('<p>'))
     consentText = `${consentText}<br><br>`
@@ -149,7 +148,6 @@ prosodylab = {
       stimulus: consentText,
       data: {
         component: 'Consent',
-        participant: participantCode,
         buttonResponseText: buttonText
       }
     };
@@ -160,28 +158,26 @@ prosodylab = {
   
 
   // Debriefing questions
-  debriefing: function(participantCode) {
+  debriefing: function() {
     var debriefing = [];
     debriefing.html = prosodylab.loadTxt('prosodylab/debriefing.html');
     debriefing.type = 'survey-html-form';
     debriefing.data = {
-        component: 'Debriefing',
-        participant: participantCode
+        component: 'Debriefing'
     };
     
     timeline.push(debriefing);
   },
 
 
-  languageQuestionnaire: function(participantCode) {
+  languageQuestionnaire: function() {
 
     var lq = prosodylab.loadTxt('prosodylab/languageQuestionnaire.html');
     var languageQuestionnaire = {
       type: 'survey-html-form',
       html: lq,
       data: {
-        component: 'Language Questionnaire',
-        participant: participantCode
+        component: 'Language Questionnaire'
       },
       on_load: function() {
         gds.init()
@@ -191,7 +187,7 @@ prosodylab = {
   },
 
 
-  musicQuestionnaire: function (modules,participantCode) {
+  musicQuestionnaire: function (modules) {
   /*Chin, T.-C., Coutinho, E., Scherer, K. R., and Rickard, N. S. (2018). Musebaq: A modular tool for music research to assess musicianship, musical capacity, music preferences, and motivations for music use. Music Perception: An Interdisciplinary Journal, 35(3):376–399.
 
 So far only implemented: Module 1, musicianship
@@ -237,8 +233,7 @@ So far only implemented: Module 1, musicianship
                          ],
                          randomize_question_order: false,
                          data: {
-                           component: 'Music Questionnaire',
-                           participant: participantCode
+                           component: 'Music Questionnaire'
                          }
                  };
                  timeline.push(moduleMusicianship);
@@ -246,7 +241,7 @@ So far only implemented: Module 1, musicianship
 },
 
 
-  soundCheck: function(soundFile,participantCode) {
+  soundCheck: function(soundFile) {
 
     var buttonText = ['Play Sound'];
     var soundCheckObject = {
@@ -262,8 +257,7 @@ So far only implemented: Module 1, musicianship
       },
       data: {
         component: 'Sound check instructions',
-        choices: buttonText,
-        participant: participantCode
+        choices: buttonText
       },
     }
     timeline.push(soundCheckObject);
@@ -287,8 +281,7 @@ So far only implemented: Module 1, musicianship
       },
       data: {
         component: 'Sound check',
-        choices: [choiceOne, choiceTwo],
-        participant: participantCode
+        choices: [choiceOne, choiceTwo]
       },
       button_html: '<button class="jspsych-btn">%choice% </button>'
     };
@@ -381,18 +374,27 @@ So far only implemented: Module 1, musicianship
 
 
   generatePlaylist: function(stimuli) {
-    var conditions = Math.max(...stimuli.map(value => value.condition));
-    var items = Math.max(...stimuli.map(value => value.item));
-    var design = [...new Set(stimuli.map(value => value.design))];
+    const conditions = Math.max(...stimuli.map(value => value.condition));
+    const items = Math.max(...stimuli.map(value => value.item));
+    const design = [...new Set(stimuli.map(value => value.design))];
+    let pList = 0;
     
-    var pList = this.getPlaylist(conditions);
-    var playList = [];
-    var conditionSelection = [];
+    // assign playlist (not necessary for Fixed and Random designs)
+    if (!(design=='Fixed'||design=='Random')) {
+       //  get pList assignment
+       pList = this.getPlaylist(conditions);
+    }    
+    
+    // add playList info  to trials
+    stimuli = stimuli.map(v => ({...v, pList: pList}));
+    
+    let playList = [];
+    let conditionSelection = [];
 
     if (design == 'Between') {
 
       // same condition from each item
-      for (var i = 1; i <= items; i++) {
+      for (let i = 1; i <= items; i++) {
         playList[i] = stimuli.find(obj => {
           return obj.item == i && obj.condition == pList
         })
