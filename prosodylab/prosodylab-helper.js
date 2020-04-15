@@ -571,15 +571,14 @@ So far only implemented: Module 1, musicianship
         data: trialInfo,
         trialPart: 'Listen to sound'
       }
+      session.push(playSound);
     }
-      
-    session.push(playSound);
 
+    let questionN = 1;
 
-    // xx replace with while loop
-    for (let questionN=1;questionN<=3;questionN++){
+    while (trial[`question${questionN}`]) {
       
-    if (trial[`question${questionN}`]) { //  build question 1
+      if (trial[`question${questionN}`]) { //  build question 1
       let question = [];
       
       if (!trial[`question${questionN}Type`]) {
@@ -807,7 +806,11 @@ So far only implemented: Module 1, musicianship
 
        session.push(question);
          
-    }}
+    }
+    
+    questionN++;
+    
+    }
 
     return session;
 
