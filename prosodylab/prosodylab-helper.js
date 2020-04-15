@@ -37,14 +37,14 @@ prosodylab = {
   // convert markdown to html
   md2html: function(text) {
      //showdown  = require('showdown'),
-      var converter = new showdown.Converter(),
+      const converter = new showdown.Converter(),
       html = converter.makeHtml(text);
     return html;
   },
 
   // load text file
   loadTxt: function(fileName) {
-    var file = [];
+    let file = [];
     $.ajax({
       type: "Get",
       async: false,
@@ -63,14 +63,14 @@ prosodylab = {
 
   // load markdown file and convert to html
   loadMD: function(fileName) {
-    var txt = this.loadTxt(fileName);
+    let txt = this.loadTxt(fileName);
     txt = this.md2html(txt);
     return txt;
   },
 
   // load tab-delimited csv and convert to html
   loadCSV: function(fileName) {
-    var txt = this.loadTxt(fileName);
+    let txt = this.loadTxt(fileName);
     txt = Papa.parse(txt, {
       header: true,
       delimiter: '\t'
@@ -78,24 +78,73 @@ prosodylab = {
     return txt.data;
   },
   
+    saveData: function(fileName,format){
+    // save  as json by default
+    if (!format){ format = 'json';}
+    // add extension to filename
+    fileName = `${fileName}.${format}`
+    // create saveData object using fetch
+    let saveData = [];
+    if (format == 'json') {
+        saveData = {
+          type: 'call-function',
+          async: true,
+          func: async function(done) {
+            let data = jsPsych.data.get().values();
+            const response = await fetch("prosodylab/write_data.php", {
+              method: "POST",
+              headers: {
+                "content-type": "application/json"
+              },
+              body: JSON.stringify({ filename: fileName, filedata: data })
+            });
+            if (response.ok) {
+              const responseBody = await response.text();
+              done(responseBody);
+            }
+          }
+        }
+    } else {
+        saveData = {
+          type: 'call-function',
+          async: true,
+          func: async function(done) {
+            let data = jsPsych.data.get().csv();
+            const response = await fetch("prosodylab/write_data.php", {
+              method: "POST",
+              headers: {
+                "content-type": "application/json"
+              },
+              body: JSON.stringify({ filename: fileName, filedata: data })
+            });
+            if (response.ok) {
+              const responseBody = await response.text();
+              done(responseBody);
+            }
+          }
+        }
+    }
+    return saveData;
+  },
 
-  saveData: function(fileName,format){
+  // uses XMLHhttprequest() inistead of fetch(), it might  work on more browsers
+  saveDataOld: function(fileName,format){
     // save  as json by default
     if (!format){ format = 'json';}
     // add extension
     fileName = `${fileName}.${format}`
     // create saveData object
-    var saveData = [];
+    let saveData = [];
     if (format == 'json') {
         saveData = {
           type: 'call-function',
           async: true,
           func: function(done){
-            var data = jsPsych.data.get().json();
-            var xhr = new XMLHttpRequest();
+            const data = jsPsych.data.get().values();
+            let xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
               if (this.readyState == 4 && this.status == 200) {
-                  var response_data = xhr.responseText;
+                  const response_data = xhr.responseText;
                   done(response_data);
               }
             }
@@ -109,11 +158,11 @@ prosodylab = {
           type: 'call-function',
           async: true,
           func: function(done){
-          var data = jsPsych.data.get().csv();
-          var xhr = new XMLHttpRequest();
+          const data = jsPsych.data.get().csv();
+          let xhr = new XMLHttpRequest();
           xhr.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                var response_data = xhr.responseText;
+                const response_data = xhr.responseText;
                 done(response_data);
             }
           }
@@ -126,15 +175,17 @@ prosodylab = {
     return saveData;
   },
   
+  
+  
   consent: function(consentText) {
-    var buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
+    let buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
     consentText = consentText.substring(0,consentText.lastIndexOf('<p>'))
     consentText = `${consentText}<br><br>`
     buttonText = `<button class="jspsych-btn" 
      style="white-space:normal; text-align: justify; font-size: 18px;width:95%;"> 
      <b>${buttonText}</b></button><br><br><br><br><br>`
     
-    var screenObject = {
+    const screenObject = {
       type: 'html-button-response',
       timing_post_trial: 0,
       choices: [buttonText],
@@ -159,7 +210,7 @@ prosodylab = {
 
   // Debriefing questions
   debriefing: function() {
-    var debriefing = [];
+    let debriefing = [];
     debriefing.html = prosodylab.loadTxt('prosodylab/debriefing.html');
     debriefing.type = 'survey-html-form';
     debriefing.data = {
@@ -172,15 +223,15 @@ prosodylab = {
 
   languageQuestionnaire: function() {
 
-    var lq = prosodylab.loadTxt('prosodylab/languageQuestionnaire.html');
-    var languageQuestionnaire = {
+    const lq = prosodylab.loadTxt('prosodylab/languageQuestionnaire.html');
+    const languageQuestionnaire = {
       type: 'survey-html-form',
       html: lq,
       data: {
         component: 'Language Questionnaire'
       },
       on_load: function() {
-        gds.init()
+        gds.init() // initializes country drop-down menu
       }
     };
     timeline.push(languageQuestionnaire);
@@ -193,9 +244,9 @@ prosodylab = {
 So far only implemented: Module 1, musicianship
 */
 
-                 if(!modules) { var modules = 'MusicianShip';}
+                 if(!modules) { const modules = 'MusicianShip';}
                  
-                 var scaleYears = [ 'None',
+                 const scaleYears = [ 'None',
                                     '1 year',
                                     '2 years',
                                     '3 years',
@@ -207,21 +258,21 @@ So far only implemented: Module 1, musicianship
                                     'more than 8 years'
                                     ];
                                     
-                 var scaleHowMuch = ['Nothing',
+                 const scaleHowMuch = ['Nothing',
                                      'A little',
                                      'A fair amount',
                                      'A moderate amount',
                                      'A great deal'
                                      ]; 
                                      
-                 var scaleHowOften = ['Never',
+                 const scaleHowOften = ['Never',
                                      'Rarely',
                                      'Sometimes',
                                      'Often',
                                      'All the time'
                                      ]; 
                                      
-                 var moduleMusicianship = {
+                 const moduleMusicianship = {
                          type: 'survey-likert',
                          questions: [
                            {prompt: "How many years of formal music training (theory) have you had?", name: 'M1Q1-YearsTrainingTheory', labels: scaleYears, required: 1},
@@ -243,8 +294,8 @@ So far only implemented: Module 1, musicianship
 
   soundCheck: function(soundFile) {
 
-    var buttonText = ['Play Sound'];
-    var soundCheckObject = {
+    const buttonText = ['Play Sound'];
+    let soundCheckObject = {
       type: 'html-button-response',
       stimulus: '<b> Sound Check</b>' +
         '<br> <em>Please connect your headphones and adjust the volume!</em>' +
@@ -263,8 +314,8 @@ So far only implemented: Module 1, musicianship
     timeline.push(soundCheckObject);
 
 
-    var choiceOne = 'Play sound again';
-    var choiceTwo = 'I can hear the sound at a comfortable volume';
+    const choiceOne = 'Play sound again';
+    const choiceTwo = 'I can hear the sound at a comfortable volume';
     soundCheckObject = {
       type: 'audio-button-response',
       stimulus: soundFile,
@@ -287,7 +338,7 @@ So far only implemented: Module 1, musicianship
     };
 
 
-    var loop_node = {
+    const loop_node = {
       timeline: [soundCheckObject],
       loop_function: function(data) {
         if ('0' == data.values()[0].button_pressed) {
@@ -303,9 +354,9 @@ So far only implemented: Module 1, musicianship
 
   latinsquareConditionSelection: function(items, conditions, pListN) {
 
-    var result = [];
-    for (var i = 0; i < items; i++) {
-      for (var j = 0; j < conditions; j++) {
+    let result = [];
+    for (let i = 0; i < items; i++) {
+      for (let j = 0; j < conditions; j++) {
         result.push(1 + (j + pListN - 1) % conditions);
       }
     }
@@ -314,17 +365,17 @@ So far only implemented: Module 1, musicianship
 
   withinConditionSelection: function(items, conditions, pListN) {
 
-    var result = [];
-    var block = [];
-    var pListBlock = [];
+    let result = [];
+    let block = [];
+    let pListBlock = [];
     // randomize order of blocks after the first
-    var conditionBlock = this.digitSequence(conditions);
-    var index = conditionBlock.indexOf(pListN);
+    let conditionBlock = this.digitSequence(conditions);
+    let index = conditionBlock.indexOf(pListN);
     if (index !== -1) {conditionBlock.splice(index, 1)};
     conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
     conditionBlock = [pListN, ...conditionBlock];
 
-    for (var i = 0; i < conditions; i++) {
+    for (let i = 0; i < conditions; i++) {
       block = conditionBlock[i];
       result[i] = this.latinsquareConditionSelection(items, conditions, block);
     }
@@ -336,17 +387,17 @@ So far only implemented: Module 1, musicianship
 
     // pListN is condition # of first block
     // randomize order of conditions other than first
-    var conditionBlock = this.digitSequence(conditions);
-    var index = conditionBlock.indexOf(playListN);
+    let conditionBlock = this.digitSequence(conditions);
+    let index = conditionBlock.indexOf(playListN);
     if (index !== -1) conditionBlock.splice(index, 1);
     conditionBlock = jsPsych.randomization.shuffle(conditionBlock);
     conditionBlock = [playListN, ...conditionBlock];
 
-    var result = [];
+    let result = [];
 
-    for (var i = 0; i < conditions; i++) {
+    for (let i = 0; i < conditions; i++) {
       result[i] = [];
-      for (var j = 0; j < items; j++) {
+      for (let j = 0; j < items; j++) {
         result[i].push(conditionBlock[i]);
       }
     }
@@ -359,14 +410,14 @@ So far only implemented: Module 1, musicianship
     // xx right now: random
     // xx next step: based on # participants
     // xx even better: actual participant# that completed playlists based on log
-    var playList = Math.floor((Math.random() * conditions) + 1);;
+    const playList = Math.floor((Math.random() * conditions) + 1);;
     return playList
   },
 
   // generate sequence of integers
   digitSequence: function(length) {
-    var result = [];
-    for (var i = 1; i <= length; i++) {
+    let result = [];
+    for (let i = 1; i <= length; i++) {
       result.push(i);
     }
     return result
@@ -406,9 +457,9 @@ So far only implemented: Module 1, musicianship
 
       // all stimuli, organized in blocks by condition
       conditionSelection = this.blockedConditionSelection(items, conditions, pList);
-      for (var j = 0; j < conditions; j++) {
+      for (let j = 0; j < conditions; j++) {
         blockList = [];
-        for (var i = 0; i < items; i++) {
+        for (let i = 0; i < items; i++) {
           blockList[i] = stimuli.find(obj => {
             return obj.item == (i + 1) && obj.condition == conditionSelection[(j)][i]
           })
@@ -422,7 +473,7 @@ So far only implemented: Module 1, musicianship
 
       // one condition from each item, balanced # conditons
       conditionSelection = this.latinsquareConditionSelection(items, conditions, pList);
-      for (var i = 0; i < items; i++) {
+      for (let i = 0; i < items; i++) {
         playList[i] = stimuli.find(obj => {
           return obj.item == (i + 1) && obj.condition == conditionSelection[i];
         });
@@ -434,10 +485,10 @@ So far only implemented: Module 1, musicianship
 
       // all stimuli in pseudorandom order, a sequence several LQ blocks
       conditionSelection = this.withinConditionSelection(items, conditions, pList);
-      var blockList = [];
-      for (var j = 0; j < conditions; j++) {
+      let blockList = [];
+      for (let j = 0; j < conditions; j++) {
         blockList = [];
-        for (var i = 0; i < items; i++) {
+        for (let i = 0; i < items; i++) {
           blockList[i] = stimuli.find(obj => {
             return obj.item == (i + 1) && obj.condition == conditionSelection[j][i]
           })
@@ -460,12 +511,12 @@ So far only implemented: Module 1, musicianship
     return playList;
   }, //  end of this.generatePlaylist
 
-  fixation: function(trialInfo) {
-    var result = {
+  fixation: function(trialInfo,duration) {
+    const result = {
       type: 'html-keyboard-response',
       stimulus: '<div style="font-size:60px;">+</div>',
       choices: jsPsych.NO_KEYS,
-      trial_duration: 1000,
+      trial_duration: duration, //duration in msec
       data: {...trialInfo, trialPart:'Fixation' } 
     };
     return result;
@@ -473,8 +524,8 @@ So far only implemented: Module 1, musicianship
 
 
   generateKeyChoices: function(nChoices){
-    var result = [];
-    for (i=1;i<=nChoices;i++){
+    let result = [];
+    for (let i=1;i<=nChoices;i++){
         result.push(`${i}`)
     }
     return result;
@@ -491,7 +542,7 @@ So far only implemented: Module 1, musicianship
     } else{
         seperator = '<br><br>'
     }
-    for (i=0; i<question.data.options.length; i++){
+    for (let i=0; i<question.data.options.length; i++){
       question.stimulus = `${question.stimulus}${question.choices[i]} = ${question.data.options[i]}${seperator}`;
     } 
     question.stimulus = `${question.data.text} <br/> ${question.stimulus}`;
@@ -503,12 +554,13 @@ So far only implemented: Module 1, musicianship
   addTrial: function(session, trial,trialInfo) {
 
     if (trial.contextFile) {
-      session.push(this.fixation(trialInfo));
+      const fixationDuration = 1000 // show fixation cross for 1000 msec
+      session.push(this.fixation(trialInfo,fixationDuration)); 
      
-      var playSound =  {
+      const playSound =  {
         type: 'audio-keyboard-response',
         prompt: function() {
-        var html = `<style> .centered {position: fixed; top: 50%; 
+        const html = `<style> .centered {position: fixed; top: 50%; 
           left: 50%; transform: translate(-50%, -50%);}</style>
           <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
           return html;
@@ -521,14 +573,14 @@ So far only implemented: Module 1, musicianship
       }
     }
       
-    //session.push(playSound);
+    session.push(playSound);
 
 
-    // replace with while loop
-    for (questionN=1;questionN<=3;questionN++){
+    // xx replace with while loop
+    for (let questionN=1;questionN<=3;questionN++){
       
     if (trial[`question${questionN}`]) { //  build question 1
-      var question = [];
+      let question = [];
       
       if (!trial[`question${questionN}Type`]) {
         // Likert Scale with number key as responses as default
@@ -578,11 +630,11 @@ So far only implemented: Module 1, musicianship
           question.data.conditionalOptions = eval(trial[`question${questionN}Options`]);          
           
           question.choices  = function(){
-            var  choices = [];
+            let  choices = [];
             // get data from last trial
-            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            const lastTrial = jsPsych.data.get().last(1).values()[0];
             // cycle through array of conditonal options
-            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+            for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2+1]) {
                 choices = question.data.conditionalOptions[(choice+1)*2];
                 choices = this.generateKeyChoices(choices.length);
@@ -593,23 +645,23 @@ So far only implemented: Module 1, musicianship
            }     
                 
           question.stimulus  = function(){
-            var  stimulus = [];
+            let  stimulus = [];
             // get data from last trial
-            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            const lastTrial = jsPsych.data.get().last(1).values()[0];
             // cycle through array of conditonal options
-            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+            for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
               
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
-                var options = question.data.conditionalOptions[choice*2+1];
+                const options = question.data.conditionalOptions[choice*2+1];
                 
                 if (options.length<=2){
-                   seperator = '&nbsp&nbsp;'
+                   const seperator = '&nbsp&nbsp;'
                 } else{
-                   seperator = '<br><br>'
+                   const seperator = '<br><br>'
                 }
                 
-                for (i=0; i<options.length; i++){
-                   stimulus = `${stimulus}${i+1} = ${options[i]}${seperator}`;
+                for (let i=0; i<options.length; i++){
+                  stimulus = `${stimulus}${i+1} = ${options[i]}${seperator}`;
                 }
                 
                 stimulus = `${question.data.text} <br/> ${stimulus}`;
@@ -621,12 +673,12 @@ So far only implemented: Module 1, musicianship
            
           question.data.options  = function(){
             // get data from last trial
-            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            const lastTrial = jsPsych.data.get().last(1).values()[0];
             // cycle through array of conditonal options
-            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+            for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
               
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
-                var options = question.data.conditionalOptions[choice*2+1];
+                const options = question.data.conditionalOptions[choice*2+1];
                 return options
               }
             }
@@ -638,11 +690,11 @@ So far only implemented: Module 1, musicianship
           question.data.conditionalOptions = eval(trial[`question${questionN}ConditionalOptions`]);          
           
           question.choices  = function(){
-            var  choices = [];
+            let  choices = [];
             // get data from last trial
-            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            const lastTrial = jsPsych.data.get().last(1).values()[0];
             // cycle through array of conditonal options
-            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+            for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2+1]) {
                 choices = question.data.conditionalOptions[(choice+1)*2];
                 choices = this.generateKeyChoices(choices.length);
@@ -653,23 +705,23 @@ So far only implemented: Module 1, musicianship
            }     
                 
           question.stimulus  = function(){
-            var  stimulus = [];
+            let  stimulus = [];
             // get data from last trial
-            var lastTrial = jsPsych.data.get().last(1).values()[0];
+            const lastTrial = jsPsych.data.get().last(1).values()[0];
             // cycle through array of conditonal options
-            for (choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+            for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
               
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
-                var options = question.data.conditionalOptions[choice*2+1];
+                let options = question.data.conditionalOptions[choice*2+1];
                 options = jsPsych.randomization.shuffle(options);
                 
                 if (options.length<=2){
-                   seperator = '&nbsp&nbsp;'
+                   const seperator = '&nbsp&nbsp;'
                 } else{
-                   seperator = '<br><br>'
+                   const seperator = '<br><br>'
                 }
                 
-                for (i=0; i<options.length; i++){
+                for (let i=0; i<options.length; i++){
                    stimulus = `${stimulus}${i+1} = ${options[i]}${seperator}`;
                 }
                 
@@ -744,7 +796,7 @@ So far only implemented: Module 1, musicianship
       
        if (question.type == 'html-keyboard-response' && !(qType == 'ConditionalOptions')) {
          question.on_finish = function(data) {
-            var keyPressed = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press);
+            const keyPressed = jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press);
             data.chosenOption = data.options[parseInt(keyPressed)-1];
          }
         } else if (question.type == 'html-button-response') {
