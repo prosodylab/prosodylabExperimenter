@@ -90,7 +90,7 @@ prosodylab = {
           type: 'call-function',
           async: true,
           func: async function(done) {
-            let data = jsPsych.data.get().values();
+            let data = jsPsych.data.get().json();
             const response = await fetch("prosodylab/write_data.php", {
               method: "POST",
               headers: {
@@ -127,6 +127,7 @@ prosodylab = {
     return saveData;
   },
 
+
   // uses XMLHhttprequest() inistead of fetch(), it might  work on more browsers
   saveDataOld: function(fileName,format){
     // save  as json by default
@@ -140,7 +141,7 @@ prosodylab = {
           type: 'call-function',
           async: true,
           func: function(done){
-            const data = jsPsych.data.get().values();
+            const data = jsPsych.data.get().json();
             let xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
               if (this.readyState == 4 && this.status == 200) {
@@ -176,11 +177,10 @@ prosodylab = {
   },
   
   
-  
   consent: function(consentText) {
     let buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
     consentText = consentText.substring(0,consentText.lastIndexOf('<p>'))
-    consentText = `${consentText}<br><br>`
+    consentText =  `<div style="text-align: justify">${consentText}<br><br>`
     buttonText = `<button class="jspsych-btn" 
      style="white-space:normal; text-align: justify; font-size: 18px;width:95%;"> 
      <b>${buttonText}</b></button><br><br><br><br><br>`
@@ -207,7 +207,6 @@ prosodylab = {
   },
   
   
-
   // Debriefing questions
   debriefing: function() {
     let debriefing = [];
@@ -292,7 +291,7 @@ So far only implemented: Module 1, musicianship
 },
 
 
-  soundCheck: function(soundFile) {
+ soundCheck: function(soundFile) {
 
     const buttonText = ['Play Sound'];
     let soundCheckObject = {
@@ -312,7 +311,6 @@ So far only implemented: Module 1, musicianship
       },
     }
     timeline.push(soundCheckObject);
-
 
     const choiceOne = 'Play sound again';
     const choiceTwo = 'I can hear the sound at a comfortable volume';
@@ -337,7 +335,6 @@ So far only implemented: Module 1, musicianship
       button_html: '<button class="jspsych-btn">%choice% </button>'
     };
 
-
     const loop_node = {
       timeline: [soundCheckObject],
       loop_function: function(data) {
@@ -351,6 +348,99 @@ So far only implemented: Module 1, musicianship
     timeline.push(loop_node);
 
   },
+
+
+  headPhoneScreener: function() {
+    const path = 'prosodylab/headphonescreener'
+    const sounds = [`stereoInPhaseQuiet.wav`,`stereoInPhase.wav`,`stereoOutOfPhase.wav`];
+    let headPhoneScreenerTrial= [];
+    let headPhoneScreenerSounds = ['sound1.mp3','adf'];
+    let playSound = [];
+    let question = [];
+    
+    const buttonText = ['Play the first set of three sounds!'];
+    const instructionsHeadPhoneScreener = {
+      type: 'html-button-response',
+      stimulus: `<b> Sound Check</b> +
+        <br> <em>The following is a headphone test--you will not be able to do this without headphones!</em>
+        <p><br><br> You will hear three sounds in a row, and you will be asked which one was the quietest of them.
+        <br><br> This task will be repeated 6 times(this should take only 3 minutes).
+        <br><br></p>`,
+      choices: buttonText,
+      on_trial_start: function() {
+        setTimeout(function() {
+          setDisplay("jspsych-btn", "")
+        }, 1000)
+      },
+      data: {
+        component: 'Headphone screener',
+        choices: buttonText
+      },
+    }
+    headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
+    
+    let randomOrder = [0,1,2];
+    let correct  = 0;
+    
+    const choices = ['The FIRST was softest', 
+        'The SECOND was softest', 'The THIRD was softest'];
+    
+    for  (let i=0;i<6;i++){
+    
+      randomOrder  = jsPsych.randomization.shuffle(randomOrder);
+      correctButton = randomOrder.indexOf(0);
+    
+      for (let j=0;j<3;j++) {
+      
+        console.log('randomOrder',randomOrder,'sounds[randomOrder[j]]',sounds[randomOrder[j]]);
+      
+        playSound = {
+          type: 'audio-keyboard-response',
+          prompt: function() {
+          const html = `<style> .centered {position: fixed; top: 50%; 
+            left: 50%; transform: translate(-50%, -50%);}</style>
+            <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
+            return html;
+          },
+          stimulus: `${path}/${sounds[randomOrder[j]]}`,
+          choices: jsPsych.NO_KEYS,
+          trial_ends_after_audio: true,
+          post_trial_gap: 500,
+          data:  {
+            component: 'Headphone screener',
+            trialPart: 'Listen to head phone screener sound ${j}',
+            sound: `${sounds[randomOrder[j]]}`,
+            correctButton: correctButton
+          }
+        }
+        headPhoneScreenerTrial.push(playSound);
+        
+      }
+      
+      question = {
+        type: 'html-button-response',
+        stimulus: 'Which sound was quietest?',
+        choices: choices,
+        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
+        data:  {
+          options: choices,
+          component: 'Headphone screener question',
+        },   
+        on_finish: function(data){
+          if(data.button_pressed==correctButton){
+              data.correct = 1;
+          } else {
+              data.correct = 0;
+          }
+        }   
+      }      
+      headPhoneScreenerTrial.push(question);
+      
+    }
+    console.log(headPhoneScreenerTrial);
+    return headPhoneScreenerTrial;
+  },
+
 
   latinsquareConditionSelection: function(items, conditions, pListN) {
 

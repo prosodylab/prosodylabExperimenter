@@ -1,0 +1,63 @@
+
+monoSin = Create Sound from formula... snd 1 0 1 22050 sin(2*pi*200*x)
+Fade in: 0, 0, 0.1, "yes"
+monoCos = Create Sound from formula... snd 1 0 1 22050 cos(2*pi*200*x)
+Fade in: 0, 0, 0.1, "yes"
+
+
+selectObject: monoSin,monoCos
+stereoOutOfPhase = Combine to stereo
+Rename... stereoOutOfPhase
+
+selectObject: monoSin
+monoSin2 = Copy... monoSin2
+selectObject: monoSin,monoSin2
+stereoInPhase = Combine to stereo
+Rename... stereoInPhase
+
+
+stereoInPhaseSilent = Copy... stereoInPhaseSilent
+
+
+removeObject: monoSin2
+
+selectObject: monoSin,monoCos,stereoInPhase,stereoOutOfPhase
+Scale intensity... 76.0
+
+selectObject: stereoInPhaseSilent
+Scale intensity... 70.0
+
+
+
+
+
+
+
+
+
+stereo1 = Create simple MixingMatrix: "mm", 1, 2, "1 0"
+selectObject: stereo1, monoSin
+stereoSin = Mix
+Rename... stereoSin
+
+stereo2 = Create simple MixingMatrix: "mm", 1, 2, "0 1"
+selectObject: stereo2, monoCos
+stereoCos = Mix
+Rename... stereoCos
+
+
+
+Rename... stereoOutOfPhase
+removeObject: stereo1,stereo2
+
+selectObject: stereoSin
+stereoSin2 = Copy... stereoSin2
+selectObject: stereoSin,stereoSin2
+Combine to stereo
+Rename... stereoInPhase
+removeObject: stereoSin2
+
+
+
+
+

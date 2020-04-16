@@ -51,13 +51,13 @@
 const displayDataAfterFinish = true; // shows collected data in json format after
 const showProgressBar = true; // shows progress to participant during study
 const fullScreen  = false; // doesn't work with IE, but will simply proceed anyway 
-const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
+const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
 
 
 // ----- experiment specific information ----
 
 
-  let experiment = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
+  let experiment = {path: 'experiments/rhyme'}; // needs to have audio/img subdirectories if applicable
   
   experiment = {...experiment, 
     stimuliFile: `${experiment.path}/rhymeShortest.txt`,
@@ -98,7 +98,7 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
   //  ---- pre experiment ----
   
   if (!doExperimentOnly){
-    prosodylab.screen('hello',experiment.hello,'Click here to continue');
+    prosodylab.screen('Hello',experiment.hello,'Click here to continue');
   }
   
   //  ---- consent page  ----
@@ -116,7 +116,7 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
   // ---- language questionnaire ---
 
   if (!doExperimentOnly){
-    prosodylab.languageQuestionnaire();
+   // prosodylab.languageQuestionnaire();
   }
   
   // ---- sound check (if audio is involved)
@@ -124,6 +124,10 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
   if (!doExperimentOnly){
     prosodylab.soundCheck(experiment.soundCheckFile);
   }
+  
+  // ---- head phone screener ----
+  
+  timeline = [...timeline, ...prosodylab.headPhoneScreener()];
   
   //  ---- build experiment  ----
   
@@ -140,25 +144,38 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
     });
   }
   
-  var session = [];
-  var experimentN = [];
-  var sessionStimuli = [];
-  var sessionExperiments = [];
-  var maxLength = 0;
-  var playList = [];
-  var instructions = [];
-  var instructionsFile = [];
-  var trial = [];
+  let session = [];
+  let experimentN = [];
+  let sessionStimuli = [];
+  let sessionExperiments = [];
+  let maxLength = 0;
+  let playList = [];
+  let instructions = [];
+  let instructionsFile = [];
+  let trial = [];
+  let trialInfo = [];
+  let pListLog = [];
   
   if (!experiment.stimuli.session) {
     experiment.stimuli.session = 1
   }
   
   sessions = Math.max(...experiment.stimuli.map(value => value.session));
-  trialInfo = [];
-
+  
+  // read in pListLog.json here, not implemented yet
+  
+  // pListLogSoFar = prosodylab.loadPListLog...
+  
+  // 
+  // for  given experiment, get subset of entries for that expermient from log  with .filter
+  //    smilar to:  experiment.stimuli.filter(obj => obj.session == (iSession+1));
+  // then list of  all values for a pList  key: 
+  //      somethnig  similar to: var nameArray = students.map(function (el) { return el.name; });
+  // the count occurrences of each value, as well as pList yet not played...
+  // based on this, assign new pList
+  
   // cycle through sessions and add trials
-  for (iSession=0; iSession<sessions;iSession++) {
+  for (let iSession=0; iSession<sessions;iSession++) {
     
     // reset variables for session
     session = [];
@@ -167,6 +184,7 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
     sessionExperiments = [];
     maxLength = 0;
     playList = [];
+    pList = [];
     instructions = [];
     
     // Subset of stimuli for this session
@@ -192,10 +210,10 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
     
     prosodylab.screen('Instructions',instructions, 'Click here to start the experiment','center');
 
-    var experimentStimuli=[];
+    let experimentStimuli=[];
         
-    // separate out stimuli for each experiment in this session
-    for (j=0;j<experimentN;j++) {
+    // separate out stimuli for each experiment in the current session
+    for (let j=0;j<experimentN;j++) {
     
        // subset of stimuli of this experiment
        playList[j] = sessionStimuli.filter(obj => obj.experiment == sessionExperiments[j]);
@@ -209,12 +227,17 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
        console.log('experiment:',sessionExperiments[j],
            'length: ',playList[j].length,'design: ',
            [...new Set(playList[j].map(value => value.design))],'playList',playList[j]);
+           
+       pListLog.push({
+         experiment: sessionExperiments[j], 
+         pList: [...new Set(playList[j].map(value => value.pList))][0]
+       }); 
     }
     
     // add trials for experiment, interspersing them
     sessionTrial = 0;
-    for (j=0;j<maxLength;j++){
-        for (k=0;k<experimentN;k++){
+    for (let j=0;j<maxLength;j++){
+        for (let k=0;k<experimentN;k++){
           // if end of experiment has not been reached, add trial
                     
           if ((j+1)<=playList[k].length) {
@@ -264,6 +287,14 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
   // choose 'csv' as second argument if you want to save  as .csv instead  of json
   timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}`,'json'));
 
+  // save pListLog (should probably just append it?)
+  
+  // add participant information  to  pListLog
+  pListLog.map(v => ({...v, participant: participantCode}));
+  
+  // saving log not implemented yet
+  //timeline.push(prosodylab.savePListlog(`${experiment.path}/data/pListlog.json`));
+
    // exit full screen
   
   if (fullScreen) {
@@ -279,9 +310,8 @@ const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
     prosodylab.screen('Goodbye',experiment.goodbye,`I've noted down the participant code and want to  leave the experiment now.`,'center',participantCode);
   }
   
-  //  ---- data processing  ----
-
-  // call the saveData function after the experiment is over
+  console.log('pListLog',pListLog)
+  //  ---- general settings  ----
 
   jsPsych.init({
       timeline: timeline,

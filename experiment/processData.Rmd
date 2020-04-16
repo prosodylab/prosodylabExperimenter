@@ -75,7 +75,7 @@ d <- d %>% filter(component=='Experiment') %>%
   as.data.frame
 
 # subset of crucial question trials
-# d = filter(dExp,trialPart=='question1')
+# d = filter(d,trialPart=='question1')
 ```
 
 
