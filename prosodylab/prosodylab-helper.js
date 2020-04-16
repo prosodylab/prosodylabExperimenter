@@ -352,7 +352,7 @@ So far only implemented: Module 1, musicianship
 
   headPhoneScreener: function() {
     const path = 'prosodylab/headphonescreener'
-    const sounds = [`stereoInPhaseQuiet.wav`,`stereoInPhase.wav`,`stereoOutOfPhase.wav`];
+    const sounds = [`stereoInPhaseQuiet.mp3`,`stereoInPhase.mp3`,`stereoOutOfPhase.mp3`];
     let headPhoneScreenerTrial= [];
     let headPhoneScreenerSounds = ['sound1.mp3','adf'];
     let playSound = [];
@@ -408,7 +408,7 @@ So far only implemented: Module 1, musicianship
           post_trial_gap: 500,
           data:  {
             component: 'Headphone screener',
-            trialPart: 'Listen to head phone screener sound ${j}',
+            trialPart: `Listen to head phone screener sound ${j}`,
             sound: `${sounds[randomOrder[j]]}`,
             correctButton: correctButton
           }
