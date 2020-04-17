@@ -31,7 +31,7 @@ prosodylab = {
         buttonResponseText: buttonText
       }
     };
-    timeline.push(screenObject);
+    return screenObject;
   },
 
   // convert markdown to html
@@ -272,7 +272,7 @@ prosodylab = {
         buttonResponseText: buttonText
       }
     };
-    timeline.push(screenObject);
+    return screenObject;
   
   },
   
@@ -286,7 +286,7 @@ prosodylab = {
         component: 'Debriefing'
     };
     
-    timeline.push(debriefing);
+    return debriefing;
   },
 
 
@@ -303,7 +303,7 @@ prosodylab = {
         gds.init() // initializes country drop-down menu
       }
     };
-    timeline.push(languageQuestionnaire);
+    return languageQuestionnaire;
   },
 
 
@@ -356,13 +356,15 @@ So far only implemented: Module 1, musicianship
                            component: 'Music Questionnaire'
                          }
                  };
-                 timeline.push(moduleMusicianship);
+                 return moduleMusicianship;
 
 },
 
 
  soundCheck: function(soundFile) {
 
+    let soundCheck = [];
+    
     const buttonText = ['Play Sound'];
     let soundCheckObject = {
       type: 'html-button-response',
@@ -380,7 +382,7 @@ So far only implemented: Module 1, musicianship
         choices: buttonText
       },
     }
-    timeline.push(soundCheckObject);
+    soundCheck.push(soundCheckObject);
 
     const choiceOne = 'Play sound again';
     const choiceTwo = 'I can hear the sound at a comfortable volume';
@@ -415,8 +417,9 @@ So far only implemented: Module 1, musicianship
         }
       }
     }
-    timeline.push(loop_node);
+    soundCheck.push(loop_node);
 
+    return soundCheck;
   },
 
 
