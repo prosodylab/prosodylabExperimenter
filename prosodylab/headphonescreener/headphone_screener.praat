@@ -29,10 +29,10 @@ stereoInPhaseQuiet = Copy... stereoInPhaseQuiet
 removeObject: monoPos2
 
 selectObject: monoPos,monoNeg,stereoInPhase,stereoOutOfPhase
-Scale intensity... 76.0
+Scale intensity... 80.0
 
 selectObject: stereoInPhaseQuiet
-Scale intensity... 70.0
+Scale intensity... 74.0
 
 Save as WAV file... stereoInPhaseQuiet.wav
 

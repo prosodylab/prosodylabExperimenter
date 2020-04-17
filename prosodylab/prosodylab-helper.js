@@ -41,6 +41,73 @@ prosodylab = {
       html = converter.makeHtml(text);
     return html;
   },
+  
+  // save json
+  saveJson: async function(data,fileName) {
+    const response = await fetch("prosodylab/write_data.php", {
+      method: "POST",
+      headers: {
+         "content-type": "application/json"
+      },
+      body: JSON.stringify({ filename: fileName, filedata: data })
+    });
+    if (response.ok) {
+       const responseBody = await response.text();
+       return responseBody;
+    }
+  },
+  
+  appendJson: function(data,fileName){
+        let studyLog = prosodylab.loadLog(experiment.studyLogFile);
+        console.log ('studyLog',studyLog,'data',data);
+        if (Object.keys(studyLog).length) {// if studyLog not empty, append
+          data = [...studyLog, ...data];
+        }
+        console.log('fulllog',data);
+        data=JSON.stringify(data);
+        
+        saveData = {
+          type: 'call-function',
+          async: true,
+          func: async function(done) {
+            const response = await fetch("prosodylab/write_data.php", {
+              method: "POST",
+              headers: {
+                "content-type": "application/json"
+              },
+              body: JSON.stringify({ filename: fileName, filedata: data })
+            });
+            if (response.ok) {
+              const responseBody = await response.text();
+              done(responseBody);
+            }
+          }
+        }
+    return saveData;
+  
+  },
+
+
+  // load json file
+  loadLog: function(fileName) {
+    let file = [];
+    $.ajax({
+      type: "Get",
+      dataType: 'json',
+      async: false,
+      cache: false,
+      url: fileName,
+      error: function() {
+        console.error(`Created new participant log since there was none!`);
+        prosodylab.saveJson(JSON.stringify({}),fileName);
+      },
+      success: function(txt) {
+        file = txt
+      }
+    });
+    return file;
+  },
+
 
   // load text file
   loadTxt: function(fileName) {
@@ -55,7 +122,7 @@ prosodylab = {
         console.error(file)
       },
       success: function(txt) {
-        file = txt
+      file = txt
       }
     });
     return file;
@@ -176,6 +243,9 @@ prosodylab = {
     return saveData;
   },
   
+  saveStudyLog: function(studyLog,fileName){
+      return 'ok';
+  },
   
   consent: function(consentText) {
     let buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
@@ -392,8 +462,6 @@ So far only implemented: Module 1, musicianship
     
       for (let j=0;j<3;j++) {
       
-        console.log('randomOrder',randomOrder,'sounds[randomOrder[j]]',sounds[randomOrder[j]]);
-      
         playSound = {
           type: 'audio-keyboard-response',
           prompt: function() {
@@ -500,7 +568,7 @@ So far only implemented: Module 1, musicianship
     // xx right now: random
     // xx next step: based on # participants
     // xx even better: actual participant# that completed playlists based on log
-    const playList = Math.floor((Math.random() * conditions) + 1);;
+    const playList = Math.floor((Math.random() * conditions) + 1);
     return playList
   },
 
@@ -512,21 +580,71 @@ So far only implemented: Module 1, musicianship
     }
     return result
   },
+  
+  countOccurrences: function(priorAssignments) {
+    var counts = {};
+    
+    for (let i = 0; i < priorAssignments.length; i++) {
+      var num = priorAssignments[i];
+      counts[num] = counts[num] ? counts[num] + 1 : 1;
+    }
+    
+    return counts;
+  },
 
-
-  generatePlaylist: function(stimuli) {
+  generatePlaylist: function(stimuli,studyLog) {
+  
     const conditions = Math.max(...stimuli.map(value => value.condition));
     const items = Math.max(...stimuli.map(value => value.item));
     const design = [...new Set(stimuli.map(value => value.design))];
+    const experiment = [...new Set(stimuli.map(value => value.experiment))];
+    
+    /* determine pList were applicable
+    For some designs, a participant only sees a subset of the stimuli
+    For  example, they might only see condition 1, if they get pList in design 'Between'
+    for others, the order will depend on pList, for example condition 1 comes  as 
+    the first block for  pList 1 with design 'Blocked' */
+    
+    // assign playList # for this experiment
     let pList = 0;
     
-    // assign playlist (not necessary for Fixed and Random designs)
+    // playlist assignment not necessary for Fixed and Random designs:
     if (!(design=='Fixed'||design=='Random')) {
-       //  get pList assignment
-       pList = this.getPlaylist(conditions);
-    }    
     
-    // add playList info  to trials
+      // Assign a pList number between 1 and the number of conditions
+      
+      if (studyLog){ // use studyLog to determine pList
+      
+             let logExperiment = studyLog.filter(obj => obj.experiment == experiment);
+             let priorAssignments = logExperiment.map(function (el) { return el.pList; });
+             console.log('Experiment: ',experiment,'priorAssignments',priorAssignments);
+             // count how often each pList has been assigned
+             let counts = Array(conditions).fill(0);
+             for (let i = 0; i < priorAssignments.length; i++) {
+               counts[priorAssignments[i]-1]++;
+             }
+             minCount = Math.min(...counts);
+             
+             var indices = [];
+             // determine which pLists have been assigned least often
+             for(let i= 0; i < counts.length; i++) {
+                if (counts[i] === minCount) {
+                     indices.push(i);
+                }
+             }
+             if (indices.length>1){ // if more than one, pick one randomly
+              let random = this.digitSequence(indices.length);
+              random = jsPsych.randomization.shuffle(random);
+              indices = [indices[random[0]-1]];
+             }
+             pList = indices[0]+1;
+             console.log('pList counts: ',counts,'pList assigned: ',pList); 
+        } else  { //random pList
+            pList = Math.floor((Math.random() * conditions) + 1);
+        }
+    }
+    
+    // add playList info to all trials by passing it to stimuli object
     stimuli = stimuli.map(v => ({...v, pList: pList}));
     
     let playList = [];
@@ -661,7 +779,7 @@ So far only implemented: Module 1, musicianship
         data: trialInfo,
         trialPart: 'Listen to sound'
       }
-      session.push(playSound);
+      //session.push(playSound);
     }
 
     let questionN = 1;

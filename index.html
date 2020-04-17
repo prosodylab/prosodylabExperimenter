@@ -48,18 +48,26 @@
 
 // ---- switches ----
 
+
+//  some options can be set  here:
 const displayDataAfterFinish = true; // shows collected data in json format after
 const showProgressBar = true; // shows progress to participant during study
 const fullScreen  = false; // doesn't work with IE, but will simply proceed anyway 
-const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
+const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
+
+
+// Some designs (Blocked, Between, LatinSquare, Within) assign a particular playlists to a participant
+const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the log file of who was
+      assigned which playlist before, or 'random', which will assign it randomly */
 
 
 // ----- experiment specific information ----
 
 
-  let experiment = {path: 'experiments/rhyme'}; // needs to have audio/img subdirectories if applicable
+  let experiment = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
   
   experiment = {...experiment, 
+    studyLogFile: `${experiment.path}/data/log.json`,
     stimuliFile: `${experiment.path}/rhymeShortest.txt`,
     soundCheckFile: `${experiment.path}/audio/da_equal.mp3`,
     helloFile: `${experiment.path}/hello.md`,
@@ -127,8 +135,9 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
   
   // ---- head phone screener ----
   
-  timeline = [...timeline, ...prosodylab.headPhoneScreener()];
-  
+  if (!doExperimentOnly){
+     timeline = [...timeline, ...prosodylab.headPhoneScreener()];
+  }
   //  ---- build experiment  ----
   
   if (fullScreen) {
@@ -144,6 +153,7 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
     });
   }
   
+  
   let session = [];
   let experimentN = [];
   let sessionStimuli = [];
@@ -154,17 +164,14 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
   let instructionsFile = [];
   let trial = [];
   let trialInfo = [];
-  let pListLog = [];
+  let pList = [];
+  let sessionTrial = [];
+  let newStudyLogEntries = [];
+  let conditions  = [];
   
-  if (!experiment.stimuli.session) {
-    experiment.stimuli.session = 1
-  }
-  
-  sessions = Math.max(...experiment.stimuli.map(value => value.session));
-  
-  // read in pListLog.json here, not implemented yet
-  
-  // pListLogSoFar = prosodylab.loadPListLog...
+   // read  prior participant log if there is one
+   // otherwise an empty log will be written to data folder]
+  let studyLog = prosodylab.loadLog(experiment.studyLogFile);
   
   // 
   // for  given experiment, get subset of entries for that expermient from log  with .filter
@@ -175,6 +182,15 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
   // based on this, assign new pList
   
   // cycle through sessions and add trials
+  
+  
+  // xx this won't work---needs to be added as key to all objects!
+  if (!experiment.stimuli.session) {
+    experiment.stimuli.session = 1
+  }
+  
+  sessions = Math.max(...experiment.stimuli.map(value => value.session));
+  
   for (let iSession=0; iSession<sessions;iSession++) {
     
     // reset variables for session
@@ -186,6 +202,8 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
     playList = [];
     pList = [];
     instructions = [];
+    sessionTrial = 0;
+
     
     // Subset of stimuli for this session
     sessionStimuli = experiment.stimuli.filter(obj => obj.session == (iSession+1));
@@ -211,15 +229,23 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
     prosodylab.screen('Instructions',instructions, 'Click here to start the experiment','center');
 
     let experimentStimuli=[];
+    //let conditions = [];
         
     // separate out stimuli for each experiment in the current session
     for (let j=0;j<experimentN;j++) {
     
-       // subset of stimuli of this experiment
+       // subset of all stimuli of this experiment
        playList[j] = sessionStimuli.filter(obj => obj.experiment == sessionExperiments[j]);
-             
-       // generate playlist for this experiment:
-       playList[j] = prosodylab.generatePlaylist(playList[j]);
+       
+       // if pListMethod is set to random or studyLog is empty, assign plist randomly
+       if (pListMethod =='random' || !Object.keys(studyLog).length) {
+         log = 0;
+       } else {log = studyLog}
+       
+       // select conditions and generate ordered playlist of stimuli for this experiment
+       // condition selection/ordering will depend on pList for certain designs
+       // pList will either be assigned based on log or randomly
+       playList[j] = prosodylab.generatePlaylist(playList[j],log);
        
        // keep track of how long longest experiment is
        maxLength = Math.max(maxLength,playList[j].length);
@@ -228,11 +254,15 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
            'length: ',playList[j].length,'design: ',
            [...new Set(playList[j].map(value => value.design))],'playList',playList[j]);
            
-       pListLog.push({
+       newStudyLogEntries.push({
          experiment: sessionExperiments[j], 
          pList: [...new Set(playList[j].map(value => value.pList))][0]
        }); 
     }
+    
+    // add participant information to newStudyLogEntries
+    newStudyLogEntries.map(v => ({...v, participant: participantCode}));  
+    console.log('newStudyLogEntries',newStudyLogEntries);
     
     // add trials for experiment, interspersing them
     sessionTrial = 0;
@@ -279,7 +309,7 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
   // ---- music questionnaire ---
   
   if (!doExperimentOnly){
-    prosodylab.musicQuestionnaire('MusicianShip');
+    //prosodylab.musicQuestionnaire('MusicianShip');
   }
   
   // ----  save data ----
@@ -287,13 +317,11 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
   // choose 'csv' as second argument if you want to save  as .csv instead  of json
   timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}`,'json'));
 
-  // save pListLog (should probably just append it?)
+  timeline.push(prosodylab.appendJson(newStudyLogEntries,experiment.studyLogFile));
   
-  // add participant information  to  pListLog
-  pListLog.map(v => ({...v, participant: participantCode}));
-  
+
   // saving log not implemented yet
-  //timeline.push(prosodylab.savePListlog(`${experiment.path}/data/pListlog.json`));
+  //timeline.push(prosodylab.saveStudyLog(`${experiment.path}/data/studylog.json`));
 
    // exit full screen
   
@@ -307,10 +335,10 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
   // ---- goodbye screen (with completion code if applicable )----
   
   if (!doExperimentOnly){
-    prosodylab.screen('Goodbye',experiment.goodbye,`I've noted down the participant code and want to  leave the experiment now.`,'center',participantCode);
+    prosodylab.screen('Goodbye',experiment.goodbye,`I've noted down the participant 
+    code and want to  leave the experiment now.`,'center',participantCode);
   }
   
-  console.log('pListLog',pListLog)
   //  ---- general settings  ----
 
   jsPsych.init({
