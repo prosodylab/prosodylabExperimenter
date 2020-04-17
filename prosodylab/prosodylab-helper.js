@@ -59,11 +59,9 @@ prosodylab = {
   
   appendJson: function(data,fileName){
         let studyLog = prosodylab.loadLog(experiment.studyLogFile);
-        console.log ('studyLog',studyLog,'data',data);
         if (Object.keys(studyLog).length) {// if studyLog not empty, append
           data = [...studyLog, ...data];
         }
-        console.log('fulllog',data);
         data=JSON.stringify(data);
         
         saveData = {
@@ -508,7 +506,7 @@ So far only implemented: Module 1, musicianship
       headPhoneScreenerTrial.push(question);
       
     }
-    console.log(headPhoneScreenerTrial);
+
     return headPhoneScreenerTrial;
   },
 
@@ -610,6 +608,7 @@ So far only implemented: Module 1, musicianship
     
     // assign playList # for this experiment
     let pList = 0;
+    let counts = Array(conditions).fill(0);
     
     // playlist assignment not necessary for Fixed and Random designs:
     if (!(design=='Fixed'||design=='Random')) {
@@ -620,9 +619,8 @@ So far only implemented: Module 1, musicianship
       
              let logExperiment = studyLog.filter(obj => obj.experiment == experiment);
              let priorAssignments = logExperiment.map(function (el) { return el.pList; });
-             console.log('Experiment: ',experiment,'priorAssignments',priorAssignments);
+
              // count how often each pList has been assigned
-             let counts = Array(conditions).fill(0);
              for (let i = 0; i < priorAssignments.length; i++) {
                counts[priorAssignments[i]-1]++;
              }
@@ -641,12 +639,13 @@ So far only implemented: Module 1, musicianship
               indices = [indices[random[0]-1]];
              }
              pList = indices[0]+1;
-             console.log('pList counts: ',counts,'pList assigned: ',pList); 
+              
         } else  { //random pList
             pList = Math.floor((Math.random() * conditions) + 1);
         }
     }
     
+           
     // add playList info to all trials by passing it to stimuli object
     stimuli = stimuli.map(v => ({...v, pList: pList}));
     
@@ -718,6 +717,22 @@ So far only implemented: Module 1, musicianship
     } else { // fixed stimulus order
       playList = stimuli;
     }
+
+   // show experiment informaton in console
+   
+   let participants = counts.reduce(function(counts, b) { return counts + b; }, 0);
+   
+    console.log(
+       'Experiment: ',experiment, 
+       '\nDesign',design[0],
+       '\nConditions',conditions,
+       'Items:',items,
+       'Length: ',playList.length,
+       '\nParticipants: ',participants,
+       '\npList: ', pList,
+       'Prior assginments: ', counts,
+       '\nplayList',playList
+    );
 
     return playList;
   }, //  end of this.generatePlaylist

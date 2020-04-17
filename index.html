@@ -250,10 +250,6 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
        
        // keep track of how long longest experiment is
        maxLength = Math.max(maxLength,playList[j].length);
-       // show information about experiment in console:
-       console.log('experiment:',sessionExperiments[j],
-           'length: ',playList[j].length,'design: ',
-           [...new Set(playList[j].map(value => value.design))],'playList',playList[j]);
            
        newStudyLogEntries.push({
          experiment: sessionExperiments[j], 
@@ -263,7 +259,6 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
     
     // add participant information to newStudyLogEntries
     newStudyLogEntries.map(v => ({...v, participant: participantCode}));  
-    console.log('newStudyLogEntries',newStudyLogEntries);
     
     // add trials for experiment, interspersing them
     sessionTrial = 0;
