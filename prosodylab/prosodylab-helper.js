@@ -424,6 +424,9 @@ So far only implemented: Module 1, musicianship
   headPhoneScreener: function() {
     const path = 'prosodylab/headphonescreener'
     const sounds = [`stereoInPhaseQuiet.mp3`,`stereoInPhase.mp3`,`stereoOutOfPhase.mp3`];
+    const soundsShort = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
+    let soundsUsed = [];
+    
     let headPhoneScreenerTrial= [];
     let headPhoneScreenerSounds = ['sound1.mp3','adf'];
     let playSound = [];
@@ -451,6 +454,9 @@ So far only implemented: Module 1, musicianship
     headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
     
     let randomOrder = [0,1,2];
+    // randomize whether short or long stimuli are played first
+    let randomOrderShortLong = [0,1];
+    randomOrderShortLong = jsPsych.randomization.shuffle(randomOrderShortLong);
     let correct  = 0;
     
     const choices = ['The FIRST was softest', 
@@ -460,7 +466,14 @@ So far only implemented: Module 1, musicianship
     
       randomOrder  = jsPsych.randomization.shuffle(randomOrder);
       correctButton = randomOrder.indexOf(0);
-    
+      
+      // Use short and long sounds alternately
+      if ((i+randomOrderShortLong[0])/2==Math.floor((i+randomOrderShortLong[0])/2)){
+           soundsUsed = sounds;
+          } else { soundsUsed = soundsShort; }
+          
+      console.log('soundsUsed',soundsUsed);
+      
       for (let j=0;j<3;j++) {
       
         playSound = {
@@ -471,7 +484,7 @@ So far only implemented: Module 1, musicianship
             <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
             return html;
           },
-          stimulus: `${path}/${sounds[randomOrder[j]]}`,
+          stimulus: `${path}/${soundsUsed[randomOrder[j]]}`,
           choices: jsPsych.NO_KEYS,
           trial_ends_after_audio: true,
           post_trial_gap: 500,
@@ -731,7 +744,7 @@ So far only implemented: Module 1, musicianship
        '\nParticipants: ',participants,
        '\npList: ', pList,
        'Prior assginments: ', counts,
-       '\nplayList',playList
+       //'\nplayList',playList
     );
 
     return playList;

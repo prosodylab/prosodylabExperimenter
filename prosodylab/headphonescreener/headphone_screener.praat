@@ -7,12 +7,14 @@
 # first  half of a Hann window to fade in and out,
 # while this script uses a half-cosine function
 
-# These soundfiles need to be duoble-checked still!
+# These soundfiles need to be double-checked still!
 
 monoPos = Create Sound from formula... monoSin 1 0 1 22050 sin(2*pi*200*x)
-Fade in: 0, 0, 0.1, "yes"
+Fade in: 0, 0, 0.09, "yes"
+Fade out: 0, 0.91, 0.09, "yes"
 monoNeg = Create Sound from formula... monoCos 1 0 1 22050 -sin(2*pi*200*x)
-Fade in: 0, 0, 0.1, "yes"
+Fade in: 0, 0, 0.09, "yes"
+Fade out: 0, 0.91, 0.09, "yes"
 
 selectObject: monoPos,monoNeg
 stereoOutOfPhase = Combine to stereo
@@ -29,10 +31,10 @@ stereoInPhaseQuiet = Copy... stereoInPhaseQuiet
 removeObject: monoPos2
 
 selectObject: monoPos,monoNeg,stereoInPhase,stereoOutOfPhase
-Scale intensity... 80.0
+Scale intensity... 77.0
 
 selectObject: stereoInPhaseQuiet
-Scale intensity... 74.0
+Scale intensity... 71.0
 
 Save as WAV file... stereoInPhaseQuiet.wav
 
@@ -42,7 +44,11 @@ Save as WAV file... stereoInPhase.wav
 selectObject: stereoOutOfPhase
 Save as WAV file... stereoOutOfPhase.wav
 
+select monoPos 
+Remove
 
+select monoNeg
+Remove
 
 
 
