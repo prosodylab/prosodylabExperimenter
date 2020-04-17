@@ -1,5 +1,5 @@
 
-### Evaluating rhymes
+### Second part of the study: Evaluating rhymes
 
 
 In the second part of the study you will be evaluating how good or bad you find some rhymes, according  to your own intuitions about rhyming.

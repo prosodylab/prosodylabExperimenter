@@ -471,8 +471,6 @@ So far only implemented: Module 1, musicianship
       if ((i+randomOrderShortLong[0])/2==Math.floor((i+randomOrderShortLong[0])/2)){
            soundsUsed = sounds;
           } else { soundsUsed = soundsShort; }
-          
-      console.log('soundsUsed',soundsUsed);
       
       for (let j=0;j<3;j++) {
       
@@ -744,7 +742,7 @@ So far only implemented: Module 1, musicianship
        '\nParticipants: ',participants,
        '\npList: ', pList,
        'Prior assginments: ', counts,
-       //'\nplayList',playList
+       '\nplayList',playList
     );
 
     return playList;
@@ -1048,6 +1046,26 @@ So far only implemented: Module 1, musicianship
     }
     
     questionN++;
+    
+    }
+    
+    console.log('trial.textQuestion',trial.textQuestion);
+    
+    if (trial.textQuestion) {
+    
+     console.log('here');
+     
+      textQuestion = {
+        type: 'survey-text',
+        questions: [
+           {prompt: trial.textQuestion, name: 'debriefing midExperiment', rows: 5, columns: 100} 
+        ],
+        data: trialInfo
+      };
+      
+      console.log(textQuestion);
+      
+    session.push(textQuestion);
     
     }
 

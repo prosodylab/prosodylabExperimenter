@@ -212,22 +212,23 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
 
     
     // load and display session instructions    
-    if (!sessionStimuli[0].instructions){// default name for instructions file
-      instructionsFile='instructions.md'
-    } else {
-      instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
-    }
+    instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
     
-    if (instructionsFile.length==1) {
-        instructions = prosodylab.loadMD(`${experiment.path}/${instructionsFile}`);
-    } else {
-        instructions = `There has to be a unique instructions file per session. 
-           Session: ${iSession+1} has instructions: ${instructionsFile.toString()}`
-        console.error(instructionsFile);
-    }
+    console.log('instructionsFile',instructionsFile);
     
-    timeline.push(prosodylab.screen('Instructions',instructions,
-     'Click here to start the experiment','center'));
+    // display instructioions there is  no instruction file specified
+    // (which means empty cells in all rows of session in instruction colummn)
+    if (instructionsFile[0]){ 
+      if (instructionsFile.length==1) {
+          instructions = prosodylab.loadMD(`${experiment.path}/${instructionsFile}`);
+          timeline.push(prosodylab.screen('Instructions',instructions,
+            'Click here to start the experiment','center'));
+      } else if (instructionsFile.length>1) {
+          instructions = `There has to be a unique instructions file per session. 
+             Session: ${iSession+1} has instructions: ${instructionsFile.toString()}`
+          console.error(instructionsFile);
+      } // it's fine if theer ae no instructions
+    }
 
     let experimentStimuli=[];
     //let conditions = [];
@@ -290,7 +291,8 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
         }
     }
     
-    console.log('Session',iSession+1,'of',sessions,': ',sessionTrial,'trials');
+    
+    console.log('Session',iSession+1,'of',sessions,': ',sessionTrial,'trials',session);
     timeline = [...timeline, ...session];
     
   }

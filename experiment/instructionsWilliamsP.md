@@ -1,5 +1,5 @@
 
-### Evaluating naturalness
+### First part of the study: Evaluating naturalness
 
 
 This study consists of two parts. 
