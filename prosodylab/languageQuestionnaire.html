@@ -173,6 +173,7 @@
   <label for="firstLanguage">First language: &nbsp;</label>
   <select name="firstLanguage" required>
     <option value="" disabled selected>Choose your first language...</option>
+    <option value="Other">Not listed here (enter below in that case)</option>
     <option value="Afrikaans">Afrikaans</option>
     <option value="Albanian">Albanian</option>
     <option value="Arabic">Arabic</option>
@@ -207,6 +208,7 @@
     <option value="Georgian">Georgian</option>
     <option value="German">German</option>
     <option value="Greek">Greek</option>
+    <option value="Gondi">Gondi</option>
     <option value="Gujarati">Gujarati</option>
     <option value="Hebrew">Hebrew</option>
     <option value="Hindi">Hindi</option>
@@ -217,6 +219,8 @@
     <option value="Italian">Italian</option>
     <option value="Japanese">Japanese</option>
     <option value="Javanese">Javanese</option>
+    <option value="Kannada">Kannada</option>
+    <option value="Kashmiri">Kashmiri</option>
     <option value="Korean">Korean</option>
     <option value="Latin">Latin</option>
     <option value="Latvian">Latvian</option>
@@ -230,6 +234,7 @@
     <option value="Mongolian">Mongolian</option>
     <option value="Nepali">Nepali</option>
     <option value="Norwegian">Norwegian</option>
+    <option value="Odia">Persian</option>
     <option value="Persian">Persian</option>
     <option value="Polish">Polish</option>
     <option value="Portuguese">Portuguese--Brazilian</option>
@@ -263,8 +268,13 @@
 <br>
 <br>
 
+<label for="firstLanguageOther">Specify your first language here if it does not occur in the list above: &nbsp;</label>
+<input type="text" id="firstLanguageOther" name="firstLanguageOther">
+<br>
+<br>
+
 <!-- First language learned from -->
-  <label for="firstLearnedfrom">Mostly learned from: &nbsp;</label>
+  <label for="firstLearnedfrom">I mostly learned this language from/at: &nbsp;</label>
   <select name="firstLearnedfrom" required>
   <option value="" disabled selected>Choose whether you mostly learned it from...</option>
   <option value="Caregiver">Caregiver</option>
@@ -278,7 +288,7 @@
 <br>
 
 <!-- First language starting age -->
-  <label for="firstStartage">From age: &nbsp;</label>
+  <label for="firstStartage">... starting at age: &nbsp;</label>
   <select name="firstStartage" required>
   <option value="" disabled selected>Choose age at which you started to learn it...</option>
   <option value="0">0</option>
@@ -347,6 +357,7 @@
   <label for="secondLanguage">Second language: &nbsp;</label>
   <select name="secondLanguage" >
     <option value="" disabled selected>Choose your second language...</option>
+    <option value="Other">Not listed here (enter below in that case)</option>
     <option value="Afrikaans">Afrikaans</option>
     <option value="Albanian">Albanian</option>
     <option value="Arabic">Arabic</option>
@@ -361,14 +372,27 @@
     <option value="Czech">Czech</option>
     <option value="Danish">Danish</option>
     <option value="Dutch">Dutch</option>
-    <option value="English">English</option>
+    <option value="English">English--Australian</option>
+    <option value="English">English--Canada</option>
+    <option value="English">English--British</option>
+    <option value="English">English--Irish</option>
+    <option value="English">English--Indian English</option>
+    <option value="English">English--New Zealand</option>
+    <option value="English">English--Singaporean</option>
+    <option value="English">English--South African</option>
+    <option value="English">English--Singaporean</option>
+    <option value="English">English--US</option>
+    <option value="English">English--Other type of English</option>
     <option value="Estonian">Estonian</option>
     <option value="Fiji">Fiji</option>
     <option value="Finnish">Finnish</option>
-    <option value="French">French</option>
+    <option value="French">French-European</option>
+    <option value="French">French-Quebecois</option>
+    <option value="French">French-Other type of French</option>
     <option value="Georgian">Georgian</option>
     <option value="German">German</option>
     <option value="Greek">Greek</option>
+    <option value="Gondi">Gondi</option>
     <option value="Gujarati">Gujarati</option>
     <option value="Hebrew">Hebrew</option>
     <option value="Hindi">Hindi</option>
@@ -379,6 +403,8 @@
     <option value="Italian">Italian</option>
     <option value="Japanese">Japanese</option>
     <option value="Javanese">Javanese</option>
+    <option value="Kannada">Kannada</option>
+    <option value="Kashmiri">Kashmiri</option>
     <option value="Korean">Korean</option>
     <option value="Latin">Latin</option>
     <option value="Latvian">Latvian</option>
@@ -392,9 +418,11 @@
     <option value="Mongolian">Mongolian</option>
     <option value="Nepali">Nepali</option>
     <option value="Norwegian">Norwegian</option>
+    <option value="Odia">Persian</option>
     <option value="Persian">Persian</option>
     <option value="Polish">Polish</option>
-    <option value="Portuguese">Portuguese</option>
+    <option value="Portuguese">Portuguese--Brazilian</option>
+    <option value="Portuguese">Portuguese--European</option>
     <option value="Punjabi">Punjabi</option>
     <option value="Quechua">Quechua</option>
     <option value="Romanian">Romanian</option>
@@ -424,8 +452,13 @@
 <br>
 <br>
 
+<label for="secondLanguageOther">Specify your second language here if it does not occur in the list above: &nbsp;</label>
+<input type="text" id="secondLanguageOther" name="secondLanguageOther">
+<br>
+<br>
+
 <!-- Second language learned from -->
-  <label for="secondLearnedfrom">Mostly learned from: &nbsp;</label>
+  <label for="secondLearnedfrom">I mostly learned this language from/at: &nbsp;</label>
   <select name="secondLearnedfrom" >
   <option value="" disabled selected>Choose whether you mostly learned it from...</option>
   <option value="Caregiver">Caregiver</option>
@@ -439,7 +472,7 @@
 <br>
 
 <!-- Second language starting age -->
-  <label for="secondStartage">From age: &nbsp;</label>
+  <label for="secondStartage">...starting at age: &nbsp;</label>
   <select name="secondStartage" >
   <option value="" disabled selected>Choose age at which you started to learn it...</option>
   <option value="0">0</option>
@@ -508,6 +541,7 @@
   <label for="thirdLanguage">Third language: &nbsp;</label>
   <select name="thirdLanguage" >
     <option value="" disabled selected>Choose your third language...</option>
+    <option value="Other">Not listed here (enter below in that case)</option>
     <option value="Afrikaans">Afrikaans</option>
     <option value="Albanian">Albanian</option>
     <option value="Arabic">Arabic</option>
@@ -522,14 +556,27 @@
     <option value="Czech">Czech</option>
     <option value="Danish">Danish</option>
     <option value="Dutch">Dutch</option>
-    <option value="English">English</option>
+    <option value="English">English--Australian</option>
+    <option value="English">English--Canada</option>
+    <option value="English">English--British</option>
+    <option value="English">English--Irish</option>
+    <option value="English">English--Indian English</option>
+    <option value="English">English--New Zealand</option>
+    <option value="English">English--Singaporean</option>
+    <option value="English">English--South African</option>
+    <option value="English">English--Singaporean</option>
+    <option value="English">English--US</option>
+    <option value="English">English--Other type of English</option>
     <option value="Estonian">Estonian</option>
     <option value="Fiji">Fiji</option>
     <option value="Finnish">Finnish</option>
-    <option value="French">French</option>
+    <option value="French">French-European</option>
+    <option value="French">French-Quebecois</option>
+    <option value="French">French-Other type of French</option>
     <option value="Georgian">Georgian</option>
     <option value="German">German</option>
     <option value="Greek">Greek</option>
+    <option value="Gondi">Gondi</option>
     <option value="Gujarati">Gujarati</option>
     <option value="Hebrew">Hebrew</option>
     <option value="Hindi">Hindi</option>
@@ -540,6 +587,8 @@
     <option value="Italian">Italian</option>
     <option value="Japanese">Japanese</option>
     <option value="Javanese">Javanese</option>
+    <option value="Kannada">Kannada</option>
+    <option value="Kashmiri">Kashmiri</option>
     <option value="Korean">Korean</option>
     <option value="Latin">Latin</option>
     <option value="Latvian">Latvian</option>
@@ -553,9 +602,11 @@
     <option value="Mongolian">Mongolian</option>
     <option value="Nepali">Nepali</option>
     <option value="Norwegian">Norwegian</option>
+    <option value="Odia">Persian</option>
     <option value="Persian">Persian</option>
     <option value="Polish">Polish</option>
-    <option value="Portuguese">Portuguese</option>
+    <option value="Portuguese">Portuguese--Brazilian</option>
+    <option value="Portuguese">Portuguese--European</option>
     <option value="Punjabi">Punjabi</option>
     <option value="Quechua">Quechua</option>
     <option value="Romanian">Romanian</option>
@@ -585,8 +636,13 @@
 <br>
 <br>
 
+<label for="thirdLanguageOther">Specify your third language here if it does not occur in the list above: &nbsp;</label>
+<input type="text" id="thirdLanguageOther" name="thirdLanguageOther">
+<br>
+<br>
+
 <!-- Third language learned from -->
-  <label for="thirdLearnedfrom">Mostly learned from: &nbsp;</label>
+  <label for="thirdLearnedfrom">I mostly learned this language from/at: &nbsp;</label>
   <select name="thirdLearnedfrom" >
   <option value="" disabled selected>Choose whether you mostly learned it from...</option>
   <option value="Caregiver">Caregiver</option>
@@ -600,7 +656,7 @@
 <br>
 
 <!-- Third language starting age -->
-  <label for="thirdStartage">From age: &nbsp;</label>
+  <label for="thirdStartage">... starting at age: &nbsp;</label>
   <select name="thirdStartage" >
   <option value="" disabled selected>Choose age at which you started to learn it...</option>
   <option value="0">0</option>
@@ -669,6 +725,7 @@
   <label for="fourthLanguage">Fourth language: &nbsp;</label>
   <select name="fourthLanguage" >
     <option value="" disabled selected>Choose your fourth language...</option>
+    <option value="Other">Not listed here (enter below in that case)</option>
     <option value="Afrikaans">Afrikaans</option>
     <option value="Albanian">Albanian</option>
     <option value="Arabic">Arabic</option>
@@ -683,14 +740,27 @@
     <option value="Czech">Czech</option>
     <option value="Danish">Danish</option>
     <option value="Dutch">Dutch</option>
-    <option value="English">English</option>
+    <option value="English">English--Australian</option>
+    <option value="English">English--Canada</option>
+    <option value="English">English--British</option>
+    <option value="English">English--Irish</option>
+    <option value="English">English--Indian English</option>
+    <option value="English">English--New Zealand</option>
+    <option value="English">English--Singaporean</option>
+    <option value="English">English--South African</option>
+    <option value="English">English--Singaporean</option>
+    <option value="English">English--US</option>
+    <option value="English">English--Other type of English</option>
     <option value="Estonian">Estonian</option>
     <option value="Fiji">Fiji</option>
     <option value="Finnish">Finnish</option>
-    <option value="French">French</option>
+    <option value="French">French-European</option>
+    <option value="French">French-Quebecois</option>
+    <option value="French">French-Other type of French</option>
     <option value="Georgian">Georgian</option>
     <option value="German">German</option>
     <option value="Greek">Greek</option>
+    <option value="Gondi">Gondi</option>
     <option value="Gujarati">Gujarati</option>
     <option value="Hebrew">Hebrew</option>
     <option value="Hindi">Hindi</option>
@@ -701,6 +771,8 @@
     <option value="Italian">Italian</option>
     <option value="Japanese">Japanese</option>
     <option value="Javanese">Javanese</option>
+    <option value="Kannada">Kannada</option>
+    <option value="Kashmiri">Kashmiri</option>
     <option value="Korean">Korean</option>
     <option value="Latin">Latin</option>
     <option value="Latvian">Latvian</option>
@@ -714,9 +786,11 @@
     <option value="Mongolian">Mongolian</option>
     <option value="Nepali">Nepali</option>
     <option value="Norwegian">Norwegian</option>
+    <option value="Odia">Persian</option>
     <option value="Persian">Persian</option>
     <option value="Polish">Polish</option>
-    <option value="Portuguese">Portuguese</option>
+    <option value="Portuguese">Portuguese--Brazilian</option>
+    <option value="Portuguese">Portuguese--European</option>
     <option value="Punjabi">Punjabi</option>
     <option value="Quechua">Quechua</option>
     <option value="Romanian">Romanian</option>
@@ -746,8 +820,14 @@
 <br>
 <br>
 
+
+<label for="fourthLanguageOther">Specify your fourth language here if it does not occur in the list above: &nbsp;</label>
+<input type="text" id="fourthLanguageOther" name="fourthLanguageOther">
+<br>
+<br>
+
 <!-- Fourth language learned from -->
-  <label for="fourthLearnedfrom">Mostly learned from: &nbsp;</label>
+  <label for="fourthLearnedfrom">I mostly learned this language from/at: &nbsp;</label>
   <select name="fourthLearnedfrom" >
   <option value="" disabled selected>Choose whether you mostly learned it from...</option>
   <option value="Caregiver">Caregiver</option>
@@ -761,7 +841,7 @@
 <br>
 
 <!-- Fourth language starting age -->
-  <label for="fourthStartage">From age: &nbsp;</label>
+  <label for="fourthStartage">...starting at age: &nbsp;</label>
   <select name="fourthStartage" >
   <option value="" disabled selected>Choose age at which you started to learn it...</option>
   <option value="0">0</option>

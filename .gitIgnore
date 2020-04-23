@@ -10,8 +10,9 @@
 # rmd notebook from processing script
 experiment/processData.nb.html
 
-# ignore local experiments
+# ignore local folders
 experiments
+audiorecording
 
 # ignore result files
 experiment/data/

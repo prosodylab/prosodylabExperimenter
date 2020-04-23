@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- prosodylab-jspsych-helper Michael Wagner chael@mcgill.ca-->
+<!-- prosodylab-jspsych-experimenter Michael Wagner chael@mcgill.ca-->
 
 <html>
   
@@ -67,8 +67,8 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   let experiment = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
   
   experiment = {...experiment, 
-    studyLogFile: `${experiment.path}/data/log.json`,
-    stimuliFile: `${experiment.path}/rhymeShort.txt`,
+    studyLogFile: `${experiment.path}/log.json`,
+    stimuliFile: `${experiment.path}/rhymeShortest.txt`,
     soundCheckFile: `${experiment.path}/audio/da_equal.mp3`,
     helloFile: `${experiment.path}/hello.md`,
     consentFile: `${experiment.path}/consent.md`,
@@ -124,7 +124,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // ---- language questionnaire ---
 
   if (!doExperimentOnly){
-   // timeline.push(prosodylab.languageQuestionnaire());
+   timeline.push(prosodylab.languageQuestionnaire());
   }
   
   // ---- sound check (if audio is involved)
@@ -214,8 +214,6 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
     // load and display session instructions    
     instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
     
-    console.log('instructionsFile',instructionsFile);
-    
     // display instructioions there is  no instruction file specified
     // (which means empty cells in all rows of session in instruction colummn)
     if (instructionsFile[0]){ 
@@ -292,7 +290,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
     }
     
     
-    console.log('Session',iSession+1,'of',sessions,': ',sessionTrial,'trials',session);
+    console.log('Session',iSession+1,'of',sessions,': ',sessionTrial,'trials');
     timeline = [...timeline, ...session];
     
   }
@@ -313,6 +311,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // ----  save data ----
   
   // choose 'csv' as second argument if you want to save  as .csv instead  of json
+  console.log('`${experiment.path}/data/${dataFilename}`',`${experiment.path}/data/${dataFilename}`)
   timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}`,'json'));
 
   timeline.push(prosodylab.appendJson(newStudyLogEntries,experiment.studyLogFile));

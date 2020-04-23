@@ -1,4 +1,4 @@
-/* prosodylab-jspsych-helper Michael Wagner chael@mcgill.ca */
+/* prosodylab-jspsych-experimenter helper scripts Michael Wagner chael@mcgill.ca */
 
 prosodylab = {
 
@@ -57,8 +57,8 @@ prosodylab = {
     }
   },
   
-  appendJson: function(data,fileName){
-        let studyLog = prosodylab.loadLog(experiment.studyLogFile);
+  appendJsonOld: function(data,fileName){
+        let studyLog = this.loadLog(experiment.studyLogFile);
         if (Object.keys(studyLog).length) {// if studyLog not empty, append
           data = [...studyLog, ...data];
         }
@@ -84,7 +84,34 @@ prosodylab = {
     return saveData;
   
   },
-
+  
+    appendJson: function(data,fileName){
+        
+        saveData = {
+          type: 'call-function',
+          async: true,
+          func: async function(done) {
+            let studyLog = prosodylab.loadLog(experiment.studyLogFile);
+            if (Object.keys(studyLog).length) {// if studyLog not empty, append
+              data = [...studyLog, ...data];
+            }
+            data=JSON.stringify(data);
+            const response = await fetch("prosodylab/write_data.php", {
+              method: "POST",
+              headers: {
+                "content-type": "application/json"
+              },
+              body: JSON.stringify({ filename: fileName, filedata: data })
+            });
+            if (response.ok) {
+              const responseBody = await response.text();
+              done(responseBody);
+            }
+          }
+        }
+    return saveData;
+  
+  },
 
   // load json file
   loadLog: function(fileName) {
@@ -241,9 +268,6 @@ prosodylab = {
     return saveData;
   },
   
-  saveStudyLog: function(studyLog,fileName){
-      return 'ok';
-  },
   
   consent: function(consentText) {
     let buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
@@ -423,9 +447,11 @@ So far only implemented: Module 1, musicianship
 
   headPhoneScreener: function() {
     const path = 'prosodylab/headphonescreener'
-    const sounds = [`stereoInPhaseQuiet.mp3`,`stereoInPhase.mp3`,`stereoOutOfPhase.mp3`];
-    const soundsShort = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
+    let sounds = [];
+    sounds[0] = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
+    sounds[1] = [`stereoInPhaseQuiet.mp3`,`stereoInPhase.mp3`,`stereoOutOfPhase.mp3`];
     let soundsUsed = [];
+    let soundsUsedText = [];
     
     let headPhoneScreenerTrial= [];
     let headPhoneScreenerSounds = ['sound1.mp3','adf'];
@@ -435,10 +461,10 @@ So far only implemented: Module 1, musicianship
     const buttonText = ['Play the first set of three sounds!'];
     const instructionsHeadPhoneScreener = {
       type: 'html-button-response',
-      stimulus: `<b> Sound Check</b> +
+      stimulus: `<b> Headphone Check</b> +
         <br> <em>The following is a headphone test--you will not be able to do this without headphones!</em>
         <p><br><br> You will hear three sounds in a row, and you will be asked which one was the quietest of them.
-        <br><br> This task will be repeated 6 times(this should take only 3 minutes).
+        <br><br> This task will be repeated 6 times(this should take only 2 minutes).
         <br><br></p>`,
       choices: buttonText,
       on_trial_start: function() {
@@ -447,16 +473,19 @@ So far only implemented: Module 1, musicianship
         }, 1000)
       },
       data: {
-        component: 'Headphone screener',
+        component: 'Headphone screener instructions',
         choices: buttonText
       },
     }
     headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
     
-    let randomOrder = [0,1,2];
-    // randomize whether short or long stimuli are played first
+    // select whether short or long set is used first for this participant
     let randomOrderShortLong = [0,1];
     randomOrderShortLong = jsPsych.randomization.shuffle(randomOrderShortLong);
+    
+    // create variable for random order
+    let randomOrder = [0,1,2];
+    
     let correct  = 0;
     
     const choices = ['The FIRST was softest', 
@@ -465,12 +494,17 @@ So far only implemented: Module 1, musicianship
     for  (let i=0;i<6;i++){
     
       randomOrder  = jsPsych.randomization.shuffle(randomOrder);
-      correctButton = randomOrder.indexOf(0);
-      
+    
       // Use short and long sounds alternately
       if ((i+randomOrderShortLong[0])/2==Math.floor((i+randomOrderShortLong[0])/2)){
-           soundsUsed = sounds;
-          } else { soundsUsed = soundsShort; }
+           soundsUsed = sounds[1];
+           soundsUsedText = 'Long Set'
+          } else { 
+           soundsUsed = sounds[0];
+           soundsUsedText = 'Short Set'
+          }
+      
+      correctButton = randomOrder.indexOf(0);
       
       for (let j=0;j<3;j++) {
       
@@ -487,9 +521,10 @@ So far only implemented: Module 1, musicianship
           trial_ends_after_audio: true,
           post_trial_gap: 500,
           data:  {
-            component: 'Headphone screener',
+            component: 'Headphone screener sound',
             trialPart: `Listen to head phone screener sound ${j}`,
-            sound: `${sounds[randomOrder[j]]}`,
+            sound: `${soundsUsed[randomOrder[j]]}`,
+            setUsed: soundsUsedText,
             correctButton: correctButton
           }
         }
@@ -505,6 +540,8 @@ So far only implemented: Module 1, musicianship
         data:  {
           options: choices,
           component: 'Headphone screener question',
+          setUsed: soundsUsedText,
+          correctButton: correctButton
         },   
         on_finish: function(data){
           if(data.button_pressed==correctButton){
@@ -742,7 +779,7 @@ So far only implemented: Module 1, musicianship
        '\nParticipants: ',participants,
        '\npList: ', pList,
        'Prior assginments: ', counts,
-       '\nplayList',playList
+       //'\nplayList',playList
     );
 
     return playList;
@@ -1048,12 +1085,9 @@ So far only implemented: Module 1, musicianship
     questionN++;
     
     }
-    
-    console.log('trial.textQuestion',trial.textQuestion);
-    
+      
+        
     if (trial.textQuestion) {
-    
-     console.log('here');
      
       textQuestion = {
         type: 'survey-text',
@@ -1062,9 +1096,7 @@ So far only implemented: Module 1, musicianship
         ],
         data: trialInfo
       };
-      
-      console.log(textQuestion);
-      
+          
     session.push(textQuestion);
     
     }

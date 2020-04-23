@@ -24,6 +24,7 @@ d <- data.frame()
 
 # load in  data files  from all participants
 for (i in 1:length(fileList)){
+ paste0('data/',fileList[i])
  tempData = fromJSON(paste0('data/',fileList[i]), flatten=TRUE)
  d <- bind_rows(d,tempData)
 }
@@ -75,8 +76,19 @@ d <- d %>% filter(component=='Experiment') %>%
   as.data.frame
 
 # subset of crucial question trials
-# d = filter(d,trialPart=='question1')
+
+responses = filter(d,trialPart=='question1')
+
+n_distinct(responses$participant)
+
+responses %>% group_by(participant) %>%
+  summarize(n())
+
+
+
 ```
 
 
 dd <- as.data.frame(dd)
+
+
