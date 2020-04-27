@@ -64,15 +64,15 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
 // ----- experiment specific information ----
 
 
-  let experiment = {path: 'experiments/noncitlRp'}; // needs to have audio/img subdirectories if applicable
+  let study = {path: 'experiments/noncitlRp'}; // needs to have audio/img subdirectories if applicable
   
-  experiment = {...experiment, 
-    studyLogFile: `${experiment.path}/data/log.json`,
-    stimuliFile: `${experiment.path}/noncitlRp_short.txt`,
-    soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${experiment.path}/audio/soundcheck_da.mp3`,
-    helloFile: `${experiment.path}/hello.md`,
-    consentFile: `${experiment.path}/consent.md`,
-    goodbyeFile: `${experiment.path}/goodbye.md`
+  study = {...study, 
+    logFile: `${study.path}/studyLog.json`,
+    stimuliFile: `${study.path}/noncitlRp_short.txt`,
+    soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
+    helloFile: `${study.path}/hello.md`,
+    consentFile: `${study.path}/consent.md`,
+    goodbyeFile: `${study.path}/goodbye.md`
   };
 
 
@@ -83,19 +83,19 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
 
   jsPsych.data.addProperties({
     participant: participantCode,
-    stimuliFile: experiment.stimuliFile
+    stimuliFile: study.stimuliFile
   });
 
   //  ----- load experiment files ----
 
   // load spreadsheet with all experiments
-  experiment.stimuli = prosodylab.loadCSV(experiment.stimuliFile);
+  study.stimuli = prosodylab.loadCSV(study.stimuliFile);
   // load welcome txt
-  experiment.hello=prosodylab.loadMD(experiment.helloFile);
+  study.hello=prosodylab.loadMD(study.helloFile);
   // load consent text
-  experiment.consent=prosodylab.loadMD(experiment.consentFile);
+  study.consent=prosodylab.loadMD(study.consentFile);
   // load goodbye text
-  experiment.goodbye = prosodylab.loadMD(experiment.goodbyeFile);
+  study.goodbye = prosodylab.loadMD(study.goodbyeFile);
 
 
   //  ---- set-up timeline for experiment ----
@@ -106,7 +106,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   //  ---- pre experiment ----
   
   if (!doExperimentOnly){
-    timeline.push(prosodylab.screen('Hello',experiment.hello,'Click here to continue'));
+    timeline.push(prosodylab.screen('Hello',study.hello,'Click here to continue'));
   }
   
   //  ---- consent page  ----
@@ -115,11 +115,11 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // and will  be stored with the participant's data:
   
   if (!doExperimentOnly){
-     timeline.push(prosodylab.consent(experiment.consent));
+     timeline.push(prosodylab.consent(study.consent));
   }
   
   //// Use this code instead if you do not want to use the last paragraph as button
-  //prosodylab.screen('Consent',experiment.consent,'I consent',participantCode,'justify');
+  //prosodylab.screen('Consent',study.consent,'I consent',participantCode,'justify');
 
   // ---- language questionnaire ---
 
@@ -130,7 +130,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // ---- sound check (if audio is involved)
   
   if (!doExperimentOnly){
-    timeline = [...timeline, ...prosodylab.soundCheck(experiment.soundCheckFile)];
+    timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
   }
   
   // ---- head phone screener ----
@@ -171,11 +171,11 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   
    // read  prior participant log if there is one
    // otherwise an empty log will be written to data folder]
-  let studyLog = prosodylab.loadLog(experiment.studyLogFile);
+  let studyLog = prosodylab.loadLog(study.logFile);
   
   // 
   // for  given experiment, get subset of entries for that expermient from log  with .filter
-  //    smilar to:  experiment.stimuli.filter(obj => obj.session == (iSession+1));
+  //    smilar to:  study.stimuli.filter(obj => obj.session == (iSession+1));
   // then list of  all values for a pList  key: 
   //      somethnig  similar to: var nameArray = students.map(function (el) { return el.name; });
   // the count occurrences of each value, as well as pList yet not played...
@@ -185,11 +185,11 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   
   
   // xx this won't work---needs to be added as key to all objects!
-  if (!experiment.stimuli.session) {
-    experiment.stimuli.session = 1
+  if (!study.stimuli.session) {
+    study.stimuli.session = 1
   }
   
-  sessions = Math.max(...experiment.stimuli.map(value => value.session));
+  sessions = Math.max(...study.stimuli.map(value => value.session));
   
   for (let iSession=0; iSession<sessions;iSession++) {
     
@@ -206,7 +206,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
 
     
     // Subset of stimuli for this session
-    sessionStimuli = experiment.stimuli.filter(obj => obj.session == (iSession+1));
+    sessionStimuli = study.stimuli.filter(obj => obj.session == (iSession+1));
     sessionExperiments = [...new Set(sessionStimuli.map(value => value.experiment))];
     experimentN = sessionExperiments.length;
 
@@ -218,7 +218,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
     // (which means empty cells in all rows of session in instruction colummn)
     if (instructionsFile[0]){ 
       if (instructionsFile.length==1) {
-          instructions = prosodylab.loadMD(`${experiment.path}/${instructionsFile}`);
+          instructions = prosodylab.loadMD(`${study.path}/${instructionsFile}`);
           timeline.push(prosodylab.screen('Instructions',instructions,
             'Click here to start the experiment','center'));
       } else if (instructionsFile.length>1) {
@@ -283,7 +283,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
               trialInfo.pList = trial.pList;
             }
             
-            trial.path = experiment.path;
+            trial.path = study.path;
             session = prosodylab.addTrial(session,playList[k][j],trialInfo);
           }
         }
@@ -311,9 +311,9 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // ----  save data ----
   
   // choose 'csv' as second argument if you want to save  as .csv instead  of json
-  console.log('`${experiment.path}/data/${dataFilename}`',`${experiment.path}/data/${dataFilename}`)
-  timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}`,'json'));
-  timeline.push(prosodylab.appendJson(newStudyLogEntries,experiment.studyLogFile));
+  console.log('`${study.path}/data/${dataFilename}`',`${study.path}/data/${dataFilename}`)
+  timeline.push(prosodylab.saveData(`${study.path}/data/${dataFilename}`,'json'));
+  timeline.push(prosodylab.appendJson(newStudyLogEntries,study.logFile));
   
    // exit full screen
   
@@ -327,7 +327,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // ---- goodbye screen (with completion code if applicable )----
   
   if (!doExperimentOnly){
-    timeline.push(prosodylab.screen('Goodbye',experiment.goodbye,`I've noted down the participant 
+    timeline.push(prosodylab.screen('Goodbye',study.goodbye,`I've noted down the participant 
     code and want to  leave the experiment now.`,'center',participantCode));
   }
   
@@ -337,8 +337,8 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
       timeline: timeline,
       //// uncomment to save data on close (but closing the tab could mean wihdrawn consent!)
       //on_close:  function(){
-      //  prosodylab.saveData(`${experiment.path}/data/${dataFilename}.json, jsPsych.data.get().json());
-      //  prosodylab.saveData(`${experiment.path}/data/${dataFilename}.csv, jsPsych.data.get().csv());
+      //  prosodylab.saveData(`${study.path}/data/${dataFilename}.json, jsPsych.data.get().json());
+      //  prosodylab.saveData(`${study.path}/data/${dataFilename}.csv, jsPsych.data.get().csv());
       //},
       show_progress_bar: showProgressBar,
       on_finish: function(){

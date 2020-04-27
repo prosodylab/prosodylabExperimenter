@@ -58,7 +58,7 @@ prosodylab = {
   },
   
   appendJsonOld: function(data,fileName){
-        let studyLog = this.loadLog(experiment.studyLogFile);
+        let studyLog = this.loadLog(fileName);
         if (Object.keys(studyLog).length) {// if studyLog not empty, append
           data = [...studyLog, ...data];
         }
@@ -91,7 +91,7 @@ prosodylab = {
           type: 'call-function',
           async: true,
           func: async function(done) {
-            let studyLog = prosodylab.loadLog(experiment.studyLogFile);
+            let studyLog = prosodylab.loadLog(fileName);
             if (Object.keys(studyLog).length) {// if studyLog not empty, append
               data = [...studyLog, ...data];
             }
