@@ -779,7 +779,7 @@ So far only implemented: Module 1, musicianship
        '\nParticipants: ',participants,
        '\npList: ', pList,
        'Prior assginments: ', counts,
-       //'\nplayList',playList
+       '\nplayList',playList
     );
 
     return playList;
@@ -812,12 +812,12 @@ So far only implemented: Module 1, musicianship
    question.stimulus = [];
    
     if (question.data.options.length<=2){
-        seperator = '&nbsp&nbsp;'
+        separator = '&nbsp&nbsp;'
     } else{
-        seperator = '<br><br>'
+        separator = '<br><br>'
     }
     for (let i=0; i<question.data.options.length; i++){
-      question.stimulus = `${question.stimulus}${question.choices[i]} = ${question.data.options[i]}${seperator}`;
+      question.stimulus = `${question.stimulus}${question.choices[i]} = ${question.data.options[i]}${separator}`;
     } 
     question.stimulus = `${question.data.text} <br/> ${question.stimulus}`;
     
@@ -827,6 +827,8 @@ So far only implemented: Module 1, musicianship
  
   addTrial: function(session, trial,trialInfo) {
 
+   console.log('trial.contextFile',trial.contextFile);
+   
     if (trial.contextFile) {
       const fixationDuration = 1000 // show fixation cross for 1000 msec
       session.push(this.fixation(trialInfo,fixationDuration)); 
@@ -887,6 +889,41 @@ So far only implemented: Module 1, musicianship
         question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>'
         question.data.options = question.choices;
         
+      } else if (qType=='ConditionalButtonOptions'){
+          // question options dependent on prior question, fixed option  order
+            
+          question.data.conditionalOptions = eval(trial[`question${questionN}Options`]);          
+          
+          question.type = 'html-button-response';
+          question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>';
+          question.stimulus  = question.stimulus = question.data.text;
+          
+          question.choices  = function(){
+            let  choices = [];
+            // get data from last trial
+            const lastTrial = jsPsych.data.get().last(1).values()[0];
+            
+            // determine and set choices
+            for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
+                choices = question.data.conditionalOptions[choice*2+1];
+                return choices
+              }            
+            }
+           }
+          
+          question.data.options  = function(){
+            // store selected options
+            const lastTrial = jsPsych.data.get().last(1).values()[0];
+            // cycle through array of conditonal options
+            for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
+              
+              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
+                const options = question.data.conditionalOptions[choice*2+1];
+                return options
+              }
+            }
+          }
       } else if (qType=='FixedOptions'){
           // choice between n options, using number keys
           question.data.options = eval(trial[`question${questionN}Options`]);
@@ -908,8 +945,8 @@ So far only implemented: Module 1, musicianship
             const lastTrial = jsPsych.data.get().last(1).values()[0];
             // cycle through array of conditonal options
             for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
-              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2+1]) {
-                choices = question.data.conditionalOptions[(choice+1)*2];
+              if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
+                choices = question.data.conditionalOptions[choice*2+1];
                 choices = this.generateKeyChoices(choices.length);
                 return choices
               }
@@ -928,13 +965,13 @@ So far only implemented: Module 1, musicianship
                 const options = question.data.conditionalOptions[choice*2+1];
                 
                 if (options.length<=2){
-                   const seperator = '&nbsp&nbsp;'
+                   const separator = '&nbsp&nbsp;'
                 } else{
-                   const seperator = '<br><br>'
+                   const separator = '<br><br>'
                 }
                 
                 for (let i=0; i<options.length; i++){
-                  stimulus = `${stimulus}${i+1} = ${options[i]}${seperator}`;
+                  stimulus = `${stimulus}${i+1} = ${options[i]}${separator}`;
                 }
                 
                 stimulus = `${question.data.text} <br/> ${stimulus}`;
@@ -989,13 +1026,13 @@ So far only implemented: Module 1, musicianship
                 options = jsPsych.randomization.shuffle(options);
                 
                 if (options.length<=2){
-                   const seperator = '&nbsp&nbsp;'
+                   const separator = '&nbsp&nbsp;'
                 } else{
-                   const seperator = '<br><br>'
+                   const separator = '<br><br>'
                 }
                 
                 for (let i=0; i<options.length; i++){
-                   stimulus = `${stimulus}${i+1} = ${options[i]}${seperator}`;
+                   stimulus = `${stimulus}${i+1} = ${options[i]}${separator}`;
                 }
                 
                 stimulus = `${question.data.text} <br/> ${stimulus}`;
@@ -1089,7 +1126,7 @@ So far only implemented: Module 1, musicianship
         
     if (trial.textQuestion) {
      
-      textQuestion = {
+      const textQuestion = {
         type: 'survey-text',
         questions: [
            {prompt: trial.textQuestion, name: 'debriefing midExperiment', rows: 5, columns: 100} 

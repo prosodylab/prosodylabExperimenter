@@ -53,7 +53,7 @@
 const displayDataAfterFinish = true; // shows collected data in json format after
 const showProgressBar = true; // shows progress to participant during study
 const fullScreen  = false; // doesn't work with IE, but will simply proceed anyway 
-const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
+const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
 
 
 // Some designs (Blocked, Between, LatinSquare, Within) assign a particular playlists to a participant
@@ -64,12 +64,12 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
 // ----- experiment specific information ----
 
 
-  let experiment = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
+  let experiment = {path: 'experiments/noncitlRp'}; // needs to have audio/img subdirectories if applicable
   
   experiment = {...experiment, 
-    studyLogFile: `${experiment.path}/log.json`,
-    stimuliFile: `${experiment.path}/rhymeShortest.txt`,
-    soundCheckFile: `${experiment.path}/audio/da_equal.mp3`,
+    studyLogFile: `${experiment.path}/data/log.json`,
+    stimuliFile: `${experiment.path}/noncitlRp_short.txt`,
+    soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${experiment.path}/audio/soundcheck_da.mp3`,
     helloFile: `${experiment.path}/hello.md`,
     consentFile: `${experiment.path}/consent.md`,
     goodbyeFile: `${experiment.path}/goodbye.md`
@@ -313,13 +313,8 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // choose 'csv' as second argument if you want to save  as .csv instead  of json
   console.log('`${experiment.path}/data/${dataFilename}`',`${experiment.path}/data/${dataFilename}`)
   timeline.push(prosodylab.saveData(`${experiment.path}/data/${dataFilename}`,'json'));
-
   timeline.push(prosodylab.appendJson(newStudyLogEntries,experiment.studyLogFile));
   
-
-  // saving log not implemented yet
-  //timeline.push(prosodylab.saveStudyLog(`${experiment.path}/data/studylog.json`));
-
    // exit full screen
   
   if (fullScreen) {
