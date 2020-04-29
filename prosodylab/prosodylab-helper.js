@@ -219,55 +219,6 @@ prosodylab = {
     return saveData;
   },
 
-
-  // uses XMLHhttprequest() inistead of fetch(), it might  work on more browsers
-  saveDataOld: function(fileName,format){
-    // save  as json by default
-    if (!format){ format = 'json';}
-    // add extension
-    fileName = `${fileName}.${format}`
-    // create saveData object
-    let saveData = [];
-    if (format == 'json') {
-        saveData = {
-          type: 'call-function',
-          async: true,
-          func: function(done){
-            const data = jsPsych.data.get().json();
-            let xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function() {
-              if (this.readyState == 4 && this.status == 200) {
-                  const response_data = xhr.responseText;
-                  done(response_data);
-              }
-            }
-            xhr.open('POST', 'prosodylab/write_data.php');
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify({filename: fileName, filedata: data}));
-          }
-        }
-      } else {
-        saveData = {
-          type: 'call-function',
-          async: true,
-          func: function(done){
-          const data = jsPsych.data.get().csv();
-          let xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                const response_data = xhr.responseText;
-                done(response_data);
-            }
-          }
-          xhr.open('POST', 'prosodylab/write_data.php');
-          xhr.setRequestHeader('Content-Type', 'application/json');
-          xhr.send(JSON.stringify({filename: fileName, filedata: data}));
-         }
-        }
-      }
-    return saveData;
-  },
-  
   
   consent: function(consentText) {
     let buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
