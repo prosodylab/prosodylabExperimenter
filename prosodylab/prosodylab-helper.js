@@ -766,6 +766,9 @@ So far only implemented: Module 1, musicianship
       playList = stimuli;
     }
 
+   // Randomize option order for questions with OptionsFixedWithin
+   
+
    // show experiment informaton in console
    
    let participants = counts.reduce(function(counts, b) { return counts + b; }, 0);
@@ -798,13 +801,48 @@ So far only implemented: Module 1, musicianship
 
 
   generateKeyChoices: function(nChoices){
-    let result = [];
-    for (let i=1;i<=nChoices;i++){
-        result.push(`${i}`)
+    // creates array of n choices, e.g. ['1','2','3']
+    let result = digitSequence(nChoices);
+    return result.map(String);
+  },
+  
+
+  permute: function(permutation) { 
+     // creates permutations of n elements
+     // https://stackoverflow.com/questions/9960908/permutations-in-javascript/37580979#37580979
+    var length = permutation.length,
+      result = [permutation.slice()],
+      c = new Array(length).fill(0),
+      i = 1, k, p;
+
+    while (i < length) {
+     if (c[i] < i) {
+      k = i % 2 && c[i];
+      p = permutation[i];
+      permutation[i] = permutation[k];
+      permutation[k] = p;
+      ++c[i];
+      i = 1;
+      result.push(permutation.slice());
+    } else {
+      c[i] = 0;
+      ++i;
+    }
     }
     return result;
   },
 
+  shuffle: function(choices,randomNumber){
+        result = [];       
+        let permutations = this.permute(this.digitSequence(choices.length));
+        permutationChoice = permutations[Math.floor(randomNumber*permutations.length)];
+        console.log('permutations',permutations,'permutationChoice',permutationChoice)
+        for (let i=0;i<choices.length;i++) {
+          result.push(choices[permutationChoice[i]-1]);
+        }
+        console.log('choices permuted:',result)
+        return result
+  },
   
   questionKeyOptions: function(question){
 
@@ -825,9 +863,8 @@ So far only implemented: Module 1, musicianship
   },
   
  
-  addTrial: function(session, trial,trialInfo) {
+  addTrial: function(session, trial,trialInfo,randomNumbers) {
 
-   console.log('trial.contextFile',trial.contextFile);
    
     if (trial.contextFile) {
       const fixationDuration = 1000 // show fixation cross for 1000 msec
@@ -873,11 +910,14 @@ So far only implemented: Module 1, musicianship
       question.data = {...question.data,...trialInfo};
       
       
-      if (qType=='FixedButtonOptions'){
+      if (qType=='ButtonOptionsFixed'||qType=='ButtonOptionsRandomBetween'){
       
         question.type = 'html-button-response';
         question.stimulus = question.data.text;
         question.choices = eval(trial[`question${questionN}Options`]);
+        if (qType == 'ButtonOptionsRandomBetween') {
+          question.choices = this.shuffle(question.choices,randomNumbers[questionN-1]);
+        }          
         question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>'
         question.data.options = question.choices;
         
@@ -889,8 +929,8 @@ So far only implemented: Module 1, musicianship
         question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>'
         question.data.options = question.choices;
         
-      } else if (qType=='ConditionalButtonOptions'){
-          // question options dependent on prior question, fixed option  order
+      } else if (qType=='ConditionalButtonOptions'||qType=='ConditionalButtonOptionsRandomBetween'){
+          // question options dependent on prior question, fixed option order or random between participants
             
           question.data.conditionalOptions = eval(trial[`question${questionN}Options`]);          
           
@@ -907,6 +947,9 @@ So far only implemented: Module 1, musicianship
             for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
                 choices = question.data.conditionalOptions[choice*2+1];
+                if (qType == 'ConditionalButtonOptionsRandomBetween') {
+                   choices = prosodylab.shuffle(choices,randomNumbers[questionN-1]);
+                }
                 return choices
               }            
             }
@@ -924,9 +967,12 @@ So far only implemented: Module 1, musicianship
               }
             }
           }
-      } else if (qType=='FixedOptions'){
+      } else if (qType=='OptionsFixed'||qType=='OptionsRandomBetween'){
           // choice between n options, using number keys
           question.data.options = eval(trial[`question${questionN}Options`]);
+          if (qType == 'OptionsRandomBetween') {
+            question.data.options = this.shuffle(question.data.options,randomNumbers);
+          }
           question = this.questionKeyOptions(question);
           
       } else if (qType=='Options'){
@@ -934,7 +980,7 @@ So far only implemented: Module 1, musicianship
           question.data.options = jsPsych.randomization.shuffle( eval(trial[`question${questionN}Options`]));
           question = this.questionKeyOptions(question);
           
-      } else if (qType=='ConditionalFixedOptions'){
+      } else if (qType=='ConditionalOptionsFixed'||qType=='ConditionalOptionsRandomBetween'){
           // question options dependent on prior question, fixed option  order
             
           question.data.conditionalOptions = eval(trial[`question${questionN}Options`]);          
@@ -947,6 +993,9 @@ So far only implemented: Module 1, musicianship
             for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
                 choices = question.data.conditionalOptions[choice*2+1];
+                if (qType == 'ConditionalOptionsRandomBetween') {
+                  choices = this.shuffle(choices,randomNumbers);
+                }
                 choices = this.generateKeyChoices(choices.length);
                 return choices
               }
@@ -963,6 +1012,9 @@ So far only implemented: Module 1, musicianship
               
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
                 const options = question.data.conditionalOptions[choice*2+1];
+                if (qType == 'ConditionalOptionsRandomBetween') {
+                  options = this.shuffle(options,randomNumbers);
+                }
                 
                 if (options.length<=2){
                    const separator = '&nbsp&nbsp;'
@@ -989,6 +1041,9 @@ So far only implemented: Module 1, musicianship
               
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
                 const options = question.data.conditionalOptions[choice*2+1];
+                if (qType == 'ConditionalOptionsRandomBetween') {
+                  options = this.shuffle(options,randomNumbers);
+                }
                 return options
               }
             }

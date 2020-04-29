@@ -168,7 +168,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   let sessionTrial = [];
   let newStudyLogEntries = [];
   let conditions  = [];
-  
+
    // read  prior participant log if there is one
    // otherwise an empty log will be written to data folder]
   let studyLog = prosodylab.loadLog(study.logFile);
@@ -257,7 +257,17 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
     }
     
     // add participant information to newStudyLogEntries
-    newStudyLogEntries.map(v => ({...v, participant: participantCode}));  
+    newStudyLogEntries.map(v => ({...v, participant: participantCode}));
+    
+    // these numbers are used to randomize options in questions
+    // when their order is supposed to vary randomly between subjects
+    let randomNumbers = [[]];
+    for (let rI = 0;rI<experimentN;rI++) {
+       randomNumbers[rI]=[];
+       for (let rJ = 0;rJ<5;rJ++) { // assuming there'll at most 5 questions
+         randomNumbers[rI][rJ] = Math.random(); 
+       }
+    }   
     
     // add trials for experiment, interspersing them
     sessionTrial = 0;
@@ -284,7 +294,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
             }
             
             trial.path = study.path;
-            session = prosodylab.addTrial(session,playList[k][j],trialInfo);
+            session = prosodylab.addTrial(session,playList[k][j],trialInfo,randomNumbers[k]);
           }
         }
     }
