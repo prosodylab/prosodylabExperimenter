@@ -52,12 +52,9 @@
 // contact Email in case of problem:
 const contactEmail = 'no email specified'
 
-let completionLink = [];
-
 // completion code and completionLink are used for example for prolific studies
-// comment lines below out if  there is no completionLink and completion code:
-completionLink = 'https://app.prolific.co/submissions/complete?cc=6C5CD68A';
-completionCode = '6C5CD68A';
+const completionLink = [];
+const completionCode = [];
 
 
 // Some options can be set  here:
@@ -74,7 +71,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
 
 /* alternative methods to determine participant ID: 
 [PROLIFIC_SESSION_ID,'PROLIFIC_PID','random','randomAndDisplay']*/
-const participantCodeMethod = 'PROLIFIC_SESSION_ID'
+const participantCodeMethod = 'randomAndDisplay'
 
 // Using PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing these parameters from prolific
 // Usig PROLIFIC_SESSION_ID avoids storing the PID with the data
@@ -116,7 +113,7 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
     stimuliFile: `${study.path}/rhyme.txt`,
     soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
     helloFile: `${study.path}/hello.md`,
-    consentFile: `${study.path}/consent_perception_prolific.md`,
+    consentFile: `${study.path}/consent.md`,
     goodbyeFile: `${study.path}/goodbye.md`
   };
 

@@ -741,7 +741,7 @@ So far only implemented: Module 1, musicianship
        '\nParticipants: ',participants,
        '\npList: ', pList,
        'Prior assginments: ', counts,
-       '\nplayList',playList
+       //'\nplayList',playList
     );
 
     return playList;
