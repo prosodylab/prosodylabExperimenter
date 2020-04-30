@@ -838,9 +838,9 @@ So far only implemented: Module 1, musicianship
         stimulus: `${trial.path}/audio/${trial.contextFile}`,
         choices: jsPsych.NO_KEYS,
         trial_ends_after_audio: true,
-        data: trialInfo,
-        trialPart: 'Listen to sound'
+        data: trialInfo
       }
+      playSound.data.trialPart =  'Listen to sound';
       session.push(playSound);
     }
 

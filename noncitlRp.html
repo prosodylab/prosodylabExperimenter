@@ -108,11 +108,11 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
 // ----- experiment specific information ----
 
 
-  let study = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
+  let study = {path: 'experiments/noncitlRp'}; // needs to have audio/img subdirectories if applicable
   
   study = {...study, 
     logFile: `${study.path}/studyLog.json`,
-    stimuliFile: `${study.path}/rhyme.txt`,
+    stimuliFile: `${study.path}/noncitlRp.txt`,
     soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
     helloFile: `${study.path}/hello.md`,
     consentFile: `${study.path}/consent_perception_prolific.md`,
