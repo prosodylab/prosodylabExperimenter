@@ -12,7 +12,7 @@ experiment/processData.nb.html
 
 # ignore html files other than index.html in main folder
  in main folder
-./*.html
+/*.html
 !index.html
 
 # ignore local folders
