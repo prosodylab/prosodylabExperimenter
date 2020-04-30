@@ -795,11 +795,9 @@ So far only implemented: Module 1, musicianship
         result = [];       
         let permutations = this.permute(this.digitSequence(choices.length));
         permutationChoice = permutations[Math.floor(randomNumber*permutations.length)];
-        console.log('permutations',permutations,'permutationChoice',permutationChoice)
         for (let i=0;i<choices.length;i++) {
           result.push(choices[permutationChoice[i]-1]);
         }
-        console.log('choices permuted:',result)
         return result
   },
   

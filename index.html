@@ -74,6 +74,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
 // Determine participant code
 
 let participantCode = [];
+let studyID = [];
 
 if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 'PROLIFIC_PID'){
 
@@ -81,15 +82,16 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   if (participantCodeMethod ==  'PROLIFIC_SESSION_ID') {
-    participantCode = urlParams.get('SESSION_ID')
+    participantCode = urlParams.get('SESSION_ID');
+    studyID = urlParams.get('STUDY_ID');
   } else {
-    participantCode = urlParams.get('PROLIFIC_PID')
+    participantCode = urlParams.get('PROLIFIC_PID');
+    studyID = urlParams.get('STUDY_ID');
   } 
 } else {   // unique random participant code
     participantCode = jsPsych.randomization.randomID(6);
 }  
 
-console.log('participantCode: ',participantCode )
   //  ---- set-up timeline for experiment ----
 
   let timeline = [];
@@ -105,16 +107,18 @@ console.log('participantCode: ',participantCode )
   
   study = {...study, 
     logFile: `${study.path}/studyLog.json`,
-    stimuliFile: `${study.path}/noncitlRp_short.txt`,
+    stimuliFile: `${study.path}/noncitlRp.txt`,
     soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
     helloFile: `${study.path}/hello.md`,
     consentFile: `${study.path}/consent.md`,
     goodbyeFile: `${study.path}/goodbye.md`
   };
 
-    jsPsych.data.addProperties({
-    participant: participantCode,
-    stimuliFile: study.stimuliFile
+
+  jsPsych.data.addProperties({
+      participant: participantCode,
+      stimuliFile: study.stimuliFile,
+      studyID: studyID
   });
 
   //  ----- load experiment files ----
@@ -335,7 +339,6 @@ console.log('participantCode: ',participantCode )
   // ----  save data ----
   
   // choose 'csv' as second argument if you want to save  as .csv instead  of json
-  console.log('`${study.path}/data/${dataFilename}`',`${study.path}/data/${dataFilename}`)
   timeline.push(prosodylab.saveData(`${study.path}/data/${dataFilename}`,'json'));
   timeline.push(prosodylab.appendJson(newStudyLogEntries,study.logFile));
   
