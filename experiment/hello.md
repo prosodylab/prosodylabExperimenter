@@ -25,4 +25,4 @@ On the final screen, you will be given a **completion code**,  which you will ha
 
 **The total duration  of the study will be about 20 minutes**
 
-
+**Press any key if you want to proceed!**

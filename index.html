@@ -49,18 +49,55 @@
 // ---- switches ----
 
 
-//  some options can be set  here:
+// contact Email in case of problem:
+const contactEmail = 'no email specified'
+
+let completionLink = [];
+// comment lines below out if  there is no completionLink and completion code:
+completionLink = [];
+completionCode = [];
+
+/* alternative methods to determine participant ID: 
+[PROLIFIC_SESSION_ID,'PROLIFIC_PID','random','randomAndDisplay']*/
+const participantCodeMethod = 'PROLIFIC_SESSION_ID'
+
+// Some other options can be set  here:
 const displayDataAfterFinish = true; // shows collected data in json format after
 const showProgressBar = true; // shows progress to participant during study
 const fullScreen  = false; // doesn't work with IE, but will simply proceed anyway 
-const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
-
+const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
 
 // Some designs (Blocked, Between, LatinSquare, Within) assign a particular playlists to a participant
 const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the log file of who was
       assigned which playlist before, or 'random', which will assign it randomly */
 
+// Determine participant code
 
+let participantCode = [];
+
+if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 'PROLIFIC_PID'){
+
+  // get parameters from URL
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  if (participantCodeMethod ==  'PROLIFIC_SESSION_ID') {
+    participantCode = urlParams.get('SESSION_ID')
+  } else {
+    participantCode = urlParams.get('PROLIFIC_PID')
+  } 
+} else {   // unique random participant code
+    participantCode = jsPsych.randomization.randomID(6);
+}  
+
+console.log('participantCode: ',participantCode )
+  //  ---- set-up timeline for experiment ----
+
+  let timeline = [];
+  if (participantCode) {
+  
+  // use participantCode for data file name
+  const dataFilename = `data_${participantCode}`;
+  
 // ----- experiment specific information ----
 
 
@@ -75,13 +112,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
     goodbyeFile: `${study.path}/goodbye.md`
   };
 
-
-  // unique particpiant code (used also as completion code for mturk)
-  const participantCode = jsPsych.randomization.randomID(6);
-  // use random code for data file name
-  const dataFilename = `data_${participantCode}`;
-
-  jsPsych.data.addProperties({
+    jsPsych.data.addProperties({
     participant: participantCode,
     stimuliFile: study.stimuliFile
   });
@@ -90,23 +121,11 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
 
   // load spreadsheet with all experiments
   study.stimuli = prosodylab.loadCSV(study.stimuliFile);
-  // load welcome txt
-  study.hello=prosodylab.loadMD(study.helloFile);
-  // load consent text
-  study.consent=prosodylab.loadMD(study.consentFile);
-  // load goodbye text
-  study.goodbye = prosodylab.loadMD(study.goodbyeFile);
-
-
-  //  ---- set-up timeline for experiment ----
-
-  let timeline = [];
-  let timeline_variables = [];
 
   //  ---- pre experiment ----
   
   if (!doExperimentOnly){
-    timeline.push(prosodylab.screen('Hello',study.hello,'Click here to continue'));
+    timeline.push(prosodylab.screenFromMD(study.helloFile,'hello','left'));
   }
   
   //  ---- consent page  ----
@@ -115,12 +134,9 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // and will  be stored with the participant's data:
   
   if (!doExperimentOnly){
-     timeline.push(prosodylab.consent(study.consent));
+     timeline.push(prosodylab.screenFromMD(study.consentFile,'consent','left'));
   }
   
-  //// Use this code instead if you do not want to use the last paragraph as button
-  //prosodylab.screen('Consent',study.consent,'I consent',participantCode,'justify');
-
   // ---- language questionnaire ---
 
   if (!doExperimentOnly){
@@ -218,9 +234,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
     // (which means empty cells in all rows of session in instruction colummn)
     if (instructionsFile[0]){ 
       if (instructionsFile.length==1) {
-          instructions = prosodylab.loadMD(`${study.path}/${instructionsFile}`);
-          timeline.push(prosodylab.screen('Instructions',instructions,
-            'Click here to start the experiment','center'));
+          timeline.push(prosodylab.screenFromMD(`${study.path}/${instructionsFile}`,'Instructions','center'));
       } else if (instructionsFile.length>1) {
           instructions = `There has to be a unique instructions file per session. 
              Session: ${iSession+1} has instructions: ${instructionsFile.toString()}`
@@ -337,9 +351,21 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // ---- goodbye screen (with completion code if applicable )----
   
   if (!doExperimentOnly){
-    timeline.push(prosodylab.screen('Goodbye',study.goodbye,`I've noted down the participant 
-    code and want to  leave the experiment now.`,'center',participantCode));
+    if (participantCodeMethod == 'randomAndDisplay') {
+      timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',participantCode));
+    } else if (completionCode) { 
+      timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',completionCode));
+    } else {
+      timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center'));
+    }
   }
+  
+  
+  } else {
+  
+   timeline.push(prosodylab.screen(`<em>Something didn't work! Contact: ${contactEmail} </em>`,'noSessionIdError','Click here to leave experiment','center'));
+  
+  }// if loop for sessionID end
   
   //  ---- general settings  ----
 
@@ -355,13 +381,10 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
         if (displayDataAfterFinish) {
            // output full data to tab
            jsPsych.data.displayData();
-           
-           // output results for question1 to console
-           // var experimentData = jsPsych.data.get().filter({ trialPart: "question1"});
-           // console.log('experimentData.csv',experimentData.csv());
-           
-           
-           }
+        }
+        if (completionLink) {
+          location.href=completionLink // Real link would go here
+        }
       }
   })
 

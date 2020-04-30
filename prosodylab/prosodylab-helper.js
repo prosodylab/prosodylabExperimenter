@@ -2,37 +2,6 @@
 
 prosodylab = {
 
-  // render screen with button to press
-  screen: function(name, text, buttonText, align, participantCode) {
-    if (!align) {
-      var align = 'left';
-    }
-    if (!buttonText) { // default button text
-      buttonText = 'Click here to continue!'
-    }
-    text = `<div style="text-align: ${align}"> ${text} 
-       </div><br>`;
-    if (participantCode) { // completion code for final screen
-      text = `${text} <b>${participantCode}</b> <br><br><br>`
-    }
-    var screenObject = {
-      type: 'html-button-response',
-      timing_post_trial: 0,
-      choices: [buttonText],
-      on_trial_start: function() {
-        setTimeout(function() {
-          setDisplay("jspsych-btn", "")
-        }, 1000)
-      },
-      is_html: true,
-      stimulus: text,
-      data: {
-        component: name,
-        buttonResponseText: buttonText
-      }
-    };
-    return screenObject;
-  },
 
   // convert markdown to html
   md2html: function(text) {
@@ -219,34 +188,73 @@ prosodylab = {
     return saveData;
   },
 
-  
-  consent: function(consentText) {
-    let buttonText = consentText.substring(consentText.lastIndexOf('<p>')+3,consentText.lastIndexOf("</p>"))
-    consentText = consentText.substring(0,consentText.lastIndexOf('<p>'))
-    consentText =  `<div style="text-align: justify">${consentText}<br><br>`
-    buttonText = `<button class="jspsych-btn" 
-     style="white-space:normal; text-align: justify; font-size: 18px;width:95%;"> 
-     <b>${buttonText}</b></button><br><br><br><br><br>`
-    
+  // render screen with button to press
+  screen: function(text, name, choice, align, participantCode) {
+    if (!align) {
+      let align = 'left';
+    }
+    if (!choice) { // default button text
+      choice = 'Click here to continue!'
+    }
+    text = `<div style="text-align: ${align}"> ${text} 
+       </div><br>`;
+    if (participantCode) { // completion code for final screen
+      text = `${text} <b>${participantCode}</b> <br><br><br>`
+    }
     const screenObject = {
       type: 'html-button-response',
       timing_post_trial: 0,
-      choices: [buttonText],
-      button_html: buttonText,
-      on_trial_start: function() {
-        setTimeout(function() {
-          setDisplay("jspsych-btn", "")
-        }, 1000)
-      },
+      choices: [choice],
+      button_html: `<button class="jspsych-btn" 
+            style="white-space:normal; text-align: center; font-size: 18px;width:95%;"> 
+            <b>%choice%</b>
+            </button><br><br><br><br>`,
+      stimulus: text,
       is_html: true,
-      stimulus: consentText,
       data: {
-        component: 'Consent',
-        buttonResponseText: buttonText
+        component: name,
+        buttonResponseText: choice
       }
     };
     return screenObject;
+  },
   
+    // render screen with button to press
+  screenFromMD: function(file, name, align, completionCode) {
+  
+    // load markdown and convert into html
+    let text = prosodylab.loadMD(file);
+    // default alignment is lelt-alignment
+    if (!align) {
+      let align = 'left';
+    }
+    // 
+    let choice = [text.substring(text.lastIndexOf('<p>')+3,text.lastIndexOf("</p>"))];
+    text = text.substring(0,text.lastIndexOf('<p>'))
+    text =  `<div style="text-align: ${align}">${text}</div><br><br>`;
+    // display participant code if desired (for final screen)
+    if (completionCode) { // completion code for final screen
+      text = `${text} <b>Completion Code: ${completionCode}</b> <br><br><br>`
+    }
+    // screen object
+    const screenObject = {
+      type: 'html-button-response',
+      // take last paragraph of html as button text
+      choices: choice,
+      // format button:
+      button_html: `<button class="jspsych-btn" 
+            style="white-space:normal; text-align: center; font-size: 18px;width:95%;"> 
+            <b>%choice%</b>
+            </button><br><br><br><br>`,
+      // present rest of text as stimulus:
+      stimulus: text,      
+      is_html: true,
+      data: {
+        component: name,
+        buttonResponseText: choice
+      }
+    };
+    return screenObject;
   },
   
   
@@ -835,7 +843,7 @@ So far only implemented: Module 1, musicianship
         data: trialInfo,
         trialPart: 'Listen to sound'
       }
-      //session.push(playSound);
+      session.push(playSound);
     }
 
     let questionN = 1;
