@@ -53,8 +53,8 @@
 const contactEmail = 'no email specified'
 
 // completion code and completionLink are used for example for prolific studies
-const completionLink = [];
-const completionCode = [];
+const completionLink = "";
+const completionCode = "";
 
 
 // Some options can be set  here:
@@ -76,7 +76,7 @@ const participantCodeMethod = 'randomAndDisplay'
 // Using PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing these parameters from prolific
 // Usig PROLIFIC_SESSION_ID avoids storing the PID with the data
 
-let participantCode = [];
+let participantCode = "";
 let studyID = [];
 
 if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 'PROLIFIC_PID'){
@@ -106,7 +106,7 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
 // ----- experiment specific information ----
 
 
-  let study = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
+  let study = {path: 'testExperiment'}; // needs to have audio/img subdirectories if applicable
   
   study = {...study, 
     logFile: `${study.path}/studyLog.json`,
@@ -342,8 +342,7 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   
   // choose 'csv' as second argument if you want to save  as .csv instead  of json
   timeline.push(prosodylab.saveData(`${study.path}/data/${dataFilename}`,'json'));
-  timeline.push(prosodylab.appendJson(newStudyLogEntries,study.logFile));
-  
+  timeline.push(prosodylab.appendJsonCallFunction(newStudyLogEntries,study.logFile));  
    // exit full screen
   
   if (fullScreen) {
@@ -387,9 +386,10 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
            // output full data to tab
            jsPsych.data.displayData();
         }
-        if (completionLink) {
-          location.href=completionLink // Real link would go here
-        }
+        if (completionLink&participantCode) {
+          if (completionLink.length>0){
+            location.href=completionLink
+          }        }
       }
   })
 

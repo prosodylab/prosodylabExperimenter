@@ -26,43 +26,28 @@ prosodylab = {
     }
   },
   
-  appendJsonOld: function(data,fileName){
-        let studyLog = this.loadLog(fileName);
-        if (Object.keys(studyLog).length) {// if studyLog not empty, append
-          data = [...studyLog, ...data];
+  appendJson: function(data,fileName){
+        let existingFile = this.loadLog(fileName);
+        console.log('existingFile',existingFile)
+        if (Object.keys(existingFile).length) {// if existingFile not empty, append
+          console.log('yes')
+          data = [...existingFile, ...data];
         }
+        console.log('data extended',data);
         data=JSON.stringify(data);
         
-        saveData = {
-          type: 'call-function',
-          async: true,
-          func: async function(done) {
-            const response = await fetch("prosodylab/write_data.php", {
-              method: "POST",
-              headers: {
-                "content-type": "application/json"
-              },
-              body: JSON.stringify({ filename: fileName, filedata: data })
-            });
-            if (response.ok) {
-              const responseBody = await response.text();
-              done(responseBody);
-            }
-          }
-        }
-    return saveData;
+        this.saveJson(data,fileName);
   
   },
   
-    appendJson: function(data,fileName){
-        
+    appendJsonCallFunction: function(data,fileName){
         saveData = {
           type: 'call-function',
           async: true,
           func: async function(done) {
-            let studyLog = prosodylab.loadLog(fileName);
-            if (Object.keys(studyLog).length) {// if studyLog not empty, append
-              data = [...studyLog, ...data];
+            let existingFile = prosodylab.loadLog(fileName);
+            if (Object.keys(existingFile).length) {// if studyLog not empty, append
+              data = [...existingFile, ...data];
             }
             data=JSON.stringify(data);
             const response = await fetch("prosodylab/write_data.php", {
@@ -92,7 +77,7 @@ prosodylab = {
       cache: false,
       url: fileName,
       error: function() {
-        console.error(`Created new participant log since there was none!`);
+        console.error(`Created new ${fileName} since there was none!`);
         prosodylab.saveJson(JSON.stringify({}),fileName);
       },
       success: function(txt) {
@@ -360,7 +345,7 @@ So far only implemented: Module 1, musicianship
       },
       data: {
         component: 'Sound check instructions',
-        choices: buttonText
+        options: buttonText
       },
     }
     soundCheck.push(soundCheckObject);
@@ -383,7 +368,7 @@ So far only implemented: Module 1, musicianship
       },
       data: {
         component: 'Sound check',
-        choices: [choiceOne, choiceTwo]
+        options: [choiceOne, choiceTwo]
       },
       button_html: '<button class="jspsych-btn">%choice% </button>'
     };
@@ -432,7 +417,8 @@ So far only implemented: Module 1, musicianship
         }, 1000)
       },
       data: {
-        component: 'Headphone screener instructions',
+        component: 'Headphone screener',
+        trialPart:  'Headphone screener instructions'
         choices: buttonText
       },
     }
@@ -480,8 +466,8 @@ So far only implemented: Module 1, musicianship
           trial_ends_after_audio: true,
           post_trial_gap: 500,
           data:  {
-            component: 'Headphone screener sound',
-            trialPart: `Listen to head phone screener sound ${j}`,
+            component: 'Headphone screener',
+            trialPart: `Listen to head phone screener sequence ${i} sound ${j}`,
             sound: `${soundsUsed[randomOrder[j]]}`,
             setUsed: soundsUsedText,
             correctButton: correctButton
@@ -498,12 +484,13 @@ So far only implemented: Module 1, musicianship
         button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
         data:  {
           options: choices,
-          component: 'Headphone screener question',
+          component: 'Headphone screener',
+          trialPart:  `Headphone screener question ${i}`
           setUsed: soundsUsedText,
           correctButton: correctButton
         },   
         on_finish: function(data){
-          if(data.button_pressed==correctButton){
+          if(data.button_pressed==data.correctButton){
               data.correct = 1;
           } else {
               data.correct = 0;
@@ -517,6 +504,111 @@ So far only implemented: Module 1, musicianship
     return headPhoneScreenerTrial;
   },
 
+
+  headPhoneScreenerOriginal: function() {
+    const path = 'prosodylab/headphonescreener/original'
+    let sounds = [];
+    sounds = ['antiphase_HC_IOS.wav',
+              'antiphase_HC_ISO.wav',
+              'antiphase_HC_OIS.wav',
+              'antiphase_HC_OSI.wav',
+              'antiphase_HC_SIO.wav',
+              'antiphase_HC_SOI.wav'
+              ];
+    const correctChoice = [2,1,2,1,0,0];
+    let randomOrder = [0,1,2,3,4,5];
+    randomOrder  = jsPsych.randomization.shuffle(randomOrder);
+    
+    let headPhoneScreenerTrial= [];
+    let playSound = [];
+    let question = [];
+    let correctButton = [];
+    
+    const buttonText = ['Play the first set of three sounds!'];
+    const instructionsHeadPhoneScreener = {
+      type: 'html-button-response',
+      stimulus: `<b> Headphone Check</b> +
+        <br> <em>The following is a headphone test--you will not be able to do this without headphones!</em>
+        <p><br><br> You will hear three sounds in a row, and you will be asked which one was the quietest of them.
+        <br><br> This task will be repeated 6 times(this should take only 2 minutes).
+        <br><br></p>`,
+      choices: buttonText,
+      on_trial_start: function() {
+        setTimeout(function() {
+          setDisplay("jspsych-btn", "")
+        }, 1000)
+      },
+      data: {
+        component: 'Headphone screener instructions',
+        choices: buttonText
+      },
+    }
+    headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
+    
+    // create variable for random order
+
+    let correct  = 0;
+    
+    const choices = [
+         'The FIRST was softest', 
+         'The SECOND was softest', 
+         'The THIRD was softest'
+        ];
+
+    for  (let i=0;i<6;i++){
+      
+      
+        correctButton = correctChoice[randomOrder[i]];
+        
+        playSound = {
+          type: 'audio-keyboard-response',
+          prompt: function() {
+          const html = `<style> .centered {position: fixed; top: 50%; 
+            left: 50%; transform: translate(-50%, -50%);}</style>
+            <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
+            return html;
+          },
+          stimulus: `${path}/${sounds[randomOrder[i]]}`,
+          choices: jsPsych.NO_KEYS,
+          trial_ends_after_audio: true,
+          post_trial_gap: 500,
+          data:  {
+            component: 'Headphone screener sound',
+            trialPart: `Listen to head phone screener sound ${i}`,
+            sound: `${sounds[randomOrder[i]]}`,
+            setUsed: 'original',
+            correctButton: correctButton
+          }
+        }
+        headPhoneScreenerTrial.push(playSound);
+      
+
+      
+      question = {
+        type: 'html-button-response',
+        stimulus: 'Which sound was quietest?',
+        choices: choices,
+        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
+        data:  {
+          options: choices,
+          component: 'Headphone screener question',
+          setUsed: 'original',
+          correctButton: correctButton
+        },   
+        on_finish: function(data){
+          if(data.button_pressed==data.correctButton){
+              data.correct = 1;
+          } else {
+              data.correct = 0;
+          }
+        }   
+      }      
+      headPhoneScreenerTrial.push(question);
+      
+    }
+    return headPhoneScreenerTrial;
+  },
+  
 
   latinsquareConditionSelection: function(items, conditions, pListN) {
 
@@ -858,14 +950,13 @@ So far only implemented: Module 1, musicianship
         qType = trial[`question${questionN}Type`]
       }
       
-      
       // default question type
       question.type = "html-keyboard-response";
       // convert question text from markdown into html:
-      question.data = {text: this.md2html(trial[`question${questionN}`])};
-      question.data.trialPart =  `question${questionN}`;
-      question.data = {...question.data,...trialInfo};
-      
+      question.data = {...trialInfo, 
+        text: this.md2html(trial[`question${questionN}`]),
+        trialPart: `question${questionN}`
+        };
       
       if (qType=='ButtonOptionsFixed'||qType=='ButtonOptionsRandomBetween'){
       
@@ -889,7 +980,7 @@ So far only implemented: Module 1, musicianship
       } else if (qType=='ConditionalButtonOptions'||qType=='ConditionalButtonOptionsRandomBetween'){
           // question options dependent on prior question, fixed option order or random between participants
             
-          question.data.conditionalOptions = eval(trial[`question${questionN}Options`]);          
+          question.data.conditionalOptions = eval(trial[`question${questionN}Options`]);
           
           question.type = 'html-button-response';
           question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>';
@@ -919,7 +1010,10 @@ So far only implemented: Module 1, musicianship
             for (let choice=0;choice<(question.data.conditionalOptions.length/2);choice++){
               
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
-                const options = question.data.conditionalOptions[choice*2+1];
+                let options = question.data.conditionalOptions[choice*2+1];
+                if (qType == 'ConditionalButtonOptionsRandomBetween') {
+                   options = prosodylab.shuffle(options,randomNumbers[questionN-1]);
+                }
                 return options
               }
             }
@@ -928,7 +1022,7 @@ So far only implemented: Module 1, musicianship
           // choice between n options, using number keys
           question.data.options = eval(trial[`question${questionN}Options`]);
           if (qType == 'OptionsRandomBetween') {
-            question.data.options = this.shuffle(question.data.options,randomNumbers);
+            question.data.options = this.shuffle(question.data.options,randomNumbers[questionN-1]);
           }
           question = this.questionKeyOptions(question);
           
@@ -951,7 +1045,7 @@ So far only implemented: Module 1, musicianship
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
                 choices = question.data.conditionalOptions[choice*2+1];
                 if (qType == 'ConditionalOptionsRandomBetween') {
-                  choices = this.shuffle(choices,randomNumbers);
+                  choices = this.shuffle(choices,randomNumbers[questionN-1]);
                 }
                 choices = this.generateKeyChoices(choices.length);
                 return choices
@@ -999,7 +1093,7 @@ So far only implemented: Module 1, musicianship
               if (lastTrial.chosenOption == question.data.conditionalOptions[choice*2]) {
                 const options = question.data.conditionalOptions[choice*2+1];
                 if (qType == 'ConditionalOptionsRandomBetween') {
-                  options = this.shuffle(options,randomNumbers);
+                  options = this.shuffle(options,randomNumbers[questionN-1]);
                 }
                 return options
               }
