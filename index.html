@@ -106,7 +106,7 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
 // ----- experiment specific information ----
 
 
-  let study = {path: 'testExperiment'}; // needs to have audio/img subdirectories if applicable
+  let study = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
   
   study = {...study, 
     logFile: `${study.path}/studyLog.json`,
@@ -129,10 +129,25 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   // load spreadsheet with all experiments
   study.stimuli = prosodylab.loadCSV(study.stimuliFile);
 
-  //  ---- pre experiment ----
+  //  ---- hello page ----
   
   if (!doExperimentOnly){
     timeline.push(prosodylab.screenFromMD(study.helloFile,'hello','left'));
+  }
+  
+  // ---- full screen mode if applicable --
+  
+    if (fullScreen) {
+    timeline.push({
+      type: 'fullscreen',
+      message: `<p><br><br> <em>Please click the button below
+       to enter full screen mode and start with the experiment</em></p>`,
+      fullscreen_mode: true,
+      data: {
+       component: 'full screen',
+       participant: participantCode
+      }
+    });
   }
   
   //  ---- consent page  ----
@@ -163,18 +178,6 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   }
   //  ---- build experiment  ----
   
-  if (fullScreen) {
-    timeline.push({
-      type: 'fullscreen',
-      message: `<p> <b>All set!</b> <br><br> <em>Please click the button below
-       to enter full screen mode and start with the experiment</em></p>`,
-      fullscreen_mode: true,
-      data: {
-       component: 'full screen',
-       participant: participantCode
-      }
-    });
-  }
   
   let session = [];
   let experimentN = [];

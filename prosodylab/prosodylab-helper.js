@@ -28,12 +28,9 @@ prosodylab = {
   
   appendJson: function(data,fileName){
         let existingFile = this.loadLog(fileName);
-        console.log('existingFile',existingFile)
         if (Object.keys(existingFile).length) {// if existingFile not empty, append
-          console.log('yes')
           data = [...existingFile, ...data];
         }
-        console.log('data extended',data);
         data=JSON.stringify(data);
         
         this.saveJson(data,fileName);
@@ -418,7 +415,7 @@ So far only implemented: Module 1, musicianship
       },
       data: {
         component: 'Headphone screener',
-        trialPart:  'Headphone screener instructions'
+        trialPart:  'Headphone screener instructions',
         choices: buttonText
       },
     }
@@ -485,7 +482,7 @@ So far only implemented: Module 1, musicianship
         data:  {
           options: choices,
           component: 'Headphone screener',
-          trialPart:  `Headphone screener question ${i}`
+          trialPart:  `Headphone screener question ${i}`,
           setUsed: soundsUsedText,
           correctButton: correctButton
         },   
