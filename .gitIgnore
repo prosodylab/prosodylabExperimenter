@@ -6,6 +6,7 @@
 
 # setting for www access
 .htaccess
+.Rhistory
 
 # rmd notebook from processing script
 experiment/processData.nb.html
