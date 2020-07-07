@@ -2,6 +2,450 @@
 
 prosodylab = {
 
+  getMessages: function(language){
+  
+    const messages = {
+    
+    // English
+    en: {
+      fullScreen: `<p><br><br> <em>Please click the button below
+        to enter full screen mode and start with the experiment</em></p>`,
+      continueButton:  'Continue',
+      connectHeadphones: 'Please connect your headphones and adjust the volume please!',
+      playSound: 'Play a sound',
+      playAgain: 'Play sound again',
+      soundCheckOk: 'I can hear the sound at a comfortable volume',
+      adjustVolume: 'Adjust volume if necessary',
+      instructionsHeadphoneCheck: `<br> <em>The following is a headphone test--you will not 
+        be able to do this without headphones!</em>  <p><br><br> You will hear three 
+        sounds in a row, and you will be asked which one was the quietest of them.
+        <br><br> This task will be repeated 6 times(this should take only 2 minutes).
+        <br><br></p>`,
+      startHeadphoneTest: 'Play the first set of three sounds!',
+      questionHeadphoneTest: 'Which sound was quietest?',
+      optionsHeadphoneTest: [
+        'The first sound was the softest.',
+        'The second sound was the softest.',
+        'The third sound was the softest.'
+      ],
+      naturalnessQuestion: 'How natural did you find this sentence?',
+      naturalnessQuestionContext: 'How natural did you find the response given the context?',
+      naturalnessOptions: ['completely unnatural','completely natural'],
+      //
+      // Music questionnaire 
+      mqTrainingTheory: 'How many years of formal music training (theory) have you had?',
+      mqKnowTheory: 'How much do you know about music structure and theory?',
+      mqTrainingPractice: 'How many years of formal music training (practice) have you had?',
+      mqMakeProfessional: `How often do you engage in professional music making 
+        (e.g., singing, playing an instrument, composing)?`,
+      mqMakePractice: 'How often did or do you practice or rehearse with an instrument or singing?',
+      mqMakeHobby: 'How often do you engage in music making as a hobby or as an amateur?',
+      //
+      scaleYears:  [
+        'None',
+        '1 year',
+        '2 years',
+        '3 years',
+        '4 years',
+        '5 years',
+        '6 years', 
+        '7 years',
+        '8 years',
+        'more than 8 years'
+      ],
+      scaleHowMuch: [
+         'Nothing',
+         'A little',
+         'A fair amount',
+         'A moderate amount',
+         'A great deal'
+      ], 
+      scaleHowOften: [
+        'Never',
+        'Rarely',
+        'Sometimes',
+        'Often',
+        'All the time'
+      ] 
+    },
+    
+    // French
+    fr: {
+      fullScreen: `<p> <br> <br> <em> Veuillez cliquer sur le bouton ci-dessous
+        pour passer en mode plein écran et débuter l'expérience </em> </p> `,
+      continueButton: 'Cliquer içi pour continuer',
+      connectHeadphones: 'Veuillez connecter vos écouteurs et régler le volume s\'il vous plaît!',
+      playSound: 'Écouter le son',
+      playAgain: 'Rejouer le son',
+      soundCheckOk: 'Je peux entendre le son à un volume confortable',
+      adjustVolume: 'Ajustez le volume si nécessaire',
+      instructionsHeadphoneCheck: `<br> <em> Ce qui suit est un test test sonore. Des
+        écouteurs sont nécessaires pour effectuer le test. </ em>
+        <p> <br> <br> Écoutez les trois notes, puis choisissez celle qui était la plus silencieuse.
+        <br> <br> Cette tâche sera répétée 6 fois. (La durée du test est d'environ 2 minutes.)
+        <br> <br> </ p> `,
+      startHeadphoneTest: 'Jouez le premier ensemble de trois sons!',
+      questionHeadphoneTest: 'Quel son était le plus silencieux?',
+      optionsHeadphoneTest: [
+        "Le premier son était le plus doux.",
+        "Le deuxième son était le plus doux.",
+        "Le troisième son était le plus doux."
+      ],
+      naturalnessQuestion: 'Cette phrase semblait-elle naturelle?',
+      naturalnessQuestionContext: 'Comment jugez-vous la réponse en fonction du contexte?',
+      naturalnessOptions: ['complètement pas naturel', 'complètement naturel'],
+     
+      // Questionnaire musical
+      mqTrainingTheory: 'Combien d\'années de formation musicale formelle (théorie) avez-vous eues?',
+      mqKnowTheory: 'Que connaissez-vous de la structure et de la théorie musicale?',
+      mqTrainingPractice: 'Combien d\'années de formation (pratique) musicale formelle avez-vous eues?',
+      mqMakeProfessional: `À quelle fréquence vous engagez-vous dans la création musicale professionnelle
+        (par exemple, chanter, jouer d'un instrument, composer)?`,
+      mqMakePractice: 'À quelle fréquence est-ce que vous pratiquez avec un instrument ou chantez?',
+      mqMakeHobby: 'À quelle fréquence vous engagez-vous dans la création musicale comme passe-temps ou comme amateur?',
+      //
+      scaleYears: [
+        'Aucun',
+        '1 année',
+        '2 années',
+        '3 années',
+        '4 années',
+        '5 années',
+        '6 années',
+        '7 années',
+        '8 années',
+        'plus de 8 ans'
+      ],
+      scaleHowMuch: [
+         'Rien',
+         'Un peu',
+         'Une quantité modérée',
+         'Assez beaucoup',
+         'Énormément'
+      ],
+      scaleHowOften: [
+        'Jamais',
+        'Rarement',
+        'Parfois',
+        'Souvent',
+        'Tout le temps'
+      ]
+    },
+    
+    // Japanese
+    ja: {
+      fullScreen: `<p> <br> <br> <em>フルスクリーン表示を可能し、実験を開始するために、以下のボタンを押してください。
+      </ em> </ p> `,
+      continueButton:  '次へ', //'次へ進むために、ここをクリックしてください。',
+      connectHeadphones: 'ヘッドホンを接続して、音量を調節してください。',
+      playSound: '音を再生する。',
+      playAgain: 'もう一度音をきく。',
+      soundCheckOk: 'ちょうどいい音量で音がきこえます。',
+      adjustVolume: '必要であれば音量を調節してください。',
+      instructionsHeadphoneCheck: `<br> <em>これから、サウンドテストを行います。テストを行うためには、ヘッドホンが必要です。</em>
+        <p><br><br> 3つの音を続けてきき、その後、どの音が一番小さかったか答えてもらいます。
+        <br><br> このテストは６回行われます。（テストの所要時間は、およそ３分です。）
+        <br><br></p>`,
+      startHeadphoneTest: '１セット目の3つの音をきく。',
+      questionHeadphoneTest: 'どの音が一番小さかったですか。',
+      optionsHeadphoneTest: [
+        '1つ目の音が一番小さかったです。', 
+        '２つ目の音が一番小さかったです。', 
+        '３つ目の音が一番小さかったです。'
+      ],
+      naturalnessQuestion: 'この文はどのくらい自然ですか。',
+      naturalnessQuestionContext: '与えられた文脈を踏まえると、この返答はどのくらい自然ですか。',
+      naturalnessOptions: ['完全に不自然','完全に自然'],
+      
+      //
+      // Music questionnaire 
+      mqTrainingTheory: 'あなたは何年間音楽の理論を正式に勉強しましたか。',
+      mqKnowTheory: 'あなたはどのくらい音楽の構造と理論を理解していますか。',
+      mqTrainingPractice: 'あなたは何年間音楽の演奏技術を正式に訓練していますか。',
+      mqMakeProfessional: `あなたが仕事として音楽を作成する頻度を教えてください。(例:作曲、演奏、声楽)`,
+      mqMakePractice: 'あなたが楽器の演奏や声楽を練習する、もしくは練習した頻度を教えてください。',
+      mqMakeHobby: 'あたながプロとしてではなく、趣味で音楽を作成する頻度を教えてください。',
+      //
+      scaleYears: [ '全くない',
+                                    '１年',
+                                    '２年',
+                                    '３年',
+                                    '４年',
+                                    '５年',
+                                    '６年', 
+                                    '７年',
+                                    '８年',
+                                    '9年以上'
+                                    ],
+      scaleHowMuch: ['全く理解してない',
+                                     '少し理解している',
+                                     'ある程度理解している',
+                                     'だいたい理解している',
+                                     'とてもよく理解している'
+                                     ], 
+      scaleHowOften:['全くしません',
+                                     'ごくたまにします',
+                                     '時々します',
+                                     'よくします',
+                                     'いつもします'
+                                     ]
+    },
+    
+    // Spanish (careful, mostly just google translate!)
+    es: {
+      fullScreen: `<p> <br> <br> <em> Haga clic en el botón abajo
+        para ingresar al modo de pantalla completa y empezar con el experimento </em> </p> `,
+      continueButton: 'Continuar',
+      connectHeadphones: '¡Conecte sus audífonos y ajuste el volumen, por favor!',
+      playSound: 'Reproducir sonido',
+      playAgain: 'Reproducir sonido de nuevo',
+      soundCheckOk: 'Puedo escuchar el sonido a un volumen cómodo',
+      adjustVolume: 'Ajuste el volumen si es necesario',
+      instructionsHeadphoneCheck: `<br> <em> Vamos hacer una prueba de sonido. Se requiere 
+        audífonos para realizar la prueba. </ em>
+        <p> <br> <br> Siga los tres sonidos y luego decida cuál fue el más suave.
+        <br> <br> Esta prueba se ejecutará 6 veces. (El tiempo total es de aproximadamente 2 minutos).
+        <br> <br> </ p>`,
+      startHeadphoneTest: '¡Reproducir el primer conjunto de tres sonidos!',
+      questionHeadphoneTest: '¿Qué sonido fue el más suave?',
+      optionsHeadphoneTest: [
+        'El primer sonido fue el más suave',
+        'El segundo sonido fue el más suave',
+        'El tercer sonido fue el más suave'
+      ],
+      naturalnessQuestion: '¿Qué tan natural le pareció la oración?',
+      naturalnessQuestionContext: '¿Qué tan natural le pareció la respuesta dado el contexto?',
+      naturalnessOptions: ['para nada natural', 'completamente natural'],
+     
+      // cuestionario de música
+      mqTrainingTheory: '¿Cuántos años de entrenamiento formal (teoría) en música ha recibido?',
+      mqKnowTheory: '¿Cuánto sabe sobre la estructura y la teoría de la música?',
+      mqTrainingPractice: '¿Cuántos años de entrenamiento formal (práctica) en música ha recibido?',
+      mqMakeProfessional: `¿Con qué frecuencia se involucra en la realización de música como profesional?
+        (p. ej., cantar, tocar un instrumento, componer)?`,
+      mqMakePractice: '¿Con qué frecuencia practica instrumentos musicales o canta?',
+      mqMakeHobby: '¿Con qué frecuencia se involucra en la música como pasatiempo o como aficionado?',
+     
+      //
+      scaleYears: [
+        'Ninguno',
+        '1 año',
+        '2 años',
+        '3 años',
+        '4 años',
+        '5 años',
+        '6 años',
+        '7 años',
+        '8 años',
+        'más de 8 años'
+      ],
+      scaleHowMuch: [
+         'Nada',
+         'Un poco',
+         'Una cantidad moderada',
+         'Bastante',
+         'Mucho'
+      ],
+      scaleHowOften: [
+        'Nunca',
+        'Raramente',
+        'Algunas veces',
+        'A menudo',
+        'Todo el tiempo'
+      ]
+    },
+    
+    // German
+    de: {
+      fullScreen: `<p> <br> <br> <em> Bitte klicken um in den Vollbildmodus zu wechseln 
+        und mit dem Experiment zu beginnen! </ em> </ p> `,
+      continueButton: 'Weiter',
+      connectHeadphones: 'Bitte schließ Deinen Kopfhörer an und stell die Lautstärke ein!',
+      playAgain: 'Aufnahme abspielen',
+      playAgain: 'Aufnahme noch mal abspielen',
+      soundCheckOk: 'Die Lautstärke ist angenehm',
+      adjustVolume: 'Lautstärke bei Bedarf bitte anpassen',
+      instructionsHeadphoneCheck: `<br> <em> Es folgt ein Kopfhörertest -- Kopfhörer sind
+         dazu absolut notwendig! </ em> <p> <br> <br> Du wirst drei Töne hören, und 
+         musst dann beantworteen, welcher der leiseste von ihnen war.
+        <br> <br> Dies wird 6 Mal wiederholt (und dauert insgesamt etwa 2 Minuten).
+        <br> <br> </ p> `,
+      startHeadphoneTest: 'Die ersten drei Töne abspielen',
+      questionHeadphoneTest: 'Welcher Ton war am leisesten?',
+      optionsHeadphoneTest: [
+        'Der erste Ton war der leiseste.',
+        'Der zweite Ton war das leiseste.',
+        'Der dritte Ton war das leiseste.'
+      ],
+      naturalnessQuestion: 'Wie natürlich fandest Du diesen Satz?',
+      naturalnessQuestionContext: 'Wie natürlich fandest Du die Antwort in diesem Kontext?',
+      naturalnessOptions: ['völlig unnatürlich', 'völlig natürlich'],
+      
+      // Musikfragebogen
+      mqTrainingTheory: 'Wie viele Jahre formale Musikausbildung (Theorie) hattest Du?',
+      mqKnowTheory: 'Wie viel weißt du über Musikstruktur und -theorie?',
+      mqTrainingPractice: 'Wie viele Jahre formale Musikausbildung (Praxis) hattest Du?',
+      mqMakeProfessional: `Wie oft machst du professionell Musik
+        (z. B. singen, ein Instrument spielen, komponieren)? `,
+      mqMakePractice: 'Wie oft übst Du heute oder hast du früher geübt (ob singen oder mit Instrument)?',
+      mqMakeHobby: 'Wie oft machst Du Hobby-mäßig Musik?',
+      //
+      scaleYears: [
+        'Gar nicht oder weniger als 1 Jahr',
+        '1 Jahr',
+        '2 Jahre',
+        '3 Jahre',
+        '4 Jahre',
+        '5 Jahre',
+        '6 Jahre',
+        '7 Jahre',
+        '8 Jahre',
+        "mehr als 8 Jahre"
+      ],
+      scaleHowMuch: [
+         'Nichts',
+         'Ein wenig',
+         "Einigermaßen viel",
+         "Relativ viel",
+         'Sehr viel'
+      ],
+      scaleHowOften: [
+        'Noch nie',
+        'Selten',
+        'Manchmal',
+        'Häufig',
+        'Ständig'
+      ]
+    },
+    
+    // Mandarin (careful, just google translate!)
+    zh_cn:{
+      fullScreen:`<p> <br> <br> <em>请点击下面的按钮
+        进入全屏模式并开始实验</ em> </ p>`,
+      continueButton:'继续',
+      connectHeadphones:'请连接耳机并调节音量！',
+      playAgain: '再次播放声音',
+      soundCheckOk: '我可以以舒适的音量听到声音',
+      adjustVolume: '必要时调整音量',
+      instructionsHeadphoneCheck: `<br> <em>以下是耳机测试-您不会
+        不用戴耳机就能做到这一点！</ em> <p> <br> <br>您会听到三个
+        连续听起来,您会被问到哪个是最安静的一个。
+        <br> <br>此任务将重复6次（此过程仅需2分钟）。
+        <br> <br> </ p>`,
+      startHeadphoneTest: '播放第一组三个声音！',
+      questionHeadphoneTest: '哪个声音最安静？',
+      optionsHeadphoneTest:[
+        '第一声是最柔和的。',
+        '第二声是最柔和的。',
+        '第三声是最柔和的。'
+      ],
+      naturalnessQuestion: '您觉得这句话有多自然？',
+      naturalnessQuestionContext: '给定上下文,您发现响应的自然程度如何？',
+      naturalnessOptions: ['完全不自然','完全自然'],
+      
+            // Music questionnaire 
+      mqTrainingTheory: '您接受了多少年的正规音乐培训（理论）',
+      mqKnowTheory: '您对音乐的结构和理论了解多少',
+      mqTrainingPractice: '您接受了多少年的正规音乐培训（练习）',
+      mqMakeProfessional: `您多长时间从事一次专业音乐制作
+        （例如,唱歌,弹奏乐器,作曲）`,
+      mqMakePractice: '您多久使用一次乐器或唱歌进行练习或排练',
+      mqMakeHobby: '您多久以业余或业余时间从事音乐制作',
+      //
+      scaleYears:  [
+        '没有',
+        '1  年',
+        '2 年',
+        '3 年',
+        '4 年',
+        '5 年',
+        '6 年',
+        '7 年',
+        '8 年',
+        '超过8年'
+      ],
+      scaleHowMuch: [
+         '没有',
+         '一点',
+         '相当数量',
+         '适量',
+         '好的折扣'
+      ], 
+      scaleHowOften: [
+        '决不',
+        '很少',
+        '有时',
+        '经常',
+        '每时每刻'
+      ] 
+    },
+    
+    // Korean (careful, just google translate!)
+    ko: {
+      fullScreen:`<p> <br> <br> <em> 아래 버튼을 클릭하십시오
+        전체 화면 모드로 들어가서 실험으로 시작 </ em> </ p>`,
+      continueButton: '계속',
+      connectHeadphones: '헤드폰을 연결하고 볼륨을 조정하십시오!',
+      playAgain: '다시 소리 재생',
+      soundCheckOk: '편안한 볼륨으로 소리를들을 수 있습니다',
+      adjustVolume : '필요한 경우 볼륨 조정',
+      instructionsHeadphoneCheck:`<br> <em> 다음은 헤드폰 테스트입니다.
+        헤드폰없이이 작업을 수행 할 수 있습니다! </ em> <p> <br> <br>
+        연속해서 들리면 어느 것이 가장 조용한 지 묻습니다.
+        <br> <br>이 작업은 6 번 반복됩니다 (2 분 소요).
+        <br> <br> </ p>`,
+      startHeadphoneTest: '첫 번째 세 세트의 사운드를 연주하십시오!',
+      questionHeadphoneTest: '어떤 소리가 가장 조용한가?',
+      optionsHeadphoneTest: [
+        '첫 번째 소리가 가장 부드럽습니다.',
+        '두 번째 소리가 가장 부드럽습니다.',
+        '세번째 소리가 가장 부드럽습니다.'
+      ],
+      naturalnessQuestion: '이 문장을 얼마나 자연스럽게 찾았습니까?',
+      naturalnessQuestionContext: '컨텍스트가 주어진 응답을 얼마나 자연스럽게 찾았습니까?',
+      naturalnessOptions: [ '완전히 부자연 스러움', '완전히 자연 스러움'],
+      
+      // Music questionnaire 
+      mqTrainingTheory: '몇 년 동안 공식 음악 교육 (이론)을 받았습니까',
+      mqKnowTheory: '음악 구조와 이론에 대해 얼마나 알고 있습니까',
+      mqTrainingPractice: '몇 년 동안 공식 음악 훈련 (연습)을 했습니까',
+      mqMakeProfessional: `전문 음악 제작에 얼마나 자주 참여하십니까 (예 : 노래, 악기 연주, 작곡)`,
+      mqMakePractice: '악기 나 노래로 얼마나 자주 연습하거나 연습합니까',
+      mqMakeHobby: '취미 나 아마추어로서 음악 제작에 얼마나 자주 참여하십니까',
+      //
+      scaleYears:  [
+        '없음',
+        '일년',
+        '2 년',
+        '3 년',
+        '4 년',
+        '5 년',
+        '6 년',
+        '7 년',
+        '8 년',
+        '8 년 이상'
+      ],
+      scaleHowMuch: [
+         '아무것도',
+         '조금',
+         '공정한 금액',
+         '중간 정도',
+         '아주 더'
+      ], 
+      scaleHowOften: [
+        '못',
+        '드물게',
+        '때때로',
+        '자주',
+        '항상'
+      ] 
+      
+      
+    }
+    }
+    
+    return messages[language];
+  },
 
   // convert markdown to html
   md2html: function(text) {
@@ -176,7 +620,7 @@ prosodylab = {
       let align = 'left';
     }
     if (!choice) { // default button text
-      choice = 'Click here to continue!'
+      choice = 'Continue'
     }
     text = `<div style="text-align: ${align}"> ${text} 
        </div><br>`;
@@ -241,10 +685,12 @@ prosodylab = {
   
   
   // Debriefing questions
-  debriefing: function() {
+  debriefing: function(language) {
+    if (!language) {language = 'en'}
     let debriefing = [];
-    debriefing.html = prosodylab.loadTxt('prosodylab/debriefing.html');
+    debriefing.html = prosodylab.loadTxt(`prosodylab/debriefing_${language}.html`);
     debriefing.type = 'survey-html-form';
+    debriefing.button_label = messages.continueButton,
     debriefing.data = {
         component: 'Debriefing'
     };
@@ -253,12 +699,14 @@ prosodylab = {
   },
 
 
-  languageQuestionnaire: function() {
-
-    const lq = prosodylab.loadTxt('prosodylab/languageQuestionnaire.html');
+  languageQuestionnaire: function(language) {
+    if (!language) {language = 'en'}
+    
+    const lq = prosodylab.loadTxt(`prosodylab/languageQuestionnaire_${language}.html`);
     const languageQuestionnaire = {
       type: 'survey-html-form',
       html: lq,
+      button_label: messages.continueButton,
       data: {
         component: 'Language Questionnaire'
       },
@@ -277,42 +725,17 @@ So far only implemented: Module 1, musicianship
 */
 
                  if(!modules) { const modules = 'MusicianShip';}
-                 
-                 const scaleYears = [ 'None',
-                                    '1 year',
-                                    '2 years',
-                                    '3 years',
-                                    '4 years',
-                                    '5 years',
-                                    '6 years', 
-                                    '7 years',
-                                    '8 years',
-                                    'more than 8 years'
-                                    ];
-                                    
-                 const scaleHowMuch = ['Nothing',
-                                     'A little',
-                                     'A fair amount',
-                                     'A moderate amount',
-                                     'A great deal'
-                                     ]; 
-                                     
-                 const scaleHowOften = ['Never',
-                                     'Rarely',
-                                     'Sometimes',
-                                     'Often',
-                                     'All the time'
-                                     ]; 
-                                     
+
                  const moduleMusicianship = {
                          type: 'survey-likert',
+                         button_label: messages.continueButton,
                          questions: [
-                           {prompt: "How many years of formal music training (theory) have you had?", name: 'M1Q1-YearsTrainingTheory', labels: scaleYears, required: 1},
-                           {prompt: "How much do you know about music structure and theory?", name: 'M1Q2-KnowledgeTheory', labels: scaleHowMuch, required: 1},
-                           {prompt: "How many years of formal music training (practice) have you had?", name: 'M1Q3-YearsTrainingPractice', labels: scaleYears, required: 1},
-                           {prompt: "How often do you engage in professional music making (e.g., singing, playing an instrument, composing)?", name: 'M1Q4-HowOftenProfessionalMusicMaking', labels: scaleHowOften, required: 1},
-                           {prompt: "How often did or do you practice or rehearse with an instrument or singing?", name: 'M1Q5-HowOftenMusicPractice', labels: scaleHowOften, required: 1},
-                           {prompt: "How often do you engage in music making as a hobby or as an amateur?", name: 'M1Q6-HowOftenAmateurMusicMaking', labels: scaleHowOften, required: 1}
+                           {prompt: messages.mqTrainingTheory, name: 'M1Q1-YearsTrainingTheory', labels: messages.scaleYears, required: 1},
+                           {prompt: messages.mqKnowTheory, name: 'M1Q2-KnowledgeTheory', labels: messages.scaleHowMuch, required: 1},
+                           {prompt: messages.mqTrainingPractice, name: 'M1Q3-YearsTrainingPractice', labels: messages.scaleYears, required: 1},
+                           {prompt: messages.mqMakeProfessional, name: 'M1Q4-HowOftenProfessionalMusicMaking', labels: messages.scaleHowOften, required: 1},
+                           {prompt: messages.mqMakePractice, name: 'M1Q5-HowOftenMusicPractice', labels: messages.scaleHowOften, required: 1},
+                           {prompt: messages.mqMakeHobby, name: 'M1Q6-HowOftenAmateurMusicMaking', labels: messages.scaleHowOften, required: 1}
                          ],
                          randomize_question_order: false,
                          data: {
@@ -323,7 +746,6 @@ So far only implemented: Module 1, musicianship
 
 },
 
-
  soundCheck: function(soundFile) {
 
     let soundCheck = [];
@@ -331,10 +753,8 @@ So far only implemented: Module 1, musicianship
     const buttonText = ['Play Sound'];
     let soundCheckObject = {
       type: 'html-button-response',
-      stimulus: '<b> Sound Check</b>' +
-        '<br> <em>Please connect your headphones and adjust the volume!</em>' +
-        '<br><br>',
-      choices: buttonText,
+      stimulus: messages.connectHeadphones,
+      choices: [messages.playSound],
       on_trial_start: function() {
         setTimeout(function() {
           setDisplay("jspsych-btn", "")
@@ -342,21 +762,21 @@ So far only implemented: Module 1, musicianship
       },
       data: {
         component: 'Sound check instructions',
-        options: buttonText
+        options: messages.playSound
       },
     }
     soundCheck.push(soundCheckObject);
 
-    const choiceOne = 'Play sound again';
-    const choiceTwo = 'I can hear the sound at a comfortable volume';
+    const choiceOne = messages.playAgain;
+    const choiceTwo = messages.soundCheckOk;
     soundCheckObject = {
       type: 'audio-button-response',
       stimulus: soundFile,
       prompt: '<br><br>' +
-        "<style> .centered {position: fixed; top: 50%; left: 50%;" +
-        " transform: translate(-50%, -50%);}</style>" +
-        '<img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">' +
-        '<p><em>adjust the volume if necessary</p></>',
+        `<style> .centered {position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);}</style>
+        <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
+        <p><em>${messages.adjustVolume}</p></>`,
       choices: [choiceOne, choiceTwo],
       on_trial_start: function() {
         setTimeout(function() {
@@ -388,6 +808,96 @@ So far only implemented: Module 1, musicianship
 
   headPhoneScreener: function() {
     const path = 'prosodylab/headphonescreener'
+    const sounds = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
+    
+    let headPhoneScreenerTrial= [];
+    let playSound = [];
+    let question = [];
+    
+    const instructionsHeadPhoneScreener = {
+      type: 'html-button-response',
+      stimulus: messages.instructionsHeadphoneCheck,
+      choices: [messages.startHeadphoneTest],
+      on_trial_start: function() {
+        setTimeout(function() {
+          setDisplay("jspsych-btn", "")
+        }, 1000)
+      },
+      data: {
+        component: 'Headphone screener',
+        trialPart:  'Headphone screener instructions',
+        choices: messages.startHeadphoneTest
+      },
+    }
+    headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
+    
+    
+    // create variable for random order
+    let randomOrder = [0,1,2];
+    
+    let correct  = 0;
+        
+    for  (let i=0;i<6;i++){
+    
+      randomOrder  = jsPsych.randomization.shuffle(randomOrder);
+          
+      correctButton = randomOrder.indexOf(0);
+      
+      for (let j=0;j<3;j++) {
+      
+        playSound = {
+          type: 'audio-keyboard-response',
+          prompt: function() {
+          const html = `<style> .centered {position: fixed; top: 50%; 
+            left: 50%; transform: translate(-50%, -50%);}</style>
+            <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
+            return html;
+          },
+          stimulus: `${path}/${sounds[randomOrder[j]]}`,
+          choices: jsPsych.NO_KEYS,
+          trial_ends_after_audio: true,
+          post_trial_gap: 500,
+          data:  {
+            component: 'Headphone screener',
+            trialPart: `Listen to head phone screener sequence ${i} sound ${j}`,
+            sound: `${sounds[randomOrder[j]]}`,
+            setUsed: sounds,
+            correctButton: correctButton
+          }
+        }
+        headPhoneScreenerTrial.push(playSound);
+        
+      }
+      
+      question = {
+        type: 'html-button-response',
+        stimulus: messages.questionHeadphoneTest,
+        choices: messages.optionsHeadphoneTest,
+        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
+        data:  {
+          options: messages.optionsHeadphoneTest,
+          component: 'Headphone screener',
+          trialPart:  `Headphone screener question ${i}`,
+          setUsed: sounds,
+          correctButton: correctButton
+        },   
+        on_finish: function(data){
+          if(data.button_pressed==data.correctButton){
+              data.correct = 1;
+          } else {
+              data.correct = 0;
+          }
+        }   
+      }      
+      headPhoneScreenerTrial.push(question);
+      
+    }
+
+    return headPhoneScreenerTrial;
+  },
+
+  headPhoneScreenerMixed: function() {
+    const path = 'prosodylab/headphonescreener'
     let sounds = [];
     sounds[0] = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
     sounds[1] = [`stereoInPhaseQuiet.mp3`,`stereoInPhase.mp3`,`stereoOutOfPhase.mp3`];
@@ -399,15 +909,10 @@ So far only implemented: Module 1, musicianship
     let playSound = [];
     let question = [];
     
-    const buttonText = ['Play the first set of three sounds!'];
     const instructionsHeadPhoneScreener = {
       type: 'html-button-response',
-      stimulus: `<b> Headphone Check</b> +
-        <br> <em>The following is a headphone test--you will not be able to do this without headphones!</em>
-        <p><br><br> You will hear three sounds in a row, and you will be asked which one was the quietest of them.
-        <br><br> This task will be repeated 6 times(this should take only 2 minutes).
-        <br><br></p>`,
-      choices: buttonText,
+      stimulus: messages.instructionsHeadphoneCheck,
+      choices: [messages.startHeadphoneTest],
       on_trial_start: function() {
         setTimeout(function() {
           setDisplay("jspsych-btn", "")
@@ -416,7 +921,7 @@ So far only implemented: Module 1, musicianship
       data: {
         component: 'Headphone screener',
         trialPart:  'Headphone screener instructions',
-        choices: buttonText
+        choices: messages.startHeadphoneTest
       },
     }
     headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
@@ -429,10 +934,7 @@ So far only implemented: Module 1, musicianship
     let randomOrder = [0,1,2];
     
     let correct  = 0;
-    
-    const choices = ['The FIRST was softest', 
-        'The SECOND was softest', 'The THIRD was softest'];
-    
+        
     for  (let i=0;i<6;i++){
     
       randomOrder  = jsPsych.randomization.shuffle(randomOrder);
@@ -476,11 +978,11 @@ So far only implemented: Module 1, musicianship
       
       question = {
         type: 'html-button-response',
-        stimulus: 'Which sound was quietest?',
-        choices: choices,
+        stimulus: messages.questionHeadphoneTest,
+        choices: messages.optionsHeadphoneTest,
         button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
         data:  {
-          options: choices,
+          options: messages.optionsHeadphoneTest,
           component: 'Headphone screener',
           trialPart:  `Headphone screener question ${i}`,
           setUsed: soundsUsedText,
@@ -521,14 +1023,10 @@ So far only implemented: Module 1, musicianship
     let question = [];
     let correctButton = [];
     
-    const buttonText = ['Play the first set of three sounds!'];
+    const buttonText = [messages.startHeadphoneTest];
     const instructionsHeadPhoneScreener = {
       type: 'html-button-response',
-      stimulus: `<b> Headphone Check</b> +
-        <br> <em>The following is a headphone test--you will not be able to do this without headphones!</em>
-        <p><br><br> You will hear three sounds in a row, and you will be asked which one was the quietest of them.
-        <br><br> This task will be repeated 6 times(this should take only 2 minutes).
-        <br><br></p>`,
+      stimulus: messages.instructionsHeadphoneCheck,
       choices: buttonText,
       on_trial_start: function() {
         setTimeout(function() {
@@ -546,12 +1044,6 @@ So far only implemented: Module 1, musicianship
 
     let correct  = 0;
     
-    const choices = [
-         'The FIRST was softest', 
-         'The SECOND was softest', 
-         'The THIRD was softest'
-        ];
-
     for  (let i=0;i<6;i++){
       
       
@@ -583,11 +1075,11 @@ So far only implemented: Module 1, musicianship
       
       question = {
         type: 'html-button-response',
-        stimulus: 'Which sound was quietest?',
-        choices: choices,
+        stimulus: messages.questionHeadphoneTest,
+        choices: messages.optionsHeadphoneTest,
         button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
         data:  {
-          options: choices,
+          options: messages.optionsHeadphoneTest,
           component: 'Headphone screener question',
           setUsed: 'original',
           correctButton: correctButton
@@ -850,7 +1342,7 @@ So far only implemented: Module 1, musicianship
 
   generateKeyChoices: function(nChoices){
     // creates array of n choices, e.g. ['1','2','3']
-    let result = digitSequence(nChoices);
+    let result = this.digitSequence(nChoices);
     return result.map(String);
   },
   
@@ -1151,9 +1643,9 @@ So far only implemented: Module 1, musicianship
           question.type = 'html-slider-response';
           
           if (!trial[`question${questionN}EndPoints`]){ 
-             question.labels = ['completely unnatural','completely natural']
+             question.labels = messages.naturalnessOptions;
           } else { // or else use endpoint labels given in experiment spreadsheet
-             question.labels = eval(trial[`question${questionN}EndPoints`])
+             question.labels = eval(trial[`question${questionN}EndPoints`]);
           }
           
           question.stimulus = question.data.text;
@@ -1168,7 +1660,7 @@ So far only implemented: Module 1, musicianship
           }
           
           if (!trial[`question${questionN}EndPoints`]){ 
-             question.data.endPoints = ['completely unnatural','completely natural']
+             question.data.endPoints = messages.naturalnessOptions;
           } else { // or else use endpoint labels given in experiment spreadsheet
              question.data.endPoints = eval(trial[`question${questionN}EndPoints`])
           }
@@ -1186,9 +1678,9 @@ So far only implemented: Module 1, musicianship
       } else {// LikertKey with number key response as default
          // use naturalness scale  as default endpoint labels
          if (!trial[`question${questionN}EndPoints`]){ 
-             question.data.endPoints = ['completely unnatural','completely natural']
+             question.data.endPoints = messages.naturalnessOptions;
          } else { // or else use endpoint labels given in experiment spreadsheet
-             question.data.endPoints = eval(trial[`question${questionN}EndPoints`])
+             question.data.endPoints = eval(trial[`question${questionN}EndPoints`]);
          }
          // default likert scale with even number of choices in order
          // to avoid 3-partite partition into 'low','neutral/don't  know', 'high'
@@ -1226,13 +1718,12 @@ So far only implemented: Module 1, musicianship
     
     }
       
-        
     if (trial.textQuestion) {
      
       const textQuestion = {
         type: 'survey-text',
         questions: [
-           {prompt: trial.textQuestion, name: 'debriefing midExperiment', rows: 5, columns: 100} 
+           {prompt: trial.textQuestion, name: 'textQuestion', rows: 5, columns: 100} 
         ],
         data: trialInfo
       };

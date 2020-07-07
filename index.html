@@ -5,7 +5,10 @@
   
   <head>
     <title>prosodylab</title>
+    
     <!--general-->
+    <meta charset="utf-8">
+        
     <script src="javascripts/papaparse.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="http://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js"></script>
@@ -16,6 +19,8 @@
     <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
     <link rel="stylesheet" href="javascripts/node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
     <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po" />
+    <!-- Japanese country options -->
+    <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/ja/LC_MESSAGES/ja.po" />
     <script type="text/javascript" src="javascripts/node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
      
     
@@ -47,8 +52,6 @@
   <script>
 
 
-// ---- switches ----
-
 // contact Email in case of problem:
 const contactEmail = 'no email specified'
 
@@ -57,7 +60,23 @@ const completionLink = "";
 const completionCode = "";
 
 
-// Some options can be set  here:
+// ---- settings ----
+
+const experimentLanguage = 'ja'
+const messages  = prosodylab.getMessages(experimentLanguage);
+
+
+let study = {path: 'tonitlJStudy'}; // needs to have audio/img subdirectories if applicable
+  
+study = {...study, 
+  logFile: `${study.path}/studyLog.json`,
+  stimuliFile: `${study.path}/tonitlJ_short.txt`,
+  soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
+  helloFile: `${study.path}/hello.md`,
+  consentFile: `${study.path}/consent_perception_japanese.md`,
+  goodbyeFile: `${study.path}/goodbye.md`
+ };
+
 const displayDataAfterFinish = true; // shows collected data in json format after
 const showProgressBar = true; // shows progress to participant during study
 const fullScreen  = false; // doesn't work with IE, but will simply proceed anyway 
@@ -67,24 +86,33 @@ const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
 const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the log file of who was
       assigned which playlist before, or 'random', which will assign it randomly */
 
+  // get URL parameters from url-address and save them if there are any
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+  
+  if (jsonUrlParams){
+     prosodylab.appendJson([jsonUrlParams],`${study.path}/urlParamsLog.json`)
+  }
+  
 // Determine participant code
 
 /* alternative methods to determine participant ID: 
 [PROLIFIC_SESSION_ID,'PROLIFIC_PID','random','randomAndDisplay']*/
-const participantCodeMethod = 'randomAndDisplay'
+const participantCodeMethod = 'SESSION_ID'
 
 // Using PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing these parameters from prolific
 // Usig PROLIFIC_SESSION_ID avoids storing the PID with the data
 
-let participantCode = "";
+let participantCode = '';
 let studyID = [];
 
-if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 'PROLIFIC_PID'){
+
+  // determine participant number 
+  if (participantCodeMethod ==  'SESSION_ID' || participantCodeMethod == 'PROLIFIC_PID'){
 
   // get parameters from URL
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  if (participantCodeMethod ==  'PROLIFIC_SESSION_ID') {
+  if (participantCodeMethod ==  'SESSION_ID') {
     participantCode = urlParams.get('SESSION_ID');
     studyID = urlParams.get('STUDY_ID');
   } else {
@@ -95,6 +123,7 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
     participantCode = jsPsych.randomization.randomID(6);
 }  
 
+
   //  ---- set-up timeline for experiment ----
 
   let timeline = [];
@@ -103,19 +132,6 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   // use participantCode for data file name
   const dataFilename = `data_${participantCode}`;
   
-// ----- experiment specific information ----
-
-
-  let study = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
-  
-  study = {...study, 
-    logFile: `${study.path}/studyLog.json`,
-    stimuliFile: `${study.path}/rhyme.txt`,
-    soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
-    helloFile: `${study.path}/hello.md`,
-    consentFile: `${study.path}/consent.md`,
-    goodbyeFile: `${study.path}/goodbye.md`
-  };
 
 
   jsPsych.data.addProperties({
@@ -137,12 +153,12 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   
   // ---- full screen mode if applicable --
   
-    if (fullScreen) {
+  if (fullScreen) {
     timeline.push({
       type: 'fullscreen',
-      message: `<p><br><br> <em>Please click the button below
-       to enter full screen mode and start with the experiment</em></p>`,
+      message: `<p><br><br> <em>${messages.fullScreen}</em></p>`,
       fullscreen_mode: true,
+      button_label: messages.continueButton,
       data: {
        component: 'full screen',
        participant: participantCode
@@ -162,7 +178,7 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   // ---- language questionnaire ---
 
   if (!doExperimentOnly){
-   timeline.push(prosodylab.languageQuestionnaire());
+   timeline.push(prosodylab.languageQuestionnaire(experimentLanguage));
   }
   
   // ---- sound check (if audio is involved)
@@ -174,7 +190,7 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   // ---- head phone screener ----
   
   if (!doExperimentOnly){
-     timeline = [...timeline, ...prosodylab.headPhoneScreener()];
+    // timeline = [...timeline, ...prosodylab.headPhoneScreener()];
   }
   //  ---- build experiment  ----
   
@@ -333,7 +349,7 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
   // ---- debriefing ---
   
   if (!doExperimentOnly){
-    timeline.push(prosodylab.debriefing());
+    timeline.push(prosodylab.debriefing(experimentLanguage));
   }
   // ---- music questionnaire ---
   
@@ -361,9 +377,9 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
     if (participantCodeMethod == 'randomAndDisplay') {
       timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',participantCode));
     } else if (completionCode) { 
-      timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',completionCode));
+      //timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',completionCode));
     } else {
-      timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center'));
+      //timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center'));
     }
   }
   
@@ -389,10 +405,11 @@ if (participantCodeMethod ==  'PROLIFIC_SESSION_ID' || participantCodeMethod == 
            // output full data to tab
            jsPsych.data.displayData();
         }
-        if (completionLink&participantCode) {
+        if (completionLink&&participantCode) {
           if (completionLink.length>0){
             location.href=completionLink
-          }        }
+          }
+        }
       }
   })
 
