@@ -66,11 +66,11 @@ const experimentLanguage = 'ja'
 const messages  = prosodylab.getMessages(experimentLanguage);
 
 
-let study = {path: 'tonitlJStudy'}; // needs to have audio/img subdirectories if applicable
+let study = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
   
 study = {...study, 
   logFile: `${study.path}/studyLog.json`,
-  stimuliFile: `${study.path}/tonitlJ_short.txt`,
+  stimuliFile: `${study.path}/rhymeShortest.txt`,
   soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
   helloFile: `${study.path}/hello.md`,
   consentFile: `${study.path}/consent_perception_japanese.md`,
@@ -89,6 +89,7 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   // get URL parameters from url-address and save them if there are any
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
+  //jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
   jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
   
   if (jsonUrlParams){
