@@ -14,8 +14,8 @@
     <script src="http://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js"></script>
     
     <!-- country/region select -->
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
     <link rel="stylesheet" href="javascripts/node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
     <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po" />
@@ -90,17 +90,18 @@ const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the lo
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   //jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
-  jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+  console.log('urlParams',urlParams);
   
-  if (jsonUrlParams){
-     prosodylab.appendJson([jsonUrlParams],`${study.path}/urlParamsLog.json`)
+  if (Object.entries(urlParams).length != 0){
+      jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+      prosodylab.appendJson([jsonUrlParams],`${study.path}/urlParamsLog.json`)
   }
   
 // Determine participant code
 
 /* alternative methods to determine participant ID: 
 [PROLIFIC_SESSION_ID,'PROLIFIC_PID','random','randomAndDisplay']*/
-const participantCodeMethod = 'SESSION_ID'
+const participantCodeMethod = 'random'
 
 // Using PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing these parameters from prolific
 // Usig PROLIFIC_SESSION_ID avoids storing the PID with the data
