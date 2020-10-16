@@ -13,9 +13,14 @@ prosodylab = {
       continueButton:  'Continue',
       connectHeadphones: 'Please connect your headphones and adjust the volume please!',
       playSound: 'Play a sound',
+      recordSound: 'Record me now',
       playAgain: 'Play sound again',
+      recordAgain: 'Redo recording',
       soundCheckOk: 'I can hear the sound at a comfortable volume',
+      recordCheckOk: 'The recording sounds good',
+      recordCheckNotOk: 'I cannot get it to work',
       adjustVolume: 'Adjust volume if necessary',
+      adjustMic: 'Adjust mic settings if necessary',
       instructionsHeadphoneCheck: `<br> <em>The following is a headphone test--you will not 
         be able to do this without headphones!</em>  <p><br><br> You will hear three 
         sounds in a row, and you will be asked which one was the quietest of them.
@@ -318,42 +323,44 @@ prosodylab = {
       ]
     },
     
-    // Mandarin (careful, just google translate!)
-    zh_cn:{
+// Mandarin
+    'zh-cn':{
       fullScreen:`<p> <br> <br> <em>请点击下面的按钮
         进入全屏模式并开始实验</ em> </ p>`,
       continueButton:'继续',
       connectHeadphones:'请连接耳机并调节音量！',
+      playSound: '播放声音',
       playAgain: '再次播放声音',
-      soundCheckOk: '我可以以舒适的音量听到声音',
-      adjustVolume: '必要时调整音量',
-      instructionsHeadphoneCheck: `<br> <em>以下是耳机测试-您不会
-        不用戴耳机就能做到这一点！</ em> <p> <br> <br>您会听到三个
-        连续听起来,您会被问到哪个是最安静的一个。
+      soundCheckOk: '我可以听到声音且音量适中',
+      adjustVolume: '如需要请调节音量',
+      instructionsHeadphoneCheck: `<br> <em>以下是耳机测试---您需要戴上耳机
+才能开始测试！</ em> <p> <br> <br>您将连续听到三个声音
+      ,请回答哪个声音最小。
         <br> <br>此任务将重复6次（此过程仅需2分钟）。
         <br> <br> </ p>`,
-      startHeadphoneTest: '播放第一组三个声音！',
-      questionHeadphoneTest: '哪个声音最安静？',
+      startHeadphoneTest: '播放第一组的三个声音！',
+      questionHeadphoneTest: '哪个声音最小？',
       optionsHeadphoneTest:[
-        '第一声是最柔和的。',
-        '第二声是最柔和的。',
-        '第三声是最柔和的。'
+        '第一声最小。',
+        '第二声最小。',
+        '第三声最小。'
       ],
       naturalnessQuestion: '您觉得这句话有多自然？',
-      naturalnessQuestionContext: '给定上下文,您发现响应的自然程度如何？',
+      naturalnessQuestionContext: '联系上下文, 您认为该回答有多自然？',
       naturalnessOptions: ['完全不自然','完全自然'],
-      
-            // Music questionnaire 
-      mqTrainingTheory: '您接受了多少年的正规音乐培训（理论）',
-      mqKnowTheory: '您对音乐的结构和理论了解多少',
-      mqTrainingPractice: '您接受了多少年的正规音乐培训（练习）',
+     
+      completionCode: '完成码',
+            // Music questionnaire
+      mqTrainingTheory: '您接受了多少年的正规音乐培训（理论) ?',
+      mqKnowTheory: '您对音乐的结构和理论了解多少?',
+      mqTrainingPractice: '您接受了多少年的正规音乐培训（练习) ?',
       mqMakeProfessional: `您多长时间从事一次专业音乐制作
-        （例如,唱歌,弹奏乐器,作曲）`,
-      mqMakePractice: '您多久使用一次乐器或唱歌进行练习或排练',
-      mqMakeHobby: '您多久以业余或业余时间从事音乐制作',
+        （例如：唱歌, 弹奏乐器, 作曲) ?`,
+      mqMakePractice: '您多久进行一次乐器或歌唱练习/排练？',
+      mqMakeHobby: '您多久从事一次业余音乐制作?',
       //
       scaleYears:  [
-        '没有',
+        '无',
         '1  年',
         '2 年',
         '3 年',
@@ -365,19 +372,19 @@ prosodylab = {
         '超过8年'
       ],
       scaleHowMuch: [
-         '没有',
+         '无',
          '一点',
          '相当数量',
          '适量',
-         '好的折扣'
-      ], 
+         '很多'
+      ],
       scaleHowOften: [
-        '决不',
+        '从不',
         '很少',
         '有时',
         '经常',
         '每时每刻'
-      ] 
+      ]
     },
     
     // Korean (careful, just google translate!)
@@ -446,6 +453,58 @@ prosodylab = {
     
     return messages[language];
   },
+  
+  getURLParameters: function() {
+  // get URL parameters from web address
+  
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+  
+    // same params if there are any
+    if (decodeURI(urlParams)){
+        jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+        prosodylab.appendJson([jsonUrlParams],`${study.path}/urlParamsLog.json`)
+    }
+    
+    if (urlParams.get('STUDY_ID')) {
+        jsPsych.data.addProperties({studyID: urlParams.get('STUDY_ID')});
+    }
+    return urlParams;
+  },
+
+  // assign participant number
+  assignParticipantcode: function(participantCodeMethod,urlParams){
+    let participantCode = [];
+    // determine participant number 
+
+    if (participantCodeMethod ==  'SESSION_ID') {
+      participantCode = urlParams.get('SESSION_ID');
+    } else if (participantCodeMethod ==  'PROLIFIC_PID') {
+      participantCode = urlParams.get('PROLIFIC_PID');
+    } else {   // unique random 6-digit participant code
+      participantCode = jsPsych.randomization.randomID(6); 
+    }
+    jsPsych.data.addProperties({participant: participantCode});
+    
+    return participantCode
+  },
+  
+  // go to full screen
+  fullScreenOn: function(){
+  
+    result = {
+      type: 'fullscreen',
+      message: `<p><br><br> <em>${messages.fullScreen}</em></p>`,
+      fullscreen_mode: true,
+      button_label: messages.continueButton,
+      data: {
+       component: 'full screen',
+       trialPart: 'fullScreenOn'
+      }
+    };
+   
+     return result;
+  },
 
   // convert markdown to html
   md2html: function(text) {
@@ -481,7 +540,7 @@ prosodylab = {
   
   },
   
-    appendJsonCallFunction: function(data,fileName){
+  appendJsonCallFunction: function(data,fileName){
         saveData = {
           type: 'call-function',
           async: true,
@@ -800,9 +859,104 @@ So far only implemented: Module 1, musicianship
         }
       }
     }
-    soundCheck.push(loop_node);
+    soundCheck.push(loop_node);https://open.spotify.com/artist/4QkSD9TRUnMtI8Fq1jXJJe
 
     return soundCheck;
+  },
+  
+  micCheck: function() {
+
+    let recordCheck = [];
+    
+    
+    // record instructions screen
+    let recordCheckObject = {
+      type: 'html-button-response',
+      stimulus: `${messages.adjustMic} <br>`,
+      choices: [messages.recordSound],
+      on_trial_start: function() {
+        setTimeout(function() {
+          setDisplay("jspsych-btn", "")
+        }, 1000)
+      },
+      data: {
+        component: 'Mic check instructions',
+        options: messages.recordSound
+      },
+    }
+    recordCheck.push(recordCheckObject);
+    
+    var recordLoop = [];
+    
+    soundFileName = `${participantCode}_recordCheck`
+    soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
+
+    recordLoop.push(prosodylab.start_recording(soundFileName));
+      
+    recordLoop.push(prosodylab.recordClickMessage(`Please speak now!`));
+     
+    recordLoop.push(prosodylab.stop_recording());
+
+    var playBack =  function () {
+       return {
+         type: "call-function",
+         func: function() {
+           const audio = new Audio(audioUrl);
+           audio.play();
+         }
+        }
+    }
+    
+    //recordLoop.push(playBack());
+  
+  
+    const choiceOne = messages.recordAgain;
+    const choiceTwo = messages.recordCheckOk;
+    const choiceThree = messages.recordCheckNotOk;
+    recordCheckObject = {
+      type: 'html-button-response',
+      stimulus: ``,//`prosodylab/soundcheck_da.mp3`, // 
+      prompt: '<br><br>' +
+        `<style> .centered {position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);}</style>
+        <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
+        <p><em>${messages.adjustMic}</p></>`,
+      choices: [choiceOne, choiceTwo,choiceThree],
+      on_trial_start: function() {
+        setTimeout(function() {
+          setDisplay("jspsych-btn", "")
+        }, 1000)
+      },
+      data: {
+        component: 'Mic check',
+        options: [choiceOne, choiceTwo,choiceThree]
+      },
+      button_html: '<button class="jspsych-btn">%choice% </button>'
+    };
+    
+    recordLoop.push(recordCheckObject);
+
+    const loop_node = {
+      timeline: [...recordLoop],
+      loop_function: function(data) {
+
+        if ('0' == data.values()[3].button_pressed) {
+          return true;
+        } else {
+          if ('2'== data.values()[3].button_pressed){
+             prosodylab.screen(`<em>Recording didn't work--contact experimenter</em>`,'noSessionIdError','Click here to leave experiment','center'); 
+             throw new Error("Recording not working");
+          } else { 
+          
+           return false;
+          }
+        }
+       }
+      }
+    
+    recordCheck.push(loop_node);
+
+    return recordCheck;
   },
 
 
@@ -1098,7 +1252,6 @@ So far only implemented: Module 1, musicianship
     return headPhoneScreenerTrial;
   },
   
-
   latinsquareConditionSelection: function(items, conditions, pListN) {
 
     let result = [];
@@ -1181,29 +1334,18 @@ So far only implemented: Module 1, musicianship
     return counts;
   },
 
-  generatePlaylist: function(stimuli,studyLog) {
+  generatePlaylist: function(stimuli,studyLog,pListMethod) {
   
     const conditions = Math.max(...stimuli.map(value => value.condition));
     const items = Math.max(...stimuli.map(value => value.item));
     const design = [...new Set(stimuli.map(value => value.design))];
     const experiment = [...new Set(stimuli.map(value => value.experiment))];
     
-    /* determine pList were applicable
-    For some designs, a participant only sees a subset of the stimuli
-    For  example, they might only see condition 1, if they get pList in design 'Between'
-    for others, the order will depend on pList, for example condition 1 comes  as 
-    the first block for  pList 1 with design 'Blocked' */
-    
-    // assign playList # for this experiment
-    let pList = 0;
+    // create empty array for counting pList assignments
     let counts = Array(conditions).fill(0);
     
-    // playlist assignment not necessary for Fixed and Random designs:
-    if (!(design=='Fixed'||design=='Random')) {
-    
-      // Assign a pList number between 1 and the number of conditions
-      
-      if (studyLog){ // use studyLog to determine pList
+    // count up prior pList assignments if there are any
+    if (Object.keys(studyLog).length){ // only do if prior assignments
       
              let logExperiment = studyLog.filter(obj => obj.experiment == experiment);
              let priorAssignments = logExperiment.map(function (el) { return el.pList; });
@@ -1214,6 +1356,29 @@ So far only implemented: Module 1, musicianship
              }
              minCount = Math.min(...counts);
              
+    }
+    
+    /* determine pList were applicable
+    If playList wasn't hard-coded in index file:
+    For some designs, a participant only sees a subset of the stimuli
+    For  example, they might only see condition 1, if they get pList in design 'Between'
+    for others, the order will depend on pList, for example condition 1 comes  as 
+    the first block for  pList 1 with design 'Blocked' */
+    
+
+    pList = [];
+     
+    if (design=='Fixed'||design=='Random') {
+        // playlist assignment not necessary for Fixed and Random designs, so set to 0
+        pList = 0;
+     } else if (/^\d+$/.test(pListMethod)) {
+        pList = pListMethod;
+        pListMethod = 'Hardcoded'
+     } else {       
+      // Assign a pList number between 1 and the number of conditions
+      
+      if (Object.keys(studyLog).length&&pListMethod!='random'){ // use studyLog to determine pList if there is one
+                   
              var indices = [];
              // determine which pLists have been assigned least often
              for(let i= 0; i < counts.length; i++) {
@@ -1228,7 +1393,7 @@ So far only implemented: Module 1, musicianship
              }
              pList = indices[0]+1;
               
-        } else  { //random pList
+        } else  { //assign random pList number
             pList = Math.floor((Math.random() * conditions) + 1);
         }
     }
@@ -1320,8 +1485,8 @@ So far only implemented: Module 1, musicianship
        'Items:',items,
        'Length: ',playList.length,
        '\nParticipants: ',participants,
-       '\npList: ', pList,
-       'Prior assginments: ', counts,
+       '\npList: ', pList, 'Assignment method:',pListMethod,
+       '\nPrior assginments: ', counts,
        //'\nplayList',playList
     );
 
@@ -1335,6 +1500,19 @@ So far only implemented: Module 1, musicianship
       choices: jsPsych.NO_KEYS,
       trial_duration: duration, //duration in msec
       data: {...trialInfo, trialPart:'Fixation' } 
+    };
+    return result;
+  },
+  
+  recordClickMessage: function(message,trialInfo) {
+    if (!trialInfo){var trialInfo=[];}
+    const result = {
+      type: 'html-button-response',
+      stimulus: `<br>${message}<br><br><br>`,
+      choices: ['Click here when you\'re done recording!'], //space bar accepted
+      button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
+      data: {...trialInfo, trialPart:'recordAndClickkMessage'},
+ 
     };
     return result;
   },
@@ -1400,15 +1578,224 @@ So far only implemented: Module 1, musicianship
     return question
   },
   
- 
-  addTrial: function(session, trial,trialInfo,randomNumbers) {
+  
 
-   
-    if (trial.contextFile) {
+  // start audio recording
+  start_recording: function (filename) {
+   return {
+    type: "call-function", 
+    func: function() {
+      audio_chunks = []; //clears global audio_chunks of previous blob content, needed for recording multipe trials in seperate files
+      soundFileName = filename; 
+      rec.start(); // starts audio recording
+    }
+   }
+  },
+  
+  // function for stopping audio recording
+  stop_recording: function () {
+   return {
+    type: "call-function",
+    func: function() {
+      rec.stop(); // stops recording and triggers onstop event
+    }
+   }
+  },
+ 
+  // save audio data
+  // this should be turned into async function!
+  saveAudio: function(filename, audio_data,lab) {
+  if (!lab){ var lab = ""}
+   var url = 'prosodylab/record_audio.php'; // external .php file that should be in same folder as your experiment
+   form_data = new FormData();
+   form_data.append("filename", filename);
+   form_data.append("filedata", audio_data);
+   form_data.append("lab", lab);
+   fetch(url, {
+      method: 'POST', 
+      body: form_data
+   });
+  },
+  
+  getAudioConsent: function(){
+  
+    //either starts handlerFunction if access to microphone is enabeled or catches that it is blocked and calls errorQuit function
+    navigator.mediaDevices.getUserMedia({audio:true})
+    .then(stream => {prosodylab.handlerFunction(stream)})
+    .catch(error => {errorQuit("You must allow audio recording to take part in the experiment. Please allow access to your microphone and reload the page to proceed.")});
+
+  },
+  
+  
+  // function that throws error and displays message if experiment is run in browsers that do not support MediaRecorder, or if microphone access is denied
+  errorQuit: function (message) {
+   var body = document.getElementsByTagName('body')[0];
+   body.innerHTML = '<p style="color: #FF0000">'+message+'</p>'+body.innerHTML;//defines the style of error messages
+   throw error;
+  },
+ 
+  //function that catches incompatibility with MediaRecorder (e.g. in Safari)
+  handlerFunction: function (stream) {
+    try {
+      rec = new MediaRecorder(stream);
+    } catch(error) {
+       errorQuit("Sorry, it's not possible to run the experiment on your web browser. Please try using Chrome or Firefox instead.");
+       };
+
+    rec.ondataavailable = e => {
+        audio_chunks.push(e.data);//pushes blob to "audio_chunks" variable above
+    };
+
+    rec.onstop = e => { //what should happen when audio recording stops
+        let blob = new Blob(audio_chunks,{type:'audio/webm'});
+        // audioUrl = URL.createObjectURL(blob);
+        prosodylab.saveAudio(soundFileName, blob,lab); 
+    };
+  },
+ 
+ 
+  addTrial: function(session, trial,trialInfo,participant,randomNumbers) {
+
+    var stimul = [];
+    var playSound = [];
+    
+    if (trial.listenRepeatRecord&&trial.listenRepeatRecord!='no') {
+      
       const fixationDuration = 1000 // show fixation cross for 1000 msec
       session.push(this.fixation(trialInfo,fixationDuration)); 
      
-      const playSound =  {
+      playSound =  {
+        type: 'audio-button-response',
+        prompt: function() {
+        const html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
+          <br>
+          ${trial.listenRepeatRecordMessage}
+          `
+          return html;
+        },
+        stimulus: `${trial.path}/audio/${trial.listenRepeatRecord}`,
+        choices: [messages.playAgain,messages.recordSound],
+        button_html: '<button class="jspsych-btn">%choice% </button>',
+        data: trialInfo
+      }
+      playSound.data.trialPart =  'ListenRepeatRecord';
+      playSound.data.options = ['Replay','Record your response now'];
+      
+      const loop_node = {
+        timeline: [playSound],
+        loop_function: function(data) {
+          if ('0' == data.values()[0].button_pressed) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+      
+      
+      session.push(loop_node);
+      
+      if (!trial.lab) {
+        if (trial.text){
+           lab = trial.text;
+        } else {
+           lab = "";
+        }
+      } else {
+         lab = trial.lab;
+      }
+      
+      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`
+      soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
+      session.push(prosodylab.start_recording(soundFileName));
+      
+      session.push(prosodylab.recordClickMessage(`Please speak now!`,trialInfo));
+     
+      session.push(prosodylab.stop_recording());
+
+    }
+    
+    
+   // planned production
+    if (trial.plannedProduction&&trial.plannedProduction!='no') {
+       
+      // set text for .lab file that will be saved with soundfile 
+      if (trial.lab) {
+          lab = trial.lab;
+      } else {
+         lab = trial.plannedProduction;
+      }
+            
+      const fixationDuration = 1000 // show fixation cross for 1000 msec
+      session.push(this.fixation(trialInfo,fixationDuration)); 
+     
+      readStimulus =  {
+        type: 'html-button-response',
+        stimulus: function() {
+        const html = `<br> <style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          ${trial.plannedProduction}<br><br>
+          <style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+           <em>${prosodylab.md2html(trial.plannedProductionMessage)}</em><br><br>`
+          return html;
+        },
+        //stimulus: `<style> .centered {position: fixed; top: 50%; 
+        //  left: 50%; transform: translate(-50%, -50%);}</style>
+        //   <em>${trial.plannedProduction}</em>`,
+        choices: ['Click here to starting recording'],// allow space or 'r' for 'replay'
+        //trial_ends_after_audio: true,
+        button_html: '<button class="jspsych-btn">%choice% </button>',
+        data: {...trialInfo,
+               trialPart:  'plannedProduction',
+               options: 'Click here to starting recording'
+               }
+      }
+
+      session.push(readStimulus);
+      
+      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`
+      soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
+      session.push(prosodylab.start_recording(soundFileName));
+      
+      session.push(prosodylab.recordClickMessage(
+      `<br> <style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          ${trial.plannedProduction}<br><br>
+          <em>Please speak now</em>!<br><br>`,trialInfo));
+     
+      session.push(prosodylab.stop_recording());
+      
+      
+    }
+    
+   
+    if (trial.soundFile) {
+      const fixationDuration = 1000 // show fixation cross for 1000 msec
+      session.push(this.fixation(trialInfo,fixationDuration)); 
+     
+     playSound =  {
+        type: 'audio-keyboard-response',
+        prompt: function() {
+        const html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
+          return html;
+        },
+        stimulus: `${trial.path}/audio/${trial.soundFile}`,
+        choices: jsPsych.NO_KEYS,
+        trial_ends_after_audio: true,
+        data: trialInfo
+      }
+      playSound.data.trialPart =  'Listen to soundFile';
+      session.push(playSound);
+    }
+    
+    if (trial.contextFile) {
+      
+      playSound =  {
         type: 'audio-keyboard-response',
         prompt: function() {
         const html = `<style> .centered {position: fixed; top: 50%; 
@@ -1421,8 +1808,36 @@ So far only implemented: Module 1, musicianship
         trial_ends_after_audio: true,
         data: trialInfo
       }
+      playSound.data.trialPart =  'Listen to contextFile';
+      stimul.push(playSound);
+    }
+    
+    if (trial.answerFile) {
+      
+      playSound =  {
+        type: 'audio-keyboard-response',
+        prompt: function() {
+        const html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
+          return html;
+        },
+        stimulus: `${trial.path}/audio/${trial.answerFile}`,
+        choices: jsPsych.NO_KEYS,
+        trial_ends_after_audio: true,
+        data: trialInfo
+      }
       playSound.data.trialPart =  'Listen to sound';
-      session.push(playSound);
+      stimul.push(playSound);
+    }
+    
+    
+    if (trial.record) {    
+      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`
+      soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
+      session.push(prosodylab.start_recording(soundFileName));
+      session.push(...stimul);
+      session.push(prosodylab.stop_recording());
     }
 
     let questionN = 1;
@@ -1734,6 +2149,189 @@ So far only implemented: Module 1, musicianship
 
     return session;
 
+  },
+  
+  createSessions: function(stimuli,studyLog,participantCode) {
+  
+    timeline = [];
+  
+    let session = [];
+    let experimentN = [];
+    let sessionStimuli = [];
+    let sessionExperiments = [];
+    let maxLength = 0;
+    let playList = [];
+    let instructions = [];
+    let instructionsFile = [];
+    let trial = [];
+    let trialInfo = [];
+    let pList = [];
+    let sessionTrial = [];
+    let newStudyLogEntries = [];
+    let conditions  = [];
+
+    // Set session to 1 for all experiments if no session is specified
+    if (!stimuli[0].session) {
+      stimuli = stimuli.map(obj=> ({ ...obj, session: '1'}))
+    }
+
+    // get session names from spreadsheet
+    sessionNames = new Set([...stimuli.map(value => value.session)]);
+    
+    // Set session order scheme to 'Fixed' if no ordering scheme is specified
+    // if spreadsheet as sessionOrder column with 'Random' it will be random
+    if (!stimuli[0].sessionOrder) {
+      stimuli =  stimuli.map(obj=> ({ ...obj, sessionOrder: 'Fixed' }))
+    }
+
+    // Order sessions
+    let experimentSessions = [];
+  
+    if (stimuli[0].sessionOrder=='Fixed') {
+      experimentSessions = [...sessionNames];
+    } else if (stimuli[0].sessionOrder=='Random') {
+        // exclude 'Practice' from randomization and order it first
+        if (sessionNames.has('Practice')) {
+           experimentSessions.push('Practice');
+           sessionNames.delete('Practice');
+        }
+      experimentSessions.push(...jsPsych.randomization.shuffle(Array.from(sessionNames)));
+        console.log('[...sessionNames]',[...sessionNames])
+    } else {
+        throw new Error(`sessionOrder value not known: ${stimuli[1].sessionOrder}`);
+    }
+ 
+    console.log('sessionNames',sessionNames,'experimentSessions',experimentSessions);
+  
+    // sessions = Math.max(...stimuli.map(value => value.session));
+  
+    for (let iSession=0; iSession < sessionNames.size;iSession++) {
+    
+      // reset variables for session
+      session = [];
+      experimentN = [];
+      sessionStimuli = [];
+      sessionExperiments = [];
+      maxLength = 0;
+      playList = [];
+      pList = [];
+      instructions = [];
+      sessionTrial = 0;
+    
+      // Subset of stimuli for the current session
+      sessionStimuli = stimuli.filter(obj => obj.session == (experimentSessions[iSession]));
+    
+      // Names of all experiments in current session
+      sessionExperiments = [...new Set(sessionStimuli.map(value => value.experiment))];
+      experimentN = sessionExperiments.length;
+
+      // load and display session instructions    
+      instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
+    
+      // display instructioions there is  no instruction file specified
+      // (which means empty cells in all rows of session in instruction colummn)
+      if (instructionsFile[0]){ 
+        if (instructionsFile.length==1) {
+          timeline.push(prosodylab.screenFromMD(`${study.path}/${instructionsFile}`,'Instructions','left'));
+        } else if (instructionsFile.length>1) {
+          instructions = `There has to be a unique instructions file per session. 
+             Session: ${experimentSessions[iSession]} has instructions: ${instructionsFile.toString()}`
+          console.error(instructionsFile);
+        } // it's fine if there are no instructions
+      }
+
+      let experimentStimuli=[];
+      //let conditions = [];
+        
+      // separate out stimuli for each experiment in the current session
+      for (let j=0;j<experimentN;j++) {
+    
+         // subset of all stimuli of this experiment
+         playList[j] = sessionStimuli.filter(obj => obj.experiment == sessionExperiments[j]);
+       
+         // select conditions and generate ordered playlist of stimuli for this experiment
+         // condition selection/ordering will depend on pList for certain designs
+         // pList will either be assigned based on log or randomly or is hardcoded 
+         // (set in pListMethod)
+       
+         playList[j] = prosodylab.generatePlaylist(playList[j],studyLog,pListMethod);
+
+       
+         // keep track of how long longest experiment is
+         maxLength = Math.max(maxLength,playList[j].length);
+           
+         newStudyLogEntries.push({
+           experiment: sessionExperiments[j], 
+           pList: [...new Set(playList[j].map(value => value.pList))][0]
+         }); 
+      }
+    
+      // add participant information to newStudyLogEntries
+       newStudyLogEntries.map(v => ({...v, participant: participantCode}));
+      // add completionStatus to newStudyLogEntries (currently not done)
+      //newStudyLogEntries.map(v => ({...v, completionStatus: 'incomplete'}));
+      // save to studyLog (currently just saving at end)
+      //prosodylab.appendJsonCallFunction(newStudyLogEntries,study.logFile);
+    
+      // these numbers are used to randomize options in questions
+      // when their order is supposed to vary randomly between subjects
+      let randomNumbers = [[]];
+      for (let rI = 0;rI<experimentN;rI++) {
+         randomNumbers[rI]=[];
+         for (let rJ = 0;rJ<5;rJ++) { // assuming there'll at most 5 questions
+           randomNumbers[rI][rJ] = Math.random(); 
+         }
+      }   
+    
+      // add trials for experiment, interspersing them
+      sessionTrial = 0;
+      for (let j=0;j<maxLength;j++){
+          for (let k=0;k<experimentN;k++){
+            // if end of experiment has not been reached, add trial
+                    
+            if ((j+1)<=playList[k].length) {
+              sessionTrial++;
+              trial = playList[k][j];
+            
+              trialInfo = {
+                component: 'Experiment',
+                session: iSession+1,
+                experiment: sessionExperiments[k],
+                item: trial.item,
+                condition: trial.condition,
+                sessionTrial: sessionTrial,
+                experimentTrial: j+1
+              };
+              // add playlist assignment for designs  where it matters
+              if (trial.pList!=0) {
+                trialInfo.pList = trial.pList;
+              }
+              
+              if (trial.lab) {
+                trialInfo.lab = trial.lab;
+              }
+            
+              if (trial.text) {
+                trialInfo.lab = trial.text;
+              }
+            
+              trial.path = study.path;
+              
+              session = prosodylab.addTrial(session,playList[k][j],trialInfo,participantCode,randomNumbers[k]);
+            }
+          }
+      }
+    
+    
+      console.log(`Session ${experimentSessions[iSession]}: ${sessionTrial} trials`);
+    
+  }
+  
+  return { 
+     timeline: session,
+     newStudyLogEntries: newStudyLogEntries
+  };
+  
   }
 
 

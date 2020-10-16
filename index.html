@@ -1,6 +1,13 @@
 <!doctype html>
 <!-- prosodylab-jspsych-experimenter Michael Wagner chael@mcgill.ca-->
 
+<!--todo:
+experiment of a certain name cant have more than one session, script should check that! (
+otherwise, recordings will get overwritten)
+
+path from study.path to data/recordedFiles is hardcoded right now, desirable?
+-->
+
 <html>
   
   <head>
@@ -10,12 +17,12 @@
     <meta charset="utf-8">
         
     <script src="javascripts/papaparse.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="http://cdn.jsdelivr.net/npm/showdown@1.9.0/dist/showdown.min.js"></script>
+    <script src="javascripts/jquery.min.js"></script>
+    <script src="javascripts/showdown.min.js"></script>
     
     <!-- country/region select -->
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="javascripts/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="javascripts/jquery-ui.css">
     <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
     <link rel="stylesheet" href="javascripts/node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
     <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po" />
@@ -52,101 +59,90 @@
   <script>
 
 
-// contact Email in case of problem:
-const contactEmail = 'no email specified'
-
-// completion code and completionLink are used for example for prolific studies
-const completionLink = "";
-const completionCode = "";
-
-
 // ---- settings ----
 
-const experimentLanguage = 'en'
-const messages  = prosodylab.getMessages(experimentLanguage);
 
-
-let study = {path: 'experiment'}; // needs to have audio/img subdirectories if applicable
+let study = {path: 'examples/experimentListenAndRate'}; // needs to have audio/images subdirectories if applicable
   
 study = {...study, 
   logFile: `${study.path}/studyLog.json`,
-  stimuliFile: `${study.path}/rhyme.txt`,
+  stimuliFile: `${study.path}/rhymeShortest.txt`,
   soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
   helloFile: `${study.path}/hello.md`,
-  consentFile: `${study.path}/consent.md`,
+  consentFile: `${study.path}/consent_production_prolific.md`,
   goodbyeFile: `${study.path}/goodbye.md`
  };
+ 
+ // contact Email in case of problem with urlparameter transmission of participant info
+const contactEmail = ''
 
+// completion code and completionLink are used, for example for prolific studies
+const completionLink = "";
+const completionCode = ""; // not necessary unless it will be displayed at the end
+
+const experimentLanguage = 'en' // set which language interaction will be in
+const messages  = prosodylab.getMessages(experimentLanguage); // load messages
 const displayDataAfterFinish = true; // shows collected data in json format after
 const showProgressBar = true; // shows progress to participant during study
 const fullScreen  = false; // doesn't work with IE, but will simply proceed anyway 
-const doExperimentOnly  = false; // excludes pre-  and post-experiment parts
+const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
+let pListMethod = 'log'   /* Some designs (Blocked, Between, LatinSquare, Within) 
+       assign different types of playlists to different participants. 
+       --  'log' = use log to count which playlist has been run least
+       --  'random' (assigns pList randomly)
+       -- or set an integer (like '1') to hardcode the pList here*/
 
-// Some designs (Blocked, Between, LatinSquare, Within) assign a particular playlists to a participant
-const pListMethod = 'log' /* can be 'log' = playlist is assigned based on the log file of who was
-      assigned which playlist before, or 'random', which will assign it randomly */
+const participantCodeMethod = 'randomAndDisplay'; /* alternative methods to determine participant ID. Options: 
+    * SESSION_ID  // default for prolific prosodylab, more confidential than PID
+    * PROLIFIC_PID
+    * random 
+    * randomAndDisplay // default in prosody for amazon*/
+    // PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing urlparams from prolific
 
-  // get URL parameters from url-address and save them if there are any
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  //jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
-  console.log('urlParams',urlParams);
-  
-  if (Object.entries(urlParams).length != 0){
-      jsonUrlParams = JSON.parse('{"' + decodeURI(urlParams).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
-      prosodylab.appendJson([jsonUrlParams],`${study.path}/urlParamsLog.json`)
-  }
-  
-// Determine participant code
-
-/* alternative methods to determine participant ID: 
-[PROLIFIC_SESSION_ID,'PROLIFIC_PID','random','randomAndDisplay']*/
-const participantCodeMethod = 'random'
-
-// Using PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing these parameters from prolific
-// Usig PROLIFIC_SESSION_ID avoids storing the PID with the data
-
-let participantCode = '';
-let studyID = [];
+// this should be replaced by adding all study parameters at beginning of results file:
+jsPsych.data.addProperties({stimuliFile: study.stimuliFile});
 
 
-  // determine participant number 
-  if (participantCodeMethod ==  'SESSION_ID' || participantCodeMethod == 'PROLIFIC_PID'){
 
-  // get parameters from URL
-  if (participantCodeMethod ==  'SESSION_ID') {
-    participantCode = urlParams.get('SESSION_ID');
-    studyID = urlParams.get('STUDY_ID');
+// Get urlParams if there are any
+let urlParams = prosodylab.getURLParameters();
+
+let participantCode = prosodylab.assignParticipantcode(participantCodeMethod,urlParams)
+
+//  ---- set-up timeline for experiment ----
+
+let timeline = [];
+if (!participantCode) {
+  // urlParams weren't properly transmitted, throw error to participant
+  timeline.push(prosodylab.screen(`<em>Something didn't work! Contact: ${contactEmail}
+      </em>`,'noSessionIdError','Click here to leave experiment','center'));
   } else {
-    participantCode = urlParams.get('PROLIFIC_PID');
-    studyID = urlParams.get('STUDY_ID');
-  } 
-} else {   // unique random participant code
-    participantCode = jsPsych.randomization.randomID(6);
-}  
-
-
-  //  ---- set-up timeline for experiment ----
-
-  let timeline = [];
-  if (participantCode) {
   
-  // use participantCode for data file name
+  // use participantCode for name of results file
   const dataFilename = `data_${participantCode}`;
+
+  // load spreadsheet with all experiments, global variable
+  stimuli = prosodylab.loadCSV(study.stimuliFile);
+  // save variable names of study spreadsheet 
+  let variables = Object.keys(stimuli[0]);
   
+  // load study log if there is one
+  // otherwise an empty log will be written to data folder]
 
-
-  jsPsych.data.addProperties({
-      participant: participantCode,
-      stimuliFile: study.stimuliFile,
-      studyID: studyID
-  });
-
-  //  ----- load experiment files ----
-
-  // load spreadsheet with all experiments
-  study.stimuli = prosodylab.loadCSV(study.stimuliFile);
-
+  let studyLog = prosodylab.loadLog(study.logFile);
+  
+  
+  // check for audio recording consent if necessary
+  recordVariables = ['record','listenRepeatRecord','plannedProduction'];
+  
+  if (recordVariables.some(r=> variables.includes(r))) {
+     var blob;
+     var audio_chunk;
+     var rec = [];
+     var soundFileName;
+     prosodylab.getAudioConsent();
+  } 
+  
   //  ---- hello page ----
   
   if (!doExperimentOnly){
@@ -156,23 +152,13 @@ let studyID = [];
   // ---- full screen mode if applicable --
   
   if (fullScreen) {
-    timeline.push({
-      type: 'fullscreen',
-      message: `<p><br><br> <em>${messages.fullScreen}</em></p>`,
-      fullscreen_mode: true,
-      button_label: messages.continueButton,
-      data: {
-       component: 'full screen',
-       participant: participantCode
-      }
-    });
+    timeline.push(prosodylab.fullScreenOn());
   }
   
   //  ---- consent page  ----
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  
   if (!doExperimentOnly){
      timeline.push(prosodylab.screenFromMD(study.consentFile,'consent','left'));
   }
@@ -192,159 +178,18 @@ let studyID = [];
   // ---- head phone screener ----
   
   if (!doExperimentOnly){
-    // timeline = [...timeline, ...prosodylab.headPhoneScreener()];
-  }
-  //  ---- build experiment  ----
-  
-  
-  let session = [];
-  let experimentN = [];
-  let sessionStimuli = [];
-  let sessionExperiments = [];
-  let maxLength = 0;
-  let playList = [];
-  let instructions = [];
-  let instructionsFile = [];
-  let trial = [];
-  let trialInfo = [];
-  let pList = [];
-  let sessionTrial = [];
-  let newStudyLogEntries = [];
-  let conditions  = [];
-
-   // read  prior participant log if there is one
-   // otherwise an empty log will be written to data folder]
-  let studyLog = prosodylab.loadLog(study.logFile);
-  
-  // 
-  // for  given experiment, get subset of entries for that expermient from log  with .filter
-  //    smilar to:  study.stimuli.filter(obj => obj.session == (iSession+1));
-  // then list of  all values for a pList  key: 
-  //      somethnig  similar to: var nameArray = students.map(function (el) { return el.name; });
-  // the count occurrences of each value, as well as pList yet not played...
-  // based on this, assign new pList
-  
-  // cycle through sessions and add trials
-  
-  
-  // xx this won't work---needs to be added as key to all objects!
-  if (!study.stimuli.session) {
-    study.stimuli.session = 1
+     timeline = [...timeline, ...prosodylab.headPhoneScreener()];
   }
   
-  sessions = Math.max(...study.stimuli.map(value => value.session));
+  //  
+  //  ---- build sessions of experiment trials and add to timeline  ----
+  //
+ 
+  console.log('participantCode',participantCode);
+  experiment = prosodylab.createSessions(stimuli,studyLog,participantCode);
   
-  for (let iSession=0; iSession<sessions;iSession++) {
-    
-    // reset variables for session
-    session = [];
-    experimentN = [];
-    sessionStimuli = [];
-    sessionExperiments = [];
-    maxLength = 0;
-    playList = [];
-    pList = [];
-    instructions = [];
-    sessionTrial = 0;
-
-    
-    // Subset of stimuli for this session
-    sessionStimuli = study.stimuli.filter(obj => obj.session == (iSession+1));
-    sessionExperiments = [...new Set(sessionStimuli.map(value => value.experiment))];
-    experimentN = sessionExperiments.length;
-
-    
-    // load and display session instructions    
-    instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
-    
-    // display instructioions there is  no instruction file specified
-    // (which means empty cells in all rows of session in instruction colummn)
-    if (instructionsFile[0]){ 
-      if (instructionsFile.length==1) {
-          timeline.push(prosodylab.screenFromMD(`${study.path}/${instructionsFile}`,'Instructions','center'));
-      } else if (instructionsFile.length>1) {
-          instructions = `There has to be a unique instructions file per session. 
-             Session: ${iSession+1} has instructions: ${instructionsFile.toString()}`
-          console.error(instructionsFile);
-      } // it's fine if theer ae no instructions
-    }
-
-    let experimentStimuli=[];
-    //let conditions = [];
-        
-    // separate out stimuli for each experiment in the current session
-    for (let j=0;j<experimentN;j++) {
-    
-       // subset of all stimuli of this experiment
-       playList[j] = sessionStimuli.filter(obj => obj.experiment == sessionExperiments[j]);
-       
-       // if pListMethod is set to random or studyLog is empty, assign plist randomly
-       if (pListMethod =='random' || !Object.keys(studyLog).length) {
-         log = 0;
-       } else {log = studyLog}
-       
-       // select conditions and generate ordered playlist of stimuli for this experiment
-       // condition selection/ordering will depend on pList for certain designs
-       // pList will either be assigned based on log or randomly
-       playList[j] = prosodylab.generatePlaylist(playList[j],log);
-       
-       // keep track of how long longest experiment is
-       maxLength = Math.max(maxLength,playList[j].length);
-           
-       newStudyLogEntries.push({
-         experiment: sessionExperiments[j], 
-         pList: [...new Set(playList[j].map(value => value.pList))][0]
-       }); 
-    }
-    
-    // add participant information to newStudyLogEntries
-    newStudyLogEntries.map(v => ({...v, participant: participantCode}));
-    
-    // these numbers are used to randomize options in questions
-    // when their order is supposed to vary randomly between subjects
-    let randomNumbers = [[]];
-    for (let rI = 0;rI<experimentN;rI++) {
-       randomNumbers[rI]=[];
-       for (let rJ = 0;rJ<5;rJ++) { // assuming there'll at most 5 questions
-         randomNumbers[rI][rJ] = Math.random(); 
-       }
-    }   
-    
-    // add trials for experiment, interspersing them
-    sessionTrial = 0;
-    for (let j=0;j<maxLength;j++){
-        for (let k=0;k<experimentN;k++){
-          // if end of experiment has not been reached, add trial
-                    
-          if ((j+1)<=playList[k].length) {
-            sessionTrial++;
-            trial = playList[k][j];
-            
-            trialInfo = {
-              component: 'Experiment',
-              session: iSession+1,
-              experiment: sessionExperiments[k],
-              item: trial.item,
-              condition: trial.condition,
-              sessionTrial: sessionTrial,
-              experimentTrial: j+1,
-            };
-            // add playlist assignment for designs  where it matters
-            if (trial.pList!=0) {
-              trialInfo.pList = trial.pList;
-            }
-            
-            trial.path = study.path;
-            session = prosodylab.addTrial(session,playList[k][j],trialInfo,randomNumbers[k]);
-          }
-        }
-    }
-    
-    
-    console.log('Session',iSession+1,'of',sessions,': ',sessionTrial,'trials');
-    timeline = [...timeline, ...session];
-    
-  }
+  timeline = [...timeline, ...experiment.timeline];
+  
 
   // Post Experiment 
   
@@ -356,14 +201,14 @@ let studyID = [];
   // ---- music questionnaire ---
   
   if (!doExperimentOnly){
-    timeline.push(prosodylab.musicQuestionnaire('MusicianShip'));
+    //timeline.push(prosodylab.musicQuestionnaire('MusicianShip'));
   }
   
   // ----  save data ----
   
   // choose 'csv' as second argument if you want to save  as .csv instead  of json
   timeline.push(prosodylab.saveData(`${study.path}/data/${dataFilename}`,'json'));
-  timeline.push(prosodylab.appendJsonCallFunction(newStudyLogEntries,study.logFile));  
+  timeline.push(prosodylab.appendJsonCallFunction(experiment.newStudyLogEntries,study.logFile));  
    // exit full screen
   
   if (fullScreen) {
@@ -386,11 +231,7 @@ let studyID = [];
   }
   
   
-  } else {
-  
-   timeline.push(prosodylab.screen(`<em>Something didn't work! Contact: ${contactEmail} </em>`,'noSessionIdError','Click here to leave experiment','center'));
-  
-  }// if loop for sessionID end
+  } 
   
   //  ---- general settings  ----
 

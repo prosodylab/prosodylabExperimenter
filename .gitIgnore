@@ -21,4 +21,8 @@ experiments
 audiorecording
 
 # ignore result files
-experiment/data/
+data/*
+
+# exception to the rule
+!data/.gitkeep
+!data/recordedFiles/.gitkeep 

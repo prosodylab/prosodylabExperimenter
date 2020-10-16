@@ -1,4 +1,4 @@
-experiment	session	item	condition	StimulusType	Type	contextFile	question1	question1Type	question1EndPoints	design	instructions	textQuestion
+experiment	session	item	condition	StimulusType	Type	soundFile	question1	question1Type	question1EndPoints	design	instructions	textQuestion
 williamsPractice	1	1	1	Willliams	Bad	W18B.mp3	### How natural did you find this utterance?	Slider	['very unnatural','very natural']	LatinSquare	instructionsWilliamsP.md	
 williamsPractice	1	1	2	Willliams	Good	W18G.mp3	### How natural did you find this utterance?	Slider	['very unnatural','very natural']	LatinSquare	instructionsWilliamsP.md	
 williamsPractice	1	2	1	Willliams	Bad	W20B.mp3	### How natural did you find this utterance?	Slider	['very unnatural','very natural']	LatinSquare	instructionsWilliamsP.md	

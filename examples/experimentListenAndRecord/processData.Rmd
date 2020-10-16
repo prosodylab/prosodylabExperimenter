@@ -1,0 +1,94 @@
+---
+title: "Process data files from prosodylab-jspsych-helper"
+output: html_notebook
+---
+
+This notebook illustrates how to process data collected with the prosodylab-jspsych-helper.  
+
+The different steps These should eventually be turned into functions defined in separate R scripts.
+
+```{r}
+require(jsonlite)
+require(tidyverse)
+library(httr)
+```
+
+```{r}
+
+# create a list of the "data*"  files from your target directory
+fileList <- list.files(path="data/",pattern="data*")
+# keep only .json files
+fileList  = Filter(function(x) grepl(".json", x), fileList)
+
+d <- data.frame()
+
+# load in  data files  from all participants
+for (i in 1:length(fileList)){
+ paste0('data/',fileList[i])
+ tempData = fromJSON(paste0('data/',fileList[i]), flatten=TRUE)
+ d <- bind_rows(d,tempData)
+}
+
+# initiate data frame  with participant information
+participants <- data.frame(participant = unique(d$participant))
+
+# questionnaire data:
+# how to convert json cell into  columns (there might be an easier way using  jsonlite more directly?): https://stackoverflow.com/questions/41988928/how-to-parse-json-in-a-dataframe-column-using-r
+
+#  debriefing questionnaire data:
+if (nrow(filter(d,component=='Debriefing'))!=0){
+  participants <- d %>% 
+     filter(component=='Debriefing') %>% 
+     dplyr::select(c(participant,responses)) %>%
+     mutate(responses = map(responses, ~ fromJSON(.) %>% 
+     as.data.frame())) %>% 
+     unnest(responses) %>% 
+     right_join(participants, by = c("participant"))
+}
+
+#  music  questionnaire data:
+if (nrow(filter(d,component=='Music Questionnaire'))!=0){
+  participants <- d %>% 
+     filter(component=='Music Questionnaire') %>% 
+     dplyr::select(c(participant,responses)) %>%
+     mutate(responses = map(responses, ~ fromJSON(.) %>% 
+     as.data.frame())) %>% 
+     unnest(responses) %>% 
+     right_join(participants, by = c("participant"))
+}
+
+if (nrow(filter(d,component=='Language Questionnaire'))!=0){
+  participants <- d %>% 
+     filter(component=='Language Questionnaire') %>% 
+     dplyr::select(c(participant,responses)) %>%
+     mutate(responses = map(responses, ~ fromJSON(.) %>% 
+     as.data.frame())) %>% 
+     unnest(responses) %>% 
+     right_join(participants, by = c("participant"))
+}
+
+
+d <- d %>% filter(component=='Experiment') %>%
+  # combine  with participant data
+  left_join(participants,by = c("participant")) %>%
+  # turn empty strings (e.g., "",  '',  "  ") into NA
+  apply(2, function(x) gsub("^$|^ $", NA, x))  %>%
+  as.data.frame
+
+# subset of crucial question trials
+
+responses = filter(d,trialPart=='question1')
+
+n_distinct(responses$participant)
+
+responses %>% group_by(participant) %>%
+  summarize(n())
+
+
+
+```
+
+
+dd <- as.data.frame(dd)
+
+
