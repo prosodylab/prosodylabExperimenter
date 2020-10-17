@@ -21,4 +21,3 @@ urlParamsLog.json
 
 # exception to the rule
 !**/.keep
-!data/recordedFiles/.gitkeep 

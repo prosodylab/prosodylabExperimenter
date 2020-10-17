@@ -759,11 +759,11 @@ prosodylab = {
   postExQuestionnaire: function(language) {
     if (!language) {language = 'en'}
     let postEx = [];
-    debriefing.html = prosodylab.loadTxt(`prosodylab/debriefing_${language}.html`);
-    debriefing.type = 'survey-html-form';
-    debriefing.button_label = messages.continueButton,
-    debriefing.data = {
-        component: 'Debriefing'
+    postEx.html = prosodylab.loadTxt(`prosodylab/debriefing_${language}.html`);
+    postEx.type = 'survey-html-form';
+    postEx.button_label = messages.continueButton,
+    postEx.data = {
+        component: 'Post-experiment Questionnaire'
     };
     
     return postEx;
@@ -1358,7 +1358,6 @@ So far only implemented: Module 1, musicianship
     
     // count up prior pList assignments if there are any
     if (Object.keys(studyLog).length){ // only do if prior assignments
-      console.log(studyLog);
              let logExperiment = studyLog.filter(obj => obj.experiment == experiment);
              let priorAssignments = logExperiment.map(function (el) { return el.pList; });
 
@@ -2222,9 +2221,10 @@ So far only implemented: Module 1, musicianship
  
     console.log('sessionNames',sessionNames,'experimentSessions',experimentSessions);
   
-    // sessions = Math.max(...stimuli.map(value => value.session));
+    allSessions = [];
   
     for (let iSession=0; iSession < sessionNames.size;iSession++) {
+    
     
       // reset variables for session
       session = [];
@@ -2246,6 +2246,8 @@ So far only implemented: Module 1, musicianship
 
       // load and display session instructions    
       instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
+    
+      console.log('iSession',iSession,'instructionsFile',instructionsFile)
     
       // display instructioions there is  no instruction file specified
       // (which means empty cells in all rows of session in instruction colummn)
@@ -2343,11 +2345,13 @@ So far only implemented: Module 1, musicianship
     
     
       console.log(`Session ${experimentSessions[iSession]}: ${sessionTrial} trials`);
-    
+
+      allSessions.push(...session);
+      
   }
   
   return { 
-     timeline: session,
+     timeline: allSessions,
      newStudyLogEntries: newStudyLogEntries
   };
   
