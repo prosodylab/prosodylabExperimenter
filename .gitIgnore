@@ -19,5 +19,5 @@ urlParamsLog.json
 data/
 
 # exception to the rule
-!.keep
+!*/.keep
 !data/recordedFiles/.gitkeep 
