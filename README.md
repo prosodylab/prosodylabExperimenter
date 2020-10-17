@@ -1,6 +1,6 @@
 # prosodylab-experimenter
 
-Scripts to run prosody (and other) experiments, which makes use of Josh de Leeuw's [jspsych](https://www.jspsych.org/). 
+Scripts to run prosody (and other) experiments, which makes use of Josh de Leeuw's [jspsych](https://www.jspsych.org/) to assemble online experiment from a simple spreadsheet. 
 
 Some examples are posted [here](https://prosodylab.org/experimenter/testExperiment/).
 
