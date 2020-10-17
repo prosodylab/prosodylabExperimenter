@@ -20,10 +20,14 @@ experiment/processData.nb.html
 experiments
 audiorecording
 
+# ignore logs
+studyLog.json
+urlParamsLog.json
+
 # ignore result files
 data/*
 data/
 
 # exception to the rule
-!data/.gitkeep
+!.keep
 !data/recordedFiles/.gitkeep 
