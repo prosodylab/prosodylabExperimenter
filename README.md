@@ -1,3 +1,9 @@
 # prosodylab-js-experimenter
 
-Scripts to help run prosody (and other) experiments using [jspsych](https://www.jspsych.org/)
+Scripts to run prosody (and other) experiments, which makes use of Josh de Leeuw's [jspsych](https://www.jspsych.org/). 
+
+The goal is to be able to have simple spreadsheets as in put and output. As of now, the (main) input is tab-delimited spreadsheet with the experimental stimuli and information about the design, and the output is a .json file, which is then transformed into a spreadsheet using R.
+
+One motivation for creating this tool is to facilitate a class on laboratory linguistics taught at McGill in which every student runs an experiment in a group. The goal was to make the process of turning the idea into an experiment maximally easy, so the class can focus on designing experiments, and not spend too much time on implementation, and without people having to learn to code. It is also useful in a situation where there are lots of students with the training to design an experment but only few have coding expertise, which is a common situation in a lab in a linguistics department. So the use case this was designed for is where there is one or a few people who can and want to delve into the code itself, and lots of people who just want to run experiments. So be warned: It will be user-friendly for the people in your lab who use it, but not so much for you who has to set it up and get it to run. It essentially recreates the functionality of the earlier offline matlab [prosodylab-experimenter](https://github.com/prosodylab/prosodylab-experimenter), which used the Psychtoolbox, but is now defunct, and that I used for a decade to teach the laboratory linguistics class. 
+
+**Using these scripts minimally requires being able knowing how to handle file permissions on a server, and knowing some basic javascript to trouble shoot issues and adapt the scripts where needed. If you want to do audio recording, you also have to be able to serve webpages securely using https:// (as opposed to http://).**
