@@ -94,13 +94,23 @@ study = {...study,
     * randomAndDisplay // default in prosody for amazon
     PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing urlparams from prolific 
     */    
-       
   //
   // Various options settings:
   displayDataAfterFinish: true, // shows collected data in json format after
   showProgressBar: true, // shows progress to participant during study
-  fullScreen: false, // doesn't work with IE, but will simply proceed anyway 
-  doExperimentOnly: true, // excludes pre-  and post-experiment parts
+  fullScreen: false, // doesn't work with IE, but will simply proceed anyway
+  //
+  // Switch certain parts of study on or off
+  hello: true,
+  consent: false,
+  languageQuestionnaire: false,
+  soundCheck: false,
+  headphoneScreener: false,
+  experimentSessions: true,
+  postExQuestionnaire: false,
+  musicQuestionnaire: false,
+  goodbye: false,
+  doExperimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags
   //
  };
  
@@ -164,7 +174,7 @@ if (!participantCode) {
   
   //  ---- hello page ----
   
-  if (study.doExperimentOnly){
+  if (study.hello&!study.doExperimentOnly){
     timeline.push(prosodylab.screenFromMD(study.helloFile,'hello','left'));
   }
   
@@ -178,52 +188,50 @@ if (!participantCode) {
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  if (!study.doExperimentOnly){
+  if (study.consent&!study.doExperimentOnly){
      timeline.push(prosodylab.screenFromMD(study.consentFile,'consent','left'));
   }
   
   // ---- language questionnaire ---
 
-  if (!study.doExperimentOnly){
+  if (study.languageQuestionnaire&!study.doExperimentOnly){
    timeline.push(prosodylab.languageQuestionnaire(study.language));
   }
   
   // ---- sound check (if audio is involved)
   
-  if (!study.doExperimentOnly){
+  if (study.soundCheck&!study.doExperimentOnly){
     timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
   }
   
   // ---- head phone screener ----
   
-  if (!study.doExperimentOnly){
+  if (study.headPhoneScreener&!study.doExperimentOnly){
      timeline = [...timeline, ...prosodylab.headPhoneScreener()];
   }
   
   //  
   //  ---- build sessions of experiment trials and add to timeline  ----
   //
-
-  console.log('studyLog',studyLog);
   
-  experiment = 
+  if(study.experimentSessions||doExperimentOnly){
+     experiment = 
         prosodylab.createSessions(stimuli, study.pListMethod,studyLog,participantCode,messages);
   
-  console.log('experiment.timeline',experiment.timeline);
-  
-  timeline = [...timeline, ...experiment.timeline];
-  
+    timeline = [...timeline, ...experiment.timeline];
+  }
 
   // Post Experiment 
   
-  // ---- debriefing ---
+  // ---- post-experiment questionnaire ---
   
-  if (!study.doExperimentOnly){
-    timeline.push(prosodylab.debriefing(study.language));
+  if (!study.doExperimentOnly&study.postExQuestionnaire){
+    timeline.push(prosodylab.postExQuestionnaire(study.language));
   }
+  
   // ---- music questionnaire ---
   
-  if (!study.doExperimentOnly){
+  if (study.musicQustionnaire&!study.doExperimentOnly){
     //timeline.push(prosodylab.musicQuestionnaire('MusicianShip'));
   }
   
@@ -243,7 +251,7 @@ if (!participantCode) {
   
   // ---- goodbye screen (with completion code if applicable )----
   
-  if (!study.doExperimentOnly){
+  if (study.goodbye&!study.doExperimentOnly){
     if (study.participantCodeMethod == 'randomAndDisplay') {
       timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',participantCode));
     } else if (study.completionCode) { 

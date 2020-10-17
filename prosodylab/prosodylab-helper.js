@@ -756,9 +756,9 @@ prosodylab = {
   
   
   // Debriefing questions
-  debriefing: function(language) {
+  postExQuestionnaire: function(language) {
     if (!language) {language = 'en'}
-    let debriefing = [];
+    let postEx = [];
     debriefing.html = prosodylab.loadTxt(`prosodylab/debriefing_${language}.html`);
     debriefing.type = 'survey-html-form';
     debriefing.button_label = messages.continueButton,
@@ -766,7 +766,7 @@ prosodylab = {
         component: 'Debriefing'
     };
     
-    return debriefing;
+    return postEx;
   },
 
 
