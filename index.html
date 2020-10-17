@@ -62,79 +62,98 @@ path from study.path to data/recordedFiles is hardcoded right now, desirable?
 // ---- settings ----
 
 
-let study = {path: 'examples/experimentListenAndRate'}; // needs to have audio/images subdirectories if applicable
+let study = {path: 'examples/listenAndRate'}; // needs to have audio/images subdirectories if applicable
   
 study = {...study, 
-  logFile: `${study.path}/studyLog.json`,
-  stimuliFile: `${study.path}/rhymeShortest.txt`,
-  soundCheckFile: `prosodylab/soundcheck_da.mp3`,//`${study.path}/audio/soundcheck_da.mp3`,
+  //
+  language: 'en', // set which language interaction will be in
+  // relevant files
+  // files you need to provide:
+  stimuliFile: `${study.path}/rhymeShortest.txt`, // your experiment stimuli
   helloFile: `${study.path}/hello.md`,
   consentFile: `${study.path}/consent_production_prolific.md`,
-  goodbyeFile: `${study.path}/goodbye.md`
- };
- 
- // contact Email in case of problem with urlparameter transmission of participant info
-const contactEmail = ''
-
-// completion code and completionLink are used, for example for prolific studies
-const completionLink = "";
-const completionCode = ""; // not necessary unless it will be displayed at the end
-
-const experimentLanguage = 'en' // set which language interaction will be in
-const messages  = prosodylab.getMessages(experimentLanguage); // load messages
-const displayDataAfterFinish = true; // shows collected data in json format after
-const showProgressBar = true; // shows progress to participant during study
-const fullScreen  = false; // doesn't work with IE, but will simply proceed anyway 
-const doExperimentOnly  = true; // excludes pre-  and post-experiment parts
-let pListMethod = 'log'   /* Some designs (Blocked, Between, LatinSquare, Within) 
+  goodbyeFile: `${study.path}/goodbye.md`,
+  //
+  logFile: `${study.path}/studyLog.json`, // this is where log will be saved
+  soundCheckFile: `prosodylab/soundcheck_da.mp3`,// file played for soundcheck
+  // 
+  // completion code and completionLink are used, 
+  completionLink: "", // link to send participant after end, e.g. for Prolific studies
+  completionCode: "", // not necessary unless it will be displayed at the end
+  //
+  pListMethod: 'log',/* Some designs (Blocked, Between, LatinSquare, Within) 
        assign different types of playlists to different participants. 
        --  'log' = use log to count which playlist has been run least
        --  'random' (assigns pList randomly)
-       -- or set an integer (like '1') to hardcode the pList here*/
-
-const participantCodeMethod = 'randomAndDisplay'; /* alternative methods to determine participant ID. Options: 
+       -- or set an integer (like '1') to hardcode the pList here
+       */
+  participantCodeMethod: 'randomAndDisplay', /* alternative methods to determine participant ID. Options: 
     * SESSION_ID  // default for prolific prosodylab, more confidential than PID
     * PROLIFIC_PID
     * random 
-    * randomAndDisplay // default in prosody for amazon*/
-    // PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing urlparams from prolific
+    * randomAndDisplay // default in prosody for amazon
+    PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing urlparams from prolific 
+    */    
+       
+  //
+  // Various options settings:
+  displayDataAfterFinish: true, // shows collected data in json format after
+  showProgressBar: true, // shows progress to participant during study
+  fullScreen: false, // doesn't work with IE, but will simply proceed anyway 
+  doExperimentOnly: true, // excludes pre-  and post-experiment parts
+  //
+ };
+ 
 
-// this should be replaced by adding all study parameters at beginning of results file:
-jsPsych.data.addProperties({stimuliFile: study.stimuliFile});
+// contact Email in case of problem with urlparameter transmission of participant info
+const contactEmail = ''
 
 
+//  Set basic parameters for the study 
+
+// load messages for interaction with participant:
+const messages  = prosodylab.getMessages(study.language);
 
 // Get urlParams if there are any
 let urlParams = prosodylab.getURLParameters();
 
-let participantCode = prosodylab.assignParticipantcode(participantCodeMethod,urlParams)
+let participantCode = prosodylab.assignParticipantcode(study.participantCodeMethod,urlParams)
+
 
 //  ---- set-up timeline for experiment ----
 
 let timeline = [];
-if (!participantCode) {
+
+// add experiment settings to experiment data json
+timeline.push(prosodylab.storeExperimentSettings(study));
+
+
+// Only continue if participantCode is defined
+if (!participantCode) { 
+
   // urlParams weren't properly transmitted, throw error to participant
   timeline.push(prosodylab.screen(`<em>Something didn't work! Contact: ${contactEmail}
       </em>`,'noSessionIdError','Click here to leave experiment','center'));
   } else {
   
-  // use participantCode for name of results file
-  const dataFilename = `data_${participantCode}`;
 
   // load spreadsheet with all experiments, global variable
   stimuli = prosodylab.loadCSV(study.stimuliFile);
+
   // save variable names of study spreadsheet 
   let variables = Object.keys(stimuli[0]);
-  
+
+  // Set name for response file with participant code
+  const dataFilename = `data_${participantCode}`;
+
   // load study log if there is one
   // otherwise an empty log will be written to data folder]
-
   let studyLog = prosodylab.loadLog(study.logFile);
-  
+    
   
   // check for audio recording consent if necessary
   recordVariables = ['record','listenRepeatRecord','plannedProduction'];
-  
+  // if any columns imply recording, get audio permission and start media player
   if (recordVariables.some(r=> variables.includes(r))) {
      var blob;
      var audio_chunk;
@@ -145,13 +164,13 @@ if (!participantCode) {
   
   //  ---- hello page ----
   
-  if (!doExperimentOnly){
+  if (study.doExperimentOnly){
     timeline.push(prosodylab.screenFromMD(study.helloFile,'hello','left'));
   }
   
   // ---- full screen mode if applicable --
   
-  if (fullScreen) {
+  if (study.fullScreen) {
     timeline.push(prosodylab.fullScreenOn());
   }
   
@@ -159,34 +178,38 @@ if (!participantCode) {
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  if (!doExperimentOnly){
+  if (!study.doExperimentOnly){
      timeline.push(prosodylab.screenFromMD(study.consentFile,'consent','left'));
   }
   
   // ---- language questionnaire ---
 
-  if (!doExperimentOnly){
-   timeline.push(prosodylab.languageQuestionnaire(experimentLanguage));
+  if (!study.doExperimentOnly){
+   timeline.push(prosodylab.languageQuestionnaire(study.language));
   }
   
   // ---- sound check (if audio is involved)
   
-  if (!doExperimentOnly){
+  if (!study.doExperimentOnly){
     timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
   }
   
   // ---- head phone screener ----
   
-  if (!doExperimentOnly){
+  if (!study.doExperimentOnly){
      timeline = [...timeline, ...prosodylab.headPhoneScreener()];
   }
   
   //  
   //  ---- build sessions of experiment trials and add to timeline  ----
   //
- 
-  console.log('participantCode',participantCode);
-  experiment = prosodylab.createSessions(stimuli,studyLog,participantCode);
+
+  console.log('studyLog',studyLog);
+  
+  experiment = 
+        prosodylab.createSessions(stimuli, study.pListMethod,studyLog,participantCode,messages);
+  
+  console.log('experiment.timeline',experiment.timeline);
   
   timeline = [...timeline, ...experiment.timeline];
   
@@ -195,12 +218,12 @@ if (!participantCode) {
   
   // ---- debriefing ---
   
-  if (!doExperimentOnly){
-    timeline.push(prosodylab.debriefing(experimentLanguage));
+  if (!study.doExperimentOnly){
+    timeline.push(prosodylab.debriefing(study.language));
   }
   // ---- music questionnaire ---
   
-  if (!doExperimentOnly){
+  if (!study.doExperimentOnly){
     //timeline.push(prosodylab.musicQuestionnaire('MusicianShip'));
   }
   
@@ -211,7 +234,7 @@ if (!participantCode) {
   timeline.push(prosodylab.appendJsonCallFunction(experiment.newStudyLogEntries,study.logFile));  
    // exit full screen
   
-  if (fullScreen) {
+  if (study.fullScreen) {
     timeline.push({
       type: 'fullscreen',
       fullscreen_mode: false
@@ -220,10 +243,10 @@ if (!participantCode) {
   
   // ---- goodbye screen (with completion code if applicable )----
   
-  if (!doExperimentOnly){
-    if (participantCodeMethod == 'randomAndDisplay') {
+  if (!study.doExperimentOnly){
+    if (study.participantCodeMethod == 'randomAndDisplay') {
       timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',participantCode));
-    } else if (completionCode) { 
+    } else if (study.completionCode) { 
       //timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',completionCode));
     } else {
       //timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center'));
@@ -242,15 +265,15 @@ if (!participantCode) {
       //  prosodylab.saveData(`${study.path}/data/${dataFilename}.json, jsPsych.data.get().json());
       //  prosodylab.saveData(`${study.path}/data/${dataFilename}.csv, jsPsych.data.get().csv());
       //},
-      show_progress_bar: showProgressBar,
+      show_progress_bar: study.showProgressBar,
       on_finish: function(){
-        if (displayDataAfterFinish) {
+        if (study.displayDataAfterFinish) {
            // output full data to tab
            jsPsych.data.displayData();
         }
-        if (completionLink&&participantCode) {
-          if (completionLink.length>0){
-            location.href=completionLink
+        if (study.completionLink&&participantCode) {
+          if (study.completionLink.length>0){
+            location.href=study.completionLink
           }
         }
       }

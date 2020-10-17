@@ -2,7 +2,7 @@
 ### Instructions
 
 
-In this experiment you will be recorded on saying various sentences.
+In this experiment you will be recorded on saying on sequences of sentences.
 
 
 On every trial, you will be shown a sequence of 2 sentences.

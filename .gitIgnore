@@ -22,6 +22,7 @@ audiorecording
 
 # ignore result files
 data/*
+data/
 
 # exception to the rule
 !data/.gitkeep
