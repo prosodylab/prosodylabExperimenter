@@ -11,21 +11,11 @@
 # rmd notebook from processing script
 experiment/processData.nb.html
 
-# ignore html files other than index.html in main folder
- in main folder
-/*.html
-!index.html
-
-# ignore local folders
-experiments
-audiorecording
-
 # ignore logs
 studyLog.json
 urlParamsLog.json
 
 # ignore result files
-data/*
 data/
 
 # exception to the rule
