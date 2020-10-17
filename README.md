@@ -2,6 +2,8 @@
 
 Scripts to run prosody (and other) experiments, which makes use of Josh de Leeuw's [jspsych](https://www.jspsych.org/). 
 
+Some examples are posted [here](https://prosodylab.org/experimenter/testExperiment/).
+
 ## Spreadsheet-in spreadsheet-out
 
 The goal of this tool be able to set up experiemnt just using a simple spreadsheet as input and receiving a simply spreadsheet as output. 
