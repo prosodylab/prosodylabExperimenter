@@ -16,7 +16,8 @@ studyLog.json
 urlParamsLog.json
 
 # ignore result files
-data/
+**/data/*
+!**/data/.keep
 
 # exception to the rule
 !**/.keep
