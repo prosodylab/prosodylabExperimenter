@@ -14,4 +14,4 @@ This experiment illustrates a complete experiment, including the following parts
 * Goodbye Screen, displaying the randomly assigned participant code
  
 
-**Click here for the illustration experiment. The data will be saved but will be destroyed. Press any key if you want to proceed!**
+**Click here for the illustration experiment. No data will be saved**

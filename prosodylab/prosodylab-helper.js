@@ -1510,7 +1510,19 @@ So far only implemented: Module 1, musicianship
       stimulus: '<div style="font-size:60px;">+</div>',
       choices: jsPsych.NO_KEYS,
       trial_duration: duration, //duration in msec
-      data: {...trialInfo, trialPart:'Fixation' } 
+      data: {...trialInfo, component: 'experiment',trialPart:'Fixation' } 
+    };
+    return result;
+  },
+  
+  noDataRecordedFlag: function(){
+    const result = {
+      type: 'html-keyboard-response',
+      stimulus: `<div style="font-size:70px;color:red">
+      <em>Test run <br><br><br><br> No data will be saved!</em></div>`,
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 2000, //duration in msec
+      data: {component:'NoDataRecordedFlag' } 
     };
     return result;
   },
@@ -1633,11 +1645,12 @@ So far only implemented: Module 1, musicianship
    });
   },
   
-  getAudioConsent: function(){
+  getAudioConsent: function(testRun){
   
-    //either starts handlerFunction if access to microphone is enabeled or catches that it is blocked and calls errorQuit function
+    //either starts handlerFunction if access to microphone is enabeled 
+    // or catches that it is blocked and calls errorQuit function
     navigator.mediaDevices.getUserMedia({audio:true})
-    .then(stream => {prosodylab.handlerFunction(stream)})
+    .then(stream => {prosodylab.handlerFunction(stream,testRun)})
     .catch(error => {errorQuit("You must allow audio recording to take part in the experiment. Please allow access to your microphone and reload the page to proceed.")});
 
   },
@@ -1651,7 +1664,7 @@ So far only implemented: Module 1, musicianship
   },
  
   //function that catches incompatibility with MediaRecorder (e.g. in Safari)
-  handlerFunction: function (stream) {
+  handlerFunction: function (stream,testRun) {
     try {
       rec = new MediaRecorder(stream);
     } catch(error) {
@@ -1665,7 +1678,9 @@ So far only implemented: Module 1, musicianship
     rec.onstop = e => { //what should happen when audio recording stops
         let blob = new Blob(audio_chunks,{type:'audio/webm'});
         // audioUrl = URL.createObjectURL(blob);
-        prosodylab.saveAudio(soundFileName, blob,lab); 
+        if(!testRun) {
+          prosodylab.saveAudio(soundFileName, blob,lab);
+        }
     };
   },
  

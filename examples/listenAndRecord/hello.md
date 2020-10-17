@@ -8,5 +8,5 @@ To try this out, you need to use Firefox or Chrome---it will not work in a diffe
 
 
 
-**If you proceed you will be recorded, but the recorded will be deleted. This is just for illustration purposes.**
+**Click here to proceed. The browser will record during the relevant part of the trial, but the recording will not be saved**
 

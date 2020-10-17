@@ -66,6 +66,8 @@ let study = {path: 'examples/listenAndRate'}; // needs to have audio/images subd
   
 study = {...study, 
   //
+  testRun: true, // **if true, no data will be recorded**
+  //
   language: 'en', // set which language interaction will be in
   // relevant files
   // files you need to provide:
@@ -169,13 +171,19 @@ if (!participantCode) {
      var audio_chunk;
      var rec = [];
      var soundFileName;
-     prosodylab.getAudioConsent();
+     prosodylab.getAudioConsent(study.testRun);
   } 
   
   //  ---- hello page ----
   
   if (study.hello&!study.doExperimentOnly){
     timeline.push(prosodylab.screenFromMD(study.helloFile,'hello','left'));
+  }
+  
+  // ----- warning flag if no data is recorded
+  
+  if (study.testRun){
+    timeline.push(prosodylab.noDataRecordedFlag());
   }
   
   // ---- full screen mode if applicable --
@@ -237,9 +245,13 @@ if (!participantCode) {
   
   // ----  save data ----
   
-  // choose 'csv' as second argument if you want to save  as .csv instead  of json
-  timeline.push(prosodylab.saveData(`${study.path}/data/${dataFilename}`,'json'));
-  timeline.push(prosodylab.appendJsonCallFunction(experiment.newStudyLogEntries,study.logFile));  
+  if(!study.testRun) {
+    // use 'csv' as second argument if you want to save  as .csv instead of json
+    timeline.push(prosodylab.saveData(`${study.path}/data/${dataFilename}`,'json'));
+    timeline.push(prosodylab.appendJsonCallFunction(
+       experiment.newStudyLogEntries,study.logFile));  
+  }
+
    // exit full screen
   
   if (study.fullScreen) {

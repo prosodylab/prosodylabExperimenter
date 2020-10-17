@@ -13,19 +13,20 @@ You can see the spreadsheet (a tab-delimited text file) used to generate the exp
 
 Apart from the spreadsheet and the soundfiles, you need to provide some files like the text for this 'hello'-screen, instructions, consent form etc. in markdown format. You can see the markdown file used to generate this page [here](examples/listenAndRate/hello.md)
 
-If you want to proceed to the example trial, click below. It involves a single trial from [Wagner & McCurdy (2010)](https://pubmed.ncbi.nlm.nih.gov/20889149/). At the end of the experiment you will be displayed the data that was saved. The data will actually be saved but will be destroyed.
+If you want to proceed to the example trial, click below. It involves a single trial from [Wagner & McCurdy (2010)](https://pubmed.ncbi.nlm.nih.gov/20889149/). At the end of the experiment you will be displayed the data that was saved. The data will not be saved.
 
 If instead you'd like to see a different study, here are a few other examples:
 
 
-* A slightly longer study illustrating different ratings scales:  [here](https://prosodylab.org/experimenter/testExperiment/exampleScales.html)
+* A longer version (10 trials), illustrating different multiple sessions and different kinds of ratings scales:  [here](https://prosodylab.org/experimenter/testExperiment/exampleScales.html)
+
+* The same slightly longer study, but this time not just the instructions and actual experiment trials with all the other trappings too (go to full screen, consent form, soundcheck, head phone screener, language questionnaire, post-experiment questionnaire, music questionnaire):  [here](https://prosodylab.org/experimenter/testExperiment/exampleFullExperiment.html)
 
 
 * Listen and Record: [here](https://prosodylab.org/experimenter/testExperiment/exampleListenAndRecord.html)
 
 * Planned production: [here](https://prosodylab.org/experimenter/testExperiment/examplePlannedProduction.html)
 
-* A complete study with various elements, including consent form etc.:  [here](https://prosodylab.org/experimenter/testExperiment/exampleFullExperiment.html)
 
 
-**Click here for the illustration trial. The data will be saved but will be destroyed. Press any key if you want to proceed!**
+**Click here for the illustration trial. No data will be saved**
