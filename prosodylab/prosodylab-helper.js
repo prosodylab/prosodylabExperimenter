@@ -877,7 +877,9 @@ So far only implemented: Module 1, musicianship
     return soundCheck;
   },
   
-  micCheck: function(soundFileName,lab) {
+  micCheck: function(soundFileName,recordingTimeOut,lab) {
+  
+    console.log('recordingTimeOut',recordingTimeOut);
     
     if (!lab){
       var lab = messages.productionTestSentence;
@@ -916,10 +918,9 @@ So far only implemented: Module 1, musicianship
       
     recordLoop.push(prosodylab.recordClickMessage(
       `<em>${messages.speakNow}</em>
-      <br><br> 
-      <b>${lab}</b>
-      <br>`
-      ));
+      <br><br> <b>${lab}</b> <br>`,
+      {component: `micCheckRecording`}, 
+      soundFileName,recordingTimeOut));
      
     recordLoop.push(prosodylab.stopRecording());
 
@@ -1529,15 +1530,16 @@ So far only implemented: Module 1, musicianship
     return result;
   },
   
-  recordClickMessage: function(message,trialInfo,soundFileName) {
+  recordClickMessage: function(message,trialInfo,soundFileName,recordingTimeOut) {
     if (!trialInfo){var trialInfo=[];}
-    console.log('soundFileName',soundFileName);
+
     const result = {
       type: 'html-button-response',
       stimulus: `<br>${message}<br><br><br>`,
       choices: ['Click here when you\'re done recording!'],
       button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
-      data: {...trialInfo, 
+      trial_duration: recordingTimeOut,
+      data: {...trialInfo,
              trialPart:'recordAndClickkMessage',
              recordedFile: soundFileName
       }
@@ -1616,30 +1618,12 @@ So far only implemented: Module 1, musicianship
       chunks = []; // clears  prior recordings
       soundFileName = filename; 
       lab = labtext;
-      recorder.start(); 
+      recorder.start();
     }
    }
   },
   
-  // play recorded sound
-  playRecording: function () {
-   return {
-    type: "call-function", 
-    func: function() {
-        function wait(ms){
-          var start = new Date().getTime();
-          var end = start;
-          while(end < start + ms) {
-            end = new Date().getTime();
-          }
-        } 
-        wait(100);
-        var audio = new Audio(audioUrl);
-        audio.play();
-    } // play recording
-   }
-  },
-  
+
   // function for stopping audio recording
   stopRecording: function () {
    return {
@@ -2207,22 +2191,35 @@ So far only implemented: Module 1, musicianship
   
   createSessions: function(stimuli,pListMethod,studyLog,participantCode,messages) {
   
+    let experimentSessions = []; // trials will be stored in this variable
+  
     // save column names of study spreadsheet
     let variables = Object.keys(stimuli[0]);
   
     // --- start new audio recorder if experiment records ---
     
+
     // these columns imply recording:
     recordVariables = ['record','listenRepeatRecord','plannedProduction'];
     // if any columns imply recording, get audio permission and start media player
     if (recordVariables.some(r=> variables.includes(r))) {
-       var blob;
-       var chunks;
-       var recorder = [];
-       var soundFileName;
-       //audioUrl = [];
-       prosodylab.audioRecorder(study.testRun);
-    } 
+          
+      const startMediaRecorder = {
+        type: "call-function",
+        func: function() {
+            var blob;
+            var chunks;
+            var recorder = [];
+            var soundFileName;
+          prosodylab.audioRecorder(study.testRun);          
+        },
+        data: {
+          component: 'experiment',
+          trialPart: 'startMediaRecorder'
+        }
+      }
+    experimentSessions.push(startMediaRecorder);
+    }
     
     let session = [];
     let experimentN = [];
@@ -2254,7 +2251,6 @@ So far only implemented: Module 1, musicianship
     }
 
     // Order sessions
-    let experimentSessions = [];
   
     if (stimuli[0].sessionOrder=='Fixed') {
       experimentSessions = [...sessionNames];

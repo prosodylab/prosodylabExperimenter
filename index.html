@@ -81,6 +81,7 @@ study = {...study,
   //
   logFile: `${study.path}/studyLog.json`, // this is where log will be saved
   soundCheckFile: `prosodylab/soundcheck_da.mp3`,// file played for soundcheck
+  recordingTimeOut: 10000, // audio recording stops after x ms; default: 20000
   // 
   // completion code and completionLink are used, 
   completionLink: "", // link to send participant after end, e.g. for Prolific studies
@@ -110,7 +111,7 @@ study = {...study,
   consent: false,
   languageQuestionnaire: false,
   soundCheck: true,
-  micCheck: false,
+  micCheck: true,
   headphoneScreener: false,
   experimentSessions: true,
   postExQuestionnaire: false,
@@ -184,11 +185,10 @@ if (!participantCode) {
   
   // ---- mic check (should be done if recording is involved)
   // you can pass sentence that participant should produce as argument
-  
   if (study.micCheck&!study.doExperimentOnly){
     prosodylab.audioRecorder(study.testRun,true);
     soundFileName = `${study.path}/data/recordedFiles/${participantCode}_miccheck`;
-    timeline = [...timeline, ...prosodylab.micCheck()];
+    timeline = [...timeline, ...prosodylab.micCheck(soundFileName,study.recordingTimeOut)];
   }
 
   
