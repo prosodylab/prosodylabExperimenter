@@ -185,7 +185,7 @@ if (!participantCode) {
   
   // ---- mic check (should be done if recording is involved)
   // you can pass sentence that participant should produce as argument
-  console.log('study.recordingTimeOut',study.recordingTimeOut);
+ 
   if (study.micCheck&!study.doExperimentOnly){
     prosodylab.audioRecorder(study.testRun,true);
     soundFileName = `${study.path}/data/recordedFiles/${participantCode}_miccheck`;

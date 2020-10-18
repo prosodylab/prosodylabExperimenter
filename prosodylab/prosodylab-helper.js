@@ -2189,9 +2189,13 @@ So far only implemented: Module 1, musicianship
 
   },
   
-  createSessions: function(stimuli,pListMethod,studyLog,participantCode,messages) {
+  createSessions: function(stimuli,study,participantCode,messages) {
   
-    let experimentSessions = []; // trials will be stored in this variable
+    let experimentSessions = []; // trials will be stored in this variable;
+    
+    // load study log if there is one
+    // otherwise an empty log will be written to data folder]
+    let studyLog = prosodylab.loadLog(study.logFile);
   
     // save column names of study spreadsheet
     let variables = Object.keys(stimuli[0]);
@@ -2320,9 +2324,9 @@ So far only implemented: Module 1, musicianship
          // select conditions and generate ordered playlist of stimuli for this experiment
          // condition selection/ordering will depend on pList for certain designs
          // pList will either be assigned based on log or randomly or is hardcoded 
-         // (set in pListMethod)
+         // (set in study.pListMethod)
 
-         playList[j] = prosodylab.generatePlaylist(playList[j],studyLog,pListMethod);
+         playList[j] = prosodylab.generatePlaylist(playList[j],studyLog,study.pListMethod);
 
        
          // keep track of how long longest experiment is
