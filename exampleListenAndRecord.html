@@ -74,13 +74,9 @@ study = {...study,
   //
   language: 'en', // set which language interaction will be in
   //
-  // additional files you need to provide:
-  helloFile: `${study.path}/hello.md`,
-  consentFile: `${study.path}/consent.md`,
-  goodbyeFile: `${study.path}/goodbye.md`,
-  //
   logFile: `${study.path}/studyLog.json`, // this is where log will be saved
   soundCheckFile: `prosodylab/soundcheck_da.mp3`,// file played for soundcheck
+  recordingTimeOut: 10000, // audio recording stops after x ms; default: 20000
   // 
   // completion code and completionLink are used, 
   completionLink: "", // link to send participant after end, e.g. for Prolific studies
@@ -116,7 +112,7 @@ study = {...study,
   postExQuestionnaire: false,
   musicQuestionnaire: false,
   goodbye: false,
-  doExperimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags
+  doExperimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags, useful for testing
   //
  };
  
@@ -138,7 +134,8 @@ let participantCode = prosodylab.assignParticipantcode(study.participantCodeMeth
 
 //  ---- set-up timeline for experiment ----
 
-let timeline = [];
+let timeline = []; // this is where experiment will be stored
+let mdFile = []; // used for filenames of .md files
 
 // add experiment settings to experiment data json
 timeline.push(prosodylab.storeExperimentSettings(study));
@@ -159,15 +156,17 @@ if (!participantCode) {
   // Set name for response file with participant code
   const dataFilename = `data_${participantCode}`;
 
-  // load study log if there is one
-  // otherwise an empty log will be written to data folder]
-  let studyLog = prosodylab.loadLog(study.logFile);
-    
   
   //  ---- hello page ----
   
   if (study.hello&!study.doExperimentOnly){
-    timeline.push(prosodylab.screenFromMD(study.helloFile,'hello','left'));
+    mdFile = [];
+    if (!stimuli[0].hello) {
+      mdFile = `${study.path}/hello.md`;
+    } else {
+      mdFile = `${study.path}/${stimuli[0].hello}`;
+    }
+    timeline.push(prosodylab.screenFromMD(mdFile,'hello','left'));
   }
   
   // ----- warning flag if no data is recorded
@@ -184,11 +183,10 @@ if (!participantCode) {
   
   // ---- mic check (should be done if recording is involved)
   // you can pass sentence that participant should produce as argument
-  
   if (study.micCheck&!study.doExperimentOnly){
     prosodylab.audioRecorder(study.testRun,true);
     soundFileName = `${study.path}/data/recordedFiles/${participantCode}_miccheck`;
-    timeline = [...timeline, ...prosodylab.micCheck()];
+    timeline = [...timeline, ...prosodylab.micCheck(soundFileName,study.recordingTimeOut)];
   }
 
   
@@ -203,7 +201,13 @@ if (!participantCode) {
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
   if (study.consent&!study.doExperimentOnly){
-     timeline.push(prosodylab.screenFromMD(study.consentFile,'consent','left'));
+    mdFile = [];
+    if (!stimuli[0].consent) {
+      mdFile = `${study.path}/consent.md`;
+    } else {
+      mdFile = `${study.path}/${stimuli[0].consent}`;
+    }
+    timeline.push(prosodylab.screenFromMD(mdFile,'consent','left'));
   }
   
   // ---- language questionnaire ---
@@ -225,7 +229,7 @@ if (!participantCode) {
   
   if(study.experimentSessions||doExperimentOnly){
      experiment = 
-        prosodylab.createSessions(stimuli, study.pListMethod,studyLog,participantCode,messages);
+        prosodylab.createSessions(stimuli,study,participantCode,messages);
   
     timeline = [...timeline, ...experiment.timeline];
   }
@@ -266,7 +270,14 @@ if (!participantCode) {
   
   if (study.goodbye&!study.doExperimentOnly){
     if (study.participantCodeMethod == 'randomAndDisplay') {
-      timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',participantCode));
+      mdFile = [];
+      if (!stimuli[0].goodBye) {
+        mdFile = `${study.path}/goodBye.md`;
+      } else {
+        mdFile = `${study.path}/${stimuli[0].goodBye}`;
+      }
+      timeline.push(prosodylab.screenFromMD(mdFile,'goodbye','center',participantCode));      
+      
     } else if (study.completionCode) { 
       //timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',completionCode));
     } else {

@@ -2191,7 +2191,7 @@ So far only implemented: Module 1, musicianship
   
   createSessions: function(stimuli,study,participantCode,messages) {
   
-    let experimentSessions = []; // trials will be stored in this variable;
+    let allSessions = []; // trials will be stored in this variable;
     
     // load study log if there is one
     // otherwise an empty log will be written to data folder]
@@ -2202,7 +2202,6 @@ So far only implemented: Module 1, musicianship
   
     // --- start new audio recorder if experiment records ---
     
-
     // these columns imply recording:
     recordVariables = ['record','listenRepeatRecord','plannedProduction'];
     // if any columns imply recording, get audio permission and start media player
@@ -2222,10 +2221,11 @@ So far only implemented: Module 1, musicianship
           trialPart: 'startMediaRecorder'
         }
       }
-    experimentSessions.push(startMediaRecorder);
+    allSessions.push(startMediaRecorder);
     }
     
-    let session = [];
+    let session = []; // will store trials of of one particular session
+    let experimentSessions = []; // will store ordered session names
     let experimentN = [];
     let sessionStimuli = [];
     let sessionExperiments = [];
@@ -2272,10 +2272,8 @@ So far only implemented: Module 1, musicianship
  
     console.log('sessionNames',sessionNames,'experimentSessions',experimentSessions);
   
-    allSessions = [];
   
     for (let iSession=0; iSession < sessionNames.size;iSession++) {
-    
     
       // reset variables for session
       session = [];
@@ -2295,10 +2293,15 @@ So far only implemented: Module 1, musicianship
       sessionExperiments = [...new Set(sessionStimuli.map(value => value.experiment))];
       experimentN = sessionExperiments.length;
 
-      // load and display session instructions    
-      instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))];
-    
-      console.log('iSession',iSession,'instructionsFile',instructionsFile)
+      // load and display session instructions
+      if (!sessionStimuli[0].instructions){
+        sessionStimuli = sessionStimuli.map(obj=> ({ ...obj, instructions: 'instructions.md'}))
+      } 
+      
+      instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))]; 
+      
+      // Output session name, experiments, and instruction file
+      console.log('iSession',iSession,'sessionExperiments', sessionExperiments,'instructionsFile',instructionsFile);
     
       // display instructioions there is  no instruction file specified
       // (which means empty cells in all rows of session in instruction colummn)
