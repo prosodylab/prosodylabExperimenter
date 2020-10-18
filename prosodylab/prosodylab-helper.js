@@ -13,11 +13,12 @@ prosodylab = {
       continueButton:  'Continue',
       connectHeadphones: 'Please connect your headphones and adjust the volume please!',
       playSound: 'Play a sound',
-      recordSound: 'Record me now',
+      recordSound: 'Start recording now',
       playAgain: 'Play sound again',
       clickStartRecording: 'Click here to start recording?',
       speakNow: 'Please speak now!',
       recordAgain: 'Redo recording',
+      productionTestSentence: `The cat followed the squirrel stealthily to its nest.`, 
       soundCheckOk: 'I can hear the sound at a comfortable volume',
       recordCheckOk: 'The recording sounds good',
       recordCheckNotOk: 'I cannot get it to work',
@@ -824,7 +825,7 @@ So far only implemented: Module 1, musicianship
     const buttonText = ['Play Sound'];
     let soundCheckObject = {
       type: 'html-button-response',
-      stimulus: messages.connectHeadphones,
+      stimulus: `<em>${messages.connectHeadphones}</em><br><br>`,
       choices: [messages.playSound],
       on_trial_start: function() {
         setTimeout(function() {
@@ -876,15 +877,22 @@ So far only implemented: Module 1, musicianship
     return soundCheck;
   },
   
-  micCheck: function() {
+  micCheck: function(soundFileName,lab) {
+    
+    if (!lab){
+      var lab = messages.productionTestSentence;
+    }
 
     let recordCheck = [];
-    
     
     // record instructions screen
     let recordCheckObject = {
       type: 'html-button-response',
-      stimulus: `${messages.adjustMic} <br>`,
+      stimulus: `<em>${messages.adjustMic}. <br>
+      When you're ready, click and record the following sentence: </em>
+      <br><br> 
+      <b>${lab}</b>
+      <br><br><br>`,
       choices: [messages.recordSound],
       on_trial_start: function() {
         setTimeout(function() {
@@ -903,24 +911,18 @@ So far only implemented: Module 1, musicianship
     soundFileName = `${participantCode}_recordCheck`
     soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
 
-    recordLoop.push(prosodylab.start_recording(soundFileName,lab));
-      
-    recordLoop.push(prosodylab.recordClickMessage(messages.speakNow));
-     
-    recordLoop.push(prosodylab.stop_recording());
 
-    var playBack =  function () {
-       return {
-         type: "call-function",
-         func: function() {
-           const audio = new Audio(audioUrl);
-           audio.play();
-         }
-        }
-    }
-    
-    //recordLoop.push(playBack());
-  
+    recordLoop.push(prosodylab.startRecording(soundFileName,lab));
+      
+    recordLoop.push(prosodylab.recordClickMessage(
+      `<em>${messages.speakNow}</em>
+      <br><br> 
+      <b>${lab}</b>
+      <br>`
+      ));
+     
+    recordLoop.push(prosodylab.stopRecording());
+
   
     const choiceOne = messages.recordAgain;
     const choiceTwo = messages.recordCheckOk;
@@ -964,7 +966,7 @@ So far only implemented: Module 1, musicianship
           }
         }
        }
-      }
+      };
     
     recordCheck.push(loop_node);
 
@@ -1605,83 +1607,99 @@ So far only implemented: Module 1, musicianship
     return question
   },
   
-  
 
   // start audio recording
-  start_recording: function (filename,labtext) {
+  startRecording: function (filename,labtext) {
    return {
     type: "call-function", 
     func: function() {
-      audio_chunks = []; //clears global audio_chunks of previous blob content, needed for recording multipe trials in seperate files
+      chunks = []; // clears  prior recordings
       soundFileName = filename; 
       lab = labtext;
-      rec.start(); // starts audio recording
+      recorder.start(); 
     }
    }
   },
   
+  // play recorded sound
+  playRecording: function () {
+   return {
+    type: "call-function", 
+    func: function() {
+        function wait(ms){
+          var start = new Date().getTime();
+          var end = start;
+          while(end < start + ms) {
+            end = new Date().getTime();
+          }
+        } 
+        wait(100);
+        var audio = new Audio(audioUrl);
+        audio.play();
+    } // play recording
+   }
+  },
+  
   // function for stopping audio recording
-  stop_recording: function () {
+  stopRecording: function () {
    return {
     type: "call-function",
     func: function() {
-      rec.stop(); // stops recording and triggers onstop event
+      recorder.stop(); // stops recording and triggers onstop event
     }
    }
   },
  
   // save audio data
   // this should be turned into async function!
-  saveAudio: function(filename, audio_data,lab) {
-  if (!lab){ var lab = ""}
-   var url = 'prosodylab/record_audio.php'; // external .php file that should be in same folder as your experiment
-   form_data = new FormData();
-   form_data.append("filename", filename);
-   form_data.append("filedata", audio_data);
-   form_data.append("lab", lab);
-   fetch(url, {
+  saveAudio: function(filename, audioData,lab) {
+    if (!lab){ var lab = ""}
+    var url = 'prosodylab/record_audio.php'; // external .php file that should be in same folder as your experiment
+    form_data = new FormData();
+    form_data.append("filename", filename);
+    form_data.append("filedata", audioData);
+    form_data.append("lab", lab);
+    fetch(url, {
       method: 'POST', 
       body: form_data
-   });
+    });
   },
   
-  getAudioConsent: function(testRun){
-  
-    //either starts handlerFunction if access to microphone is enabeled 
-    // or catches that it is blocked and calls errorQuit function
-    navigator.mediaDevices.getUserMedia({audio:true})
-    .then(stream => {prosodylab.handlerFunction(stream,testRun)})
-    .catch(error => {errorQuit("You must allow audio recording to take part in the experiment. Please allow access to your microphone and reload the page to proceed.")});
-
-  },
-  
-  
-  // function that throws error and displays message if experiment is run in browsers that do not support MediaRecorder, or if microphone access is denied
+  // throw error
   errorQuit: function (message) {
    var body = document.getElementsByTagName('body')[0];
-   body.innerHTML = '<p style="color: #FF0000">'+message+'</p>'+body.innerHTML;//defines the style of error messages
+   body.innerHTML = '<p style="color: #FF0000">'+message+'</p>'+body.innerHTML;
    throw error;
   },
- 
-  //function that catches incompatibility with MediaRecorder (e.g. in Safari)
-  handlerFunction: function (stream,testRun) {
-    try {
-      rec = new MediaRecorder(stream);
-    } catch(error) {
-       errorQuit("Sorry, it's not possible to run the experiment on your web browser. Please try using Chrome or Firefox instead.");
-       };
-
-    rec.ondataavailable = e => {
-        audio_chunks.push(e.data);//pushes blob to "audio_chunks" variable above
+  
+  
+  audioRecorder: function(testRun,play){
+    // cf. https://air.ghost.io/recording-to-an-audio-file-using-html5-and-js/
+  
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {
+      try {
+        recorder = new MediaRecorder(stream);
+      } catch(error) { // if MediaRecorder not supported
+       prosodylab.errorQuit("Please try using Chrome or Firefox instead.");
+      };
+    
+    recorder.ondataavailable = e => {
+        chunks.push(e.data);//pushes blob to "chunks" variable above
     };
 
-    rec.onstop = e => { //what should happen when audio recording stops
-        let blob = new Blob(audio_chunks,{type:'audio/webm'});
-        // audioUrl = URL.createObjectURL(blob);
+    recorder.onstop = e => { //what should happen when audio recording stops
+        let blob = new Blob(chunks,{type:'audio/webm'});
+        audioUrl = URL.createObjectURL(blob);
         if(!testRun) {
           prosodylab.saveAudio(soundFileName, blob,lab);
         }
-    };
+        if(play){
+          var audio = new Audio(audioUrl);
+          audio.play();
+        }
+    }})
+    .catch(// // error if browser doesn't support MediaRecorder or mic permission denied
+       error => {errorQuit("Please allow microphone access and reload the page!")});
   },
  
  
@@ -1701,6 +1719,7 @@ So far only implemented: Module 1, musicianship
         prompt: function() {
         const html = `<style> .centered {position: fixed; top: 50%; 
           left: 50%; transform: translate(-50%, -50%);}</style>
+          <br>
           <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
           <br>
           ${trial.listenRepeatRecordMessage}
@@ -1741,12 +1760,12 @@ So far only implemented: Module 1, musicianship
       
       soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
        
-      session.push(prosodylab.start_recording(
+      session.push(prosodylab.startRecording(
           `${study.path}/data/recordedFiles/${soundFileName}`));
       
       session.push(prosodylab.recordClickMessage(messages.speakNow,trialInfo,soundFileName));
      
-      session.push(prosodylab.stop_recording());
+      session.push(prosodylab.stopRecording());
 
     }
     
@@ -1791,7 +1810,7 @@ So far only implemented: Module 1, musicianship
       
      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
        
-      session.push(prosodylab.start_recording(
+      session.push(prosodylab.startRecording(
           `${study.path}/data/recordedFiles/${soundFileName}`));
       
       
@@ -1801,7 +1820,7 @@ So far only implemented: Module 1, musicianship
           ${trial.plannedProduction}<br><br>
           <em>${messages.speakNow}</em>!<br><br>`,trialInfo,soundFileName));
      
-      session.push(prosodylab.stop_recording());
+      session.push(prosodylab.stopRecording());
       
       
     }
@@ -1870,9 +1889,9 @@ So far only implemented: Module 1, musicianship
     if (trial.record) {    
       soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`
       soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
-      session.push(prosodylab.start_recording(soundFileName));
+      session.push(prosodylab.startRecording(soundFileName));
       session.push(...stimul);
-      session.push(prosodylab.stop_recording());
+      session.push(prosodylab.stopRecording());
     }
 
     let questionN = 1;
@@ -2187,6 +2206,23 @@ So far only implemented: Module 1, musicianship
   },
   
   createSessions: function(stimuli,pListMethod,studyLog,participantCode,messages) {
+  
+    // save column names of study spreadsheet
+    let variables = Object.keys(stimuli[0]);
+  
+    // --- start new audio recorder if experiment records ---
+    
+    // these columns imply recording:
+    recordVariables = ['record','listenRepeatRecord','plannedProduction'];
+    // if any columns imply recording, get audio permission and start media player
+    if (recordVariables.some(r=> variables.includes(r))) {
+       var blob;
+       var chunks;
+       var recorder = [];
+       var soundFileName;
+       //audioUrl = [];
+       prosodylab.audioRecorder(study.testRun);
+    } 
     
     let session = [];
     let experimentN = [];

@@ -61,19 +61,22 @@ path from study.path to data/recordedFiles is hardcoded right now, desirable?
 
 // ---- settings ----
 
+// path and study file:
+let study = {
+  path: 'examples/listenAndRate', // contains folders with  audio/images if applicable
+  stimulusFile: 'rhymeShort.txt' 
+}; 
 
-let study = {path: 'examples/listenAndRate'}; // needs to have audio/images subdirectories if applicable
-  
+// other settings for study:
 study = {...study, 
   //
   testRun: true, // **if true, no data will be recorded**
   //
   language: 'en', // set which language interaction will be in
-  // relevant files
-  // files you need to provide:
-  stimuliFile: `${study.path}/rhymeShort.txt`, // your experiment stimuli
-  helloFile: `${study.path}/hello.md`,
-  consentFile: `${study.path}/consent_production_prolific.md`,
+  //
+  // additional files you need to provide:
+  helloFile: `${study.path}/helloScales.md`,
+  consentFile: `${study.path}/consent.md`,
   goodbyeFile: `${study.path}/goodbye.md`,
   //
   logFile: `${study.path}/studyLog.json`, // this is where log will be saved
@@ -106,7 +109,8 @@ study = {...study,
   hello: true,
   consent: false,
   languageQuestionnaire: false,
-  soundCheck: false,
+  soundCheck: true,
+  micCheck: false,
   headphoneScreener: false,
   experimentSessions: true,
   postExQuestionnaire: false,
@@ -150,10 +154,7 @@ if (!participantCode) {
   
 
   // load spreadsheet with all experiments, global variable
-  stimuli = prosodylab.loadCSV(study.stimuliFile);
-
-  // save variable names of study spreadsheet 
-  let variables = Object.keys(stimuli[0]);
+  stimuli = prosodylab.loadCSV(`${study.path}/${study.stimulusFile}`);
 
   // Set name for response file with participant code
   const dataFilename = `data_${participantCode}`;
@@ -162,17 +163,6 @@ if (!participantCode) {
   // otherwise an empty log will be written to data folder]
   let studyLog = prosodylab.loadLog(study.logFile);
     
-  
-  // check for audio recording consent if necessary
-  recordVariables = ['record','listenRepeatRecord','plannedProduction'];
-  // if any columns imply recording, get audio permission and start media player
-  if (recordVariables.some(r=> variables.includes(r))) {
-     var blob;
-     var audio_chunk;
-     var rec = [];
-     var soundFileName;
-     prosodylab.getAudioConsent(study.testRun);
-  } 
   
   //  ---- hello page ----
   
@@ -185,6 +175,22 @@ if (!participantCode) {
   if (study.testRun){
     timeline.push(prosodylab.noDataRecordedFlag());
   }
+  
+  // ---- sound check (if audio is involved)
+  
+  if (study.soundCheck&!study.doExperimentOnly){
+    timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
+  }
+  
+  // ---- mic check (should be done if recording is involved)
+  // you can pass sentence that participant should produce as argument
+  
+  if (study.micCheck&!study.doExperimentOnly){
+    prosodylab.audioRecorder(study.testRun,true);
+    soundFileName = `${study.path}/data/recordedFiles/${participantCode}_miccheck`;
+    timeline = [...timeline, ...prosodylab.micCheck()];
+  }
+
   
   // ---- full screen mode if applicable --
   
@@ -205,12 +211,7 @@ if (!participantCode) {
   if (study.languageQuestionnaire&!study.doExperimentOnly){
    timeline.push(prosodylab.languageQuestionnaire(study.language));
   }
-  
-  // ---- sound check (if audio is involved)
-  
-  if (study.soundCheck&!study.doExperimentOnly){
-    timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
-  }
+    
   
   // ---- head phone screener ----
   
