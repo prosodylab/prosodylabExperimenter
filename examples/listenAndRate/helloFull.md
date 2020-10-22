@@ -1,12 +1,13 @@
 
 ## Welcome!
 
-This experiment illustrates a complete experiment, including the following parts:
+This experiment illustrates a few trials of an experiment with the various other parts that are often part of a study:
 
 * This 'hello' screen
 * Consent Screen
 * Langauge Questionnaire
 * Sound check
+* Mic check (will only work on Chrome or Firefox)
 * head phone screener
 * The 2 Experiments from [Wagner & McCurdy (2010)](https://pubmed.ncbi.nlm.nih.gov/20889149/)
 * Post-experiment Questionnaire

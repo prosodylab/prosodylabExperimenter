@@ -1868,7 +1868,6 @@ So far only implemented: Module 1, musicianship
                options: messages.startRecording
                }
       }
-
       
       soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
        
@@ -1909,7 +1908,6 @@ So far only implemented: Module 1, musicianship
         }
                 
         for (let i=0; i<images.length; i++){
-        
           secondScreen = secondScreen + `
             <img 
                src=${trialInfo.path}/images/${images[i]} 
@@ -1920,11 +1918,10 @@ So far only implemented: Module 1, musicianship
                  border:none;
                  "
                alt="image" width="100"> `
-        
          } 
          
        }
-        
+     
 
        secondScreen  = 
           prosodylab.recordClickMessage(secondScreen,trialInfo, soundFileName,study.recordingTimeOut,messages.doneRecording);
@@ -1938,7 +1935,7 @@ So far only implemented: Module 1, musicianship
        session.push(prosodylab.stopRecording());
     }
     
-   
+    // simply play soundfile
     if (trial.soundFile) {
       const fixationDuration = 1000 // show fixation cross for 1000 msec
       session.push(this.fixation(trialInfo,fixationDuration)); 
@@ -1958,6 +1955,46 @@ So far only implemented: Module 1, musicianship
       }
       playSound.data.trialPart =  'Listen to soundFile';
       session.push(playSound);
+    }
+    
+    // play soundfile and ask whether participant wants to hear it again
+    if (trial.soundFileRepeat) {
+      const fixationDuration = 1000 // show fixation cross for 1000 msec
+      session.push(this.fixation(trialInfo,fixationDuration)); 
+
+      playSound =  {
+        type: 'audio-button-response',
+        prompt: function() {
+        const html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <br>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
+          <br>
+          ${trial.soundFileRepeatMessage}
+          `
+          return html;
+        },
+        stimulus: `${trial.path}/audio/${trial.soundFileRepeat}`,
+        choices: [messages.playAgain,messages.continueButton],
+        button_html: '<button class="jspsych-btn">%choice% </button>',
+        data: trialInfo
+      }
+      playSound.data.trialPart =  'ListenRepeatRecord';
+      playSound.data.options = [messages.playAgain,messages.recordSound];
+      
+      const loop_node = {
+        timeline: [playSound],
+        loop_function: function(data) {
+          if ('0' == data.values()[0].button_pressed) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+      
+      
+      session.push(loop_node);
     }
     
     if (trial.contextFile) {
@@ -1999,13 +2036,7 @@ So far only implemented: Module 1, musicianship
     }
     
     
-    if (trial.record) {    
-      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`
-      soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
-      session.push(prosodylab.startRecording(soundFileName));
-      session.push(...stimul);
-      session.push(prosodylab.stopRecording());
-    }
+    
 
     let questionN = 1;
 
@@ -2029,42 +2060,28 @@ So far only implemented: Module 1, musicianship
         trialPart: `question${questionN}`
         };
       
-      if (qType=='ButtonOptionsFixed'||qType=='ButtonOptionsRandomBetween'){
+
       
+      if (qType=='ButtonOptionsFixed'||qType=='ButtonOptionsRandomBetween'||qType == 'ButtonOptions'){
+            
         question.type = 'html-button-response';
-        if (trial[`question${questionN}Stimulus`]) {
-          question.stimulus = eval(`trial.question${questionN}Stimulus`) + 
-          `<br><br> <b>${question.data.text}</b><br><br>`;
-        } else {
-          question.stimulus = question.data.text;
-        }
-          
         question.choices = eval(trial[`question${questionN}Options`]);
-        if (qType == 'ButtonOptionsRandomBetween') {
-          question.choices = this.shuffle(question.choices,randomNumbers[questionN-1]);
-        }          
         question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>'
         question.data.options = question.choices;
-        
-      } else if (qType=='ButtonOptions'){
-        
-        question.type = 'html-button-response';
-        
-        question.stimulus = `<em>${question.data.text}<em/>`;
+
+        question.stimulus = `<br><em>${question.data.text}<em/><br>`;
         
         if (trial[`question${questionN}Stimulus`]) {
           question.stimulus = eval(`trial.question${questionN}Stimulus`) + 
-          `<br><br> <b>${question.stimulus}</b><br><br>`;
+          question.stimulus;
         } 
         
-        if (trial.stimulus) {
-          question.stimulus = trial.stimulus + 
-          `<br><br> <em>${question.stimulus}</em><br><br>`;
+        if (qType == 'ButtonOptionsRandomBetween') {
+          question.choices = this.shuffle(question.choices,randomNumbers[questionN-1]);
+        }  else if (qType=='ButtonOptions'){
+          question.choices = jsPsych.randomization.shuffle(question.choices);
         }
         
-        
-        question.choices = jsPsych.randomization.shuffle(eval(trial[`question${questionN}Options`]));
-        question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>'
         question.data.options = question.choices;
         
       }  else if (qType=='ConditionalSlider'){
@@ -2389,24 +2406,60 @@ So far only implemented: Module 1, musicianship
          
     }
     
+    // planned production after question 1
+    if (trial.recordAfter&&trial.recordAfter!='no'&&questionN==1) {
+       
+      // set text for .lab file that will be saved with soundfile 
+      if (trial.lab) {
+          lab = trial.lab;
+      } else {
+         lab = trial.recordAfter;
+      }
+                
+      var readStimulus =  {
+        type: 'html-button-response',
+        stimulus: function() {
+        const html = `
+          <div style="position:relative; height400px;">
+          <b>${trial.recordAfter}</b><br>
+           <em>${prosodylab.md2html(trial.recordAfterMessage)}</em><br>
+           </div>`
+          return html;
+        },
+        choices: [messages.startRecording],
+        button_html: '<button class="jspsych-btn">%choice% </button>',
+        data: {...trialInfo,
+               trialPart:  'recordAfter',
+               options: messages.startRecording
+               }
+      }
+
+        //  <style> .centered {position: fixed; top: 50%; 
+       //   left: 50%; transform: translate(-50%, -50%);}</style>
+
+      session.push(readStimulus);
+      
+     soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
+       
+      session.push(prosodylab.startRecording(
+          `${study.path}/data/recordedFiles/${soundFileName}`));
+      
+      
+      session.push(prosodylab.recordClickMessage(
+         `<div style="position:relative; height400px;">
+          <b>${trial.recordAfter}</b><br><br>
+          <em>${messages.speakNow}</em>!<br><br><br>
+          </div>`,trialInfo,soundFileName));
+     
+      session.push(prosodylab.stopRecording());
+      
+      
+    }
+    
     questionN++;
     
-    }
+    } // end while for questions
       
-    if (trial.textQuestion) {
-     
-      const textQuestion = {
-        type: 'survey-text',
-        questions: [
-           {prompt: trial.textQuestion, name: 'textQuestion', rows: 5, columns: 100} 
-        ],
-        data: trialInfo
-      };
-          
-    session.push(textQuestion);
-    
-    }
-
     return session;
 
   },
@@ -2425,7 +2478,7 @@ So far only implemented: Module 1, musicianship
     // --- start new audio recorder if experiment records ---
     
     // these columns imply recording:
-    recordVariables = ['record','listenRepeatRecord','plannedProduction','incrementalProduction'];
+    recordVariables = ['record','listenRepeatRecord','plannedProduction','incrementalProduction','recordAfter'];
     // if any columns imply recording, get audio permission and start media player
     if (recordVariables.some(r=> variables.includes(r))) {
     
@@ -2492,7 +2545,7 @@ So far only implemented: Module 1, musicianship
         throw new Error(`sessionOrder value not known: ${stimuli[1].sessionOrder}`);
     }
  
-    console.log('sessionNames',sessionNames,'experimentSessions',experimentSessions);
+    console.log('Order of Sessions:',experimentSessions);
   
   
     for (let iSession=0; iSession < sessionNames.size;iSession++) {
@@ -2506,6 +2559,7 @@ So far only implemented: Module 1, musicianship
       playList = [];
       pList = [];
       instructions = [];
+      instructionsFile = [];
       sessionTrial = 0;
     
       // Subset of stimuli for the current session
@@ -2522,13 +2576,10 @@ So far only implemented: Module 1, musicianship
       
       instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))]; 
       
-      // Output session name, experiments, and instruction file
-      console.log('iSession',iSession,'sessionExperiments', sessionExperiments,'instructionsFile',instructionsFile);
-    
       // display instructioions there is  no instruction file specified
       // (which means empty cells in all rows of session in instruction colummn)
       if (instructionsFile[0]){ 
-        if (instructionsFile.length==1) {
+        if (instructionsFile.length==1&instructionsFile[0]!='none') {
           session.push(this.screenFromMD(`${study.path}/${instructionsFile}`,'Instructions','left'));
         } else if (instructionsFile.length>1) {
           instructions = `There has to be a unique instructions file per session. 
@@ -2619,12 +2670,14 @@ So far only implemented: Module 1, musicianship
               session = prosodylab.addTrial(session,playList[k][j],trialInfo,participantCode,randomNumbers[k],messages);
             }
           }
+          
       }
     
+     // Output session information
+     console.log('These were added to session:',
+     experimentSessions[iSession], 'experiments:', sessionExperiments,'instructionsFile:',instructionsFile,'nTrials:',sessionTrial);
     
-      console.log(`Session ${experimentSessions[iSession]}: ${sessionTrial} trials`);
-
-      allSessions.push(...session);
+    allSessions.push(...session);
       
   }
   

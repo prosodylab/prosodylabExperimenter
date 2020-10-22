@@ -12,7 +12,7 @@ williams	2	2	3	Willliams	Identical	W2I.mp3	### How natural did you find this utt
 williams	2	3	1	Willliams	Bad	W3B.mp3	### How natural did you find this utterance?	LikertKey	['very unnatural','very natural']	LatinSquare	instructionsWilliams.md	helloScales.md
 williams	2	3	2	Willliams	Good	W3G.mp3	### How natural did you find this utterance?	LikertKey	['very unnatural','very natural']	LatinSquare	instructionsWilliams.md	helloScales.md
 williams	2	3	3	Willliams	Identical	W3I.mp3	### How natural did you find this utterance?	LikertKey	['very unnatural','very natural']	LatinSquare	instructionsWilliams.md	helloScales.md
-debriefingMidExp	3	1	1							Fixed		helloScales.md
+midExpQuestion	3	1	1				### Before we move on to the second part--what did you think this first of the experiment was about?	textResponse		Fixed	none	helloScales.md
 rhymePractice	4	1	1	Rhyme	Bad	R16B.mp3	### How good did you find this rhyme?	Likert	['very poor rhyme','very good rhyme']	LatinSquare	instructionsRhymeP.md	helloScales.md
 rhymePractice	4	1	2	Rhyme	Good	R16G.mp3	### How good did you find this rhyme?	Likert	['very poor rhyme','very good rhyme']	LatinSquare	instructionsRhymeP.md	helloScales.md
 rhymePractice	4	2	1	Rhyme	Bad	R17B.mp3	### How good did you find this rhyme?	Likert	['very poor rhyme','very good rhyme']	LatinSquare	instructionsRhymeP.md	helloScales.md

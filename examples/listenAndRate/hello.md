@@ -20,7 +20,7 @@ If instead you'd like to see a different study, here are a few other examples:
 
 * A longer version (10 trials), illustrating different multiple sessions and different kinds of ratings scales:  [here](https://prosodylab.org/experimenter/examples/exampleScales.html)
 
-* The same slightly longer study, but this time not just the instructions and actual experiment trials with all the other trappings too (go to full screen, consent form, soundcheck, head phone screener, language questionnaire, post-experiment questionnaire, music questionnaire):  [here](https://prosodylab.org/experimenter/examples/exampleFullExperiment.html)
+* The same slightly longer study, but this time not just the instructions and actual experiment trials with all the other trappings too (go to full screen, consent form, soundcheck, head phone screener, mic check, language questionnaire, post-experiment questionnaire, music questionnaire):  [here](https://prosodylab.org/experimenter/examples/exampleFullExperiment.html)
 
 
 * Listen and Record: [here](https://prosodylab.org/experimenter/examples/exampleListenAndRecord.html)
