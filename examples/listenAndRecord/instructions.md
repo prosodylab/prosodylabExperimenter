@@ -28,5 +28,5 @@ Your task is to calculate the result: 8. And then click on 'record' and say the 
 You will have to say the entire from memory, but no worries, you can listen to the formula multiple times, until you're sure that you remember it.
 
 
-Press any key to start!
+Click hear to begin!
 

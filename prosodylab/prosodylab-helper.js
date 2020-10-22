@@ -1903,7 +1903,13 @@ So far only implemented: Module 1, musicianship
       if (qType=='ButtonOptionsFixed'||qType=='ButtonOptionsRandomBetween'){
       
         question.type = 'html-button-response';
-        question.stimulus = question.data.text;
+        if (trial[`question${questionN}Stimulus`]) {
+          question.stimulus = eval(`trial.question${questionN}Stimulus`) + 
+          `<br><br> <b>${question.data.text}</b><br><br>`;
+        } else {
+          question.stimulus = question.data.text;
+        }
+          
         question.choices = eval(trial[`question${questionN}Options`]);
         if (qType == 'ButtonOptionsRandomBetween') {
           question.choices = this.shuffle(question.choices,randomNumbers[questionN-1]);
@@ -1912,21 +1918,90 @@ So far only implemented: Module 1, musicianship
         question.data.options = question.choices;
         
       } else if (qType=='ButtonOptions'){
-      
+        
         question.type = 'html-button-response';
-        question.stimulus = question.data.text;
+        
+        question.stimulus = `<em>${question.data.text}<em/>`;
+        
+        if (trial[`question${questionN}Stimulus`]) {
+          question.stimulus = eval(`trial.question${questionN}Stimulus`) + 
+          `<br><br> <b>${question.stimulus}</b><br><br>`;
+        } 
+        
+        if (trial.stimulus) {
+          question.stimulus = trial.stimulus + 
+          `<br><br> <em>${question.stimulus}</em><br><br>`;
+        }
+        
+        
         question.choices = jsPsych.randomization.shuffle(eval(trial[`question${questionN}Options`]));
         question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>'
         question.data.options = question.choices;
         
-      } else if (qType=='ConditionalButtonOptions'||qType=='ConditionalButtonOptionsRandomBetween'){
+      }  else if (qType=='ConditionalSlider'){
+          // sentence to be rated depends on prior question
+                                
+          question.type = 'html-slider-response';
+
+          if (!trial[`question${questionN}EndPoints`]){ 
+             question.labels = messages.naturalnessOptions;
+          } else { // or else use endpoint labels given in experiment spreadsheet
+             question.labels = eval(trial[`question${questionN}EndPoints`]);
+          }
+
+          question.button_label = `${messages.continueButton}`;
+          question.require_movement = true;
+          
+          question.stimulus  = function(){
+            // get data from last trial
+            const lastTrial = jsPsych.data.get().last(1).values()[0];
+            
+            
+            let conditionalStimulus = `<b>${lastTrial.chosenOption} </b><br>  <em>${question.data.text}</em>`
+            
+            if (trial.stimulus) {
+              conditionalStimulus = trial.stimulus + 
+              `<br><br> ${conditionalStimulus}<br><br>`;
+            }   
+            return conditionalStimulus;
+          }
+       } else if (qType=='ConditionalSliderUnchosen'){
+          // sentence to be rated depends on prior question
+                                
+          question.type = 'html-slider-response';
+
+          if (!trial[`question${questionN}EndPoints`]){ 
+             question.labels = messages.naturalnessOptions;
+          } else { // or else use endpoint labels given in experiment spreadsheet
+             question.labels = eval(trial[`question${questionN}EndPoints`]);
+          }
+
+          question.button_label = `${messages.continueButton}`;
+          question.require_movement = true;
+          
+          question.stimulus  = function(){
+            // get data from last trial
+            const lastTrial = jsPsych.data.get().last(2).values()[0];
+            
+            let originalOptions = eval(trial[`question1Options`]);
+            console.log('originalOptions',originalOptions,'lastTrial.chosenOption',lastTrial.chosenOption)
+            
+            let conditionalStimulus =  `<b>${originalOptions.filter(option => option != lastTrial.chosenOption)}</b> <br>  <em>${question.data.text}</em>`;
+                        
+            if (trial.stimulus) {
+              conditionalStimulus = trial.stimulus + 
+              `<br><br> ${conditionalStimulus}<br><br>`;
+            }   
+            return conditionalStimulus;
+          }
+       }  else if (qType=='ConditionalButtonOptions'||qType=='ConditionalButtonOptionsRandomBetween'){
           // question options dependent on prior question, fixed option order or random between participants
             
           question.data.conditionalOptions = eval(trial[`question${questionN}Options`]);
           
           question.type = 'html-button-response';
           question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>';
-          question.stimulus  = question.stimulus = question.data.text;
+          question.stimulus  =  question.data.text;
           
           question.choices  = function(){
             let  choices = [];
@@ -2391,7 +2466,7 @@ So far only implemented: Module 1, musicianship
               }
             
               trial.path = study.path;
-              
+                            
               session = prosodylab.addTrial(session,playList[k][j],trialInfo,participantCode,randomNumbers[k],messages);
             }
           }

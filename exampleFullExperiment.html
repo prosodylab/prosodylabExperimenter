@@ -272,9 +272,9 @@ if (!participantCode) {
     if (study.participantCodeMethod == 'randomAndDisplay') {
       mdFile = [];
       if (!stimuli[0].goodBye) {
-        mdFile = `${study.path}/goodBye.md`;
+        mdFile = `${study.path}/goodbye.md`;
       } else {
-        mdFile = `${study.path}/${stimuli[0].goodBye}`;
+        mdFile = `${study.path}/${stimuli[0].goodbye}`;
       }
       timeline.push(prosodylab.screenFromMD(mdFile,'goodbye','center',participantCode));      
       

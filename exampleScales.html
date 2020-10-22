@@ -64,7 +64,7 @@ path from study.path to data/recordedFiles is hardcoded right now, desirable?
 // path and study file:
 let study = {
   path: 'examples/listenAndRate', // contains folders with  audio/images if applicable
-  stimulusFile: 'scales.txt' 
+  stimulusFile: 'rhymeShort.txt' 
 }; 
 
 // other settings for study:
@@ -106,13 +106,13 @@ study = {...study,
   consent: false,
   languageQuestionnaire: false,
   soundCheck: true,
-  micCheck: true,
+  micCheck: false,
   headphoneScreener: false,
   experimentSessions: true,
   postExQuestionnaire: false,
   musicQuestionnaire: false,
   goodbye: false,
-  doExperimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags
+  doExperimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags, useful for testing
   //
  };
  
@@ -156,10 +156,6 @@ if (!participantCode) {
   // Set name for response file with participant code
   const dataFilename = `data_${participantCode}`;
 
-  // load study log if there is one
-  // otherwise an empty log will be written to data folder]
-  let studyLog = prosodylab.loadLog(study.logFile);
-    
   
   //  ---- hello page ----
   
@@ -233,7 +229,7 @@ if (!participantCode) {
   
   if(study.experimentSessions||doExperimentOnly){
      experiment = 
-        prosodylab.createSessions(stimuli, study.pListMethod,studyLog,participantCode,messages);
+        prosodylab.createSessions(stimuli,study,participantCode,messages);
   
     timeline = [...timeline, ...experiment.timeline];
   }
@@ -276,9 +272,9 @@ if (!participantCode) {
     if (study.participantCodeMethod == 'randomAndDisplay') {
       mdFile = [];
       if (!stimuli[0].goodBye) {
-        mdFile = `${study.path}/goodBye.md`;
+        mdFile = `${study.path}/goodbye.md`;
       } else {
-        mdFile = `${study.path}/${stimuli[0].goodBye}`;
+        mdFile = `${study.path}/${stimuli[0].goodbye}`;
       }
       timeline.push(prosodylab.screenFromMD(mdFile,'goodbye','center',participantCode));      
       
