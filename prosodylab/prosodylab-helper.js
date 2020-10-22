@@ -1,4 +1,4 @@
-/* prosodylab-jspsych-experimenter helper scripts Michael Wagner chael@mcgill.ca */
+/* prosodylab-experimenter helper scripts Michael Wagner chael@mcgill.ca */
 
 prosodylab = {
 
@@ -13,17 +13,19 @@ prosodylab = {
       continueButton:  'Continue',
       connectHeadphones: 'Please connect your headphones and adjust the volume please!',
       playSound: 'Play a sound',
-      recordSound: 'Start recording now',
       playAgain: 'Play sound again',
-      clickStartRecording: 'Click here to start recording?',
+      adjustVolume: 'Adjust volume if necessary',
+      soundCheckOk: 'I can hear the sound at a comfortable volume',
+      recordSound: 'Start audio recording now',
+      startRecording: 'Click here to start recording',
+      doneRecording: 'Click here when you\'re done recording',     
       speakNow: 'Please speak now!',
       recordAgain: 'Redo recording',
-      productionTestSentence: `The cat followed the squirrel stealthily to its nest.`, 
-      soundCheckOk: 'I can hear the sound at a comfortable volume',
       recordCheckOk: 'The recording sounds good',
-      recordCheckNotOk: 'I cannot get it to work',
-      adjustVolume: 'Adjust volume if necessary',
       adjustMic: 'Adjust mic settings if necessary',
+      productionTestSentence: `The cat followed the squirrel stealthily to its nest.`, 
+
+      recordCheckNotOk: 'I cannot get it to work',
       instructionsHeadphoneCheck: `<br> <em>The following is a headphone test--you will not 
         be able to do this without headphones!</em>  <p><br><br> You will hear three 
         sounds in a row, and you will be asked which one was the quietest of them.
@@ -85,8 +87,18 @@ prosodylab = {
       connectHeadphones: 'Veuillez connecter vos écouteurs et régler le volume s\'il vous plaît!',
       playSound: 'Écouter le son',
       playAgain: 'Rejouer le son',
+      speakNow: 'Veuillez parler maintenant!',
       soundCheckOk: 'Je peux entendre le son à un volume confortable',
       adjustVolume: 'Ajustez le volume si nécessaire',
+      recordSound: 'Démarrer l\'enregistrement audio maintenant',
+      startRecording: 'Cliquez ici pour commencer l\'enregistrement?',
+      doneRecording: 'Cliquez ici lorsque vous avez terminé l\'enregistrement',
+      speakNow: 'Parlez maintenant!',
+      recordAgain: 'Refaire l\'enregistrement',
+      recordCheckOk: 'L\'enregistrement sonne bien',
+      adjustMic: 'Ajustez les paramètres du micro si nécessaire',
+      productionTestSentence: 'Le chat a suivi l\'écureuil furtivement jusqu\'à son nid.',
+      recordCheckNotOk: 'Je ne peux pas le faire fonctionner',
       instructionsHeadphoneCheck: `<br> <em> Ce qui suit est un test test sonore. Des
         écouteurs sont nécessaires pour effectuer le test. </ em>
         <p> <br> <br> Écoutez les trois notes, puis choisissez celle qui était la plus silencieuse.
@@ -756,7 +768,7 @@ prosodylab = {
   },
   
   
-  // Debriefing questions
+  // Post-experiment questions
   postExQuestionnaire: function(language) {
     if (!language) {language = 'en'}
     let postEx = [];
@@ -878,9 +890,7 @@ So far only implemented: Module 1, musicianship
   },
   
   micCheck: function(soundFileName,recordingTimeOut,lab) {
-  
-    console.log('recordingTimeOut',recordingTimeOut);
-    
+      
     if (!lab){
       var lab = messages.productionTestSentence;
     }
@@ -918,7 +928,7 @@ So far only implemented: Module 1, musicianship
       
     recordLoop.push(prosodylab.recordClickMessage(
       `<em>${messages.speakNow}</em>
-      <br><br> <b>${lab}</b> <br>`,
+      <br><br> <b>${lab}</b> <br><br>`,
       {component: `micCheckRecording`}, 
       soundFileName,recordingTimeOut));
      
@@ -1521,7 +1531,7 @@ So far only implemented: Module 1, musicianship
   noDataRecordedFlag: function(){
     const result = {
       type: 'html-keyboard-response',
-      stimulus: `<div style="font-size:70px;color:red">
+      stimulus: `<div style="font-size:50px;color:red">
       <em>Test run <br><br><br><br> No data will be saved!</em></div>`,
       choices: jsPsych.NO_KEYS,
       trial_duration: 2000, //duration in msec
@@ -1530,13 +1540,14 @@ So far only implemented: Module 1, musicianship
     return result;
   },
   
-  recordClickMessage: function(message,trialInfo,soundFileName,recordingTimeOut) {
+  recordClickMessage: function(html,trialInfo,soundFileName,recordingTimeOut,message) {
     if (!trialInfo){var trialInfo=[];}
+    if (!message){message = messages.doneRecording};
 
     const result = {
       type: 'html-button-response',
-      stimulus: `<br>${message}<br><br><br>`,
-      choices: ['Click here when you\'re done recording!'],
+      stimulus: html,
+      choices: [message],
       button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
       trial_duration: recordingTimeOut,
       data: {...trialInfo,
@@ -1687,7 +1698,7 @@ So far only implemented: Module 1, musicianship
   },
  
  
-  addTrial: function(session, trial,trialInfo,participant,randomNumbers,messages) {
+  addTrial: function(session,trial,trialInfo,participant,randomNumbers,messages) {
 
     var stimul = [];
     var playSound = [];
@@ -1716,7 +1727,7 @@ So far only implemented: Module 1, musicianship
         data: trialInfo
       }
       playSound.data.trialPart =  'ListenRepeatRecord';
-      playSound.data.options = ['Replay','Record your response now'];
+      playSound.data.options = [messages.playAgain,messages.recordSound];
       
       const loop_node = {
         timeline: [playSound],
@@ -1747,7 +1758,9 @@ So far only implemented: Module 1, musicianship
       session.push(prosodylab.startRecording(
           `${study.path}/data/recordedFiles/${soundFileName}`));
       
-      session.push(prosodylab.recordClickMessage(messages.speakNow,trialInfo,soundFileName));
+      session.push(prosodylab.recordClickMessage(
+         `<br><br><em>${messages.speakNow}</em><br><br>`,
+         trialInfo,soundFileName,study.recordingTimeOut));
      
       session.push(prosodylab.stopRecording());
 
@@ -1767,7 +1780,7 @@ So far only implemented: Module 1, musicianship
       const fixationDuration = 1000 // show fixation cross for 1000 msec
       session.push(this.fixation(trialInfo,fixationDuration)); 
      
-      readStimulus =  {
+      var readStimulus =  {
         type: 'html-button-response',
         stimulus: function() {
         const html = `<br> <style> .centered {position: fixed; top: 50%; 
@@ -1781,12 +1794,12 @@ So far only implemented: Module 1, musicianship
         //stimulus: `<style> .centered {position: fixed; top: 50%; 
         //  left: 50%; transform: translate(-50%, -50%);}</style>
         //   <em>${trial.plannedProduction}</em>`,
-        choices: [messages.clickStartRecording],// allow space or 'r' for 'replay'
+        choices: [messages.startRecording],
         //trial_ends_after_audio: true,
         button_html: '<button class="jspsych-btn">%choice% </button>',
         data: {...trialInfo,
                trialPart:  'plannedProduction',
-               options: messages.clickStartRecording
+               options: messages.startRecording
                }
       }
 
@@ -1807,6 +1820,122 @@ So far only implemented: Module 1, musicianship
       session.push(prosodylab.stopRecording());
       
       
+    }
+    
+    // incremental production
+    if (trial.incrementalProduction&&trial.incrementalProduction!='no') {
+       
+      // set text for .lab file that will be saved with soundfile 
+      if (trial.lab) {
+          lab = trial.lab;
+      } else {
+         lab = trial.incrementalProduction;
+      }
+            
+      const fixationDuration = 1000 // show fixation cross for 1000 msec
+      session.push(this.fixation(trialInfo,fixationDuration)); 
+    
+      var readyScreen = {
+        type: 'html-button-response',
+        stimulus: `<em>${prosodylab.md2html(trial.incrementalProductionMessage)}</em>
+            <br><br>`,
+        choices: [messages.continueButton],
+        button_html: '<button class="jspsych-btn">%choice% </button>',
+        data: trialInfo
+      }
+      readyScreen.data.trialPart =  'Incremental Production ready-message';
+     
+     session.push(readyScreen);
+     
+      var firstScreen =  {
+        type: 'html-keyboard-response',
+        stimulus: function() {
+        const html = `<br> <style> .centered {position: absolute; top: 80px; 
+          left: 50%;}</style>
+          ${trial.incrementalProduction}
+          <style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <div style="position:relative; height:300px;"></div>
+          <em>${messages.speakNow}</em>!<br>
+          <br><br>`
+          return html;
+        },
+        choices: jsPsych.NO_KEYS,
+        //trial_ends_after_audio: true,
+        trial_duration: trial.incrementLag,
+        data: {...trialInfo,
+               trialPart:  'Incremental production first screen',
+               options: messages.startRecording
+               }
+      }
+
+      
+      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
+       
+      session.push(prosodylab.startRecording(
+          `${study.path}/data/recordedFiles/${soundFileName}`));
+      
+      session.push(firstScreen);
+      
+      var secondScreen = `<br> <style> .centered {position: absolute; top: 80px; 
+          left: 50%;}</style>
+          ${trial.incrementalProduction}<br><br>
+          <div style="position:relative; height:300px;">`;
+      
+      // images have to be array
+      if (trial.images){
+      
+        var images = eval(trial.images);
+        var imageLocations = [];
+        
+        if (!trial.imageLocations) {
+          if (images.length==1) {
+            imageLocations = [{top: 40,left: 50}]; 
+          } else if (images.length==2) {
+            imageLocations = [{top: 40,left: 20},{top: 40,left: 80}];
+          } else if (images.length==3) {
+            imageLocations = [{top: 20,left: 20},{top: 20,left: 80},{top: 40,left: 50}];
+          } else if (images.length==4) {
+            imageLocations = [{top: 20,left: 20},{top: 20,left: 80},{top: 40,left: 20},{top: 40,left: 80}];
+          }
+        } else {
+          imageLocations = eval(trial.imageLocations);
+        }
+        
+        if (!trial.imageOrder) {trial.imageOrder = 'random'}
+        
+        if (trial.imageOrder=='random') {
+           images = jsPsych.randomization.shuffle(images);
+        }
+                
+        for (let i=0; i<images.length; i++){
+        
+          secondScreen = secondScreen + `
+            <img 
+               src=${trialInfo.path}/images/${images[i]} 
+               style="
+                 position:absolute;
+                 left: ${imageLocations[i].left}%; 
+                 top: ${imageLocations[i].top}%; 
+                 border:none;
+                 "
+               alt="image" width="100"> `
+        
+         } 
+         
+       }
+        
+
+       secondScreen  = 
+          prosodylab.recordClickMessage(secondScreen,trialInfo, soundFileName,study.recordingTimeOut,messages.doneRecording);
+    
+       secondScreen.data = {...secondScreen.Data,trialPart: 'incrementalSecondScreen'};
+       if (trial.imageOrder) {
+         secondScreen.data = {...secondScreen.Data,imageOrder: trial.imageOrder};
+       }
+       session.push(secondScreen);
+     
+       session.push(prosodylab.stopRecording());
     }
     
    
@@ -2203,7 +2332,23 @@ So far only implemented: Module 1, musicianship
             labels: question.data.options
           }]
          
-      } else {// LikertKey with number key response as default
+      } else if (qType=='textResponse'){
+          var dimensions = [];
+          
+          if (!trial[`question${questionN}TextBoxDimensions`]){ 
+             dimensions = {rows: 5, columns: 100};
+          } else { // or else use dimensions specified in spreadsheet
+             dimensions = trial[`question${questionN}TextBoxDimensions`];
+          }
+      
+          question.type = 'survey-text';
+          question.questions = [{
+            prompt: question.data.text, 
+            name: 'textQuestion', 
+            rows: dimensions.rows, 
+            columns: dimensions.columns
+          }];
+        } else {// LikertKey with number key response as default
          // use naturalness scale  as default endpoint labels
          if (!trial[`question${questionN}EndPoints`]){ 
              question.data.endPoints = messages.naturalnessOptions;
@@ -2225,6 +2370,8 @@ So far only implemented: Module 1, musicianship
             ${question.choices[0]} = <b>${question.data.endPoints[0]}</b> and 
             ${question.choices[question.choices.length-1]} = <b>${question.data.endPoints[1]}</b></em>`;
        }
+
+
 
       
        if (question.type == 'html-keyboard-response' && !(qType == 'ConditionalOptions')) {
@@ -2278,10 +2425,10 @@ So far only implemented: Module 1, musicianship
     // --- start new audio recorder if experiment records ---
     
     // these columns imply recording:
-    recordVariables = ['record','listenRepeatRecord','plannedProduction'];
+    recordVariables = ['record','listenRepeatRecord','plannedProduction','incrementalProduction'];
     // if any columns imply recording, get audio permission and start media player
     if (recordVariables.some(r=> variables.includes(r))) {
-          
+    
       const startMediaRecorder = {
         type: "call-function",
         func: function() {
@@ -2445,6 +2592,7 @@ So far only implemented: Module 1, musicianship
             
               trialInfo = {
                 component: 'Experiment',
+                path: study.path,
                 session: iSession+1,
                 experiment: sessionExperiments[k],
                 item: trial.item,
@@ -2464,6 +2612,7 @@ So far only implemented: Module 1, musicianship
               if (trial.text) {
                 trialInfo.lab = trial.text;
               }
+              
             
               trial.path = study.path;
                             
