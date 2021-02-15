@@ -112,7 +112,7 @@ study = {...study,
   postExQuestionnaire: false,
   musicQuestionnaire: false,
   goodbye: false,
-  doExperimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags, useful for testing
+  experimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags, useful for testing
   //
  };
  
@@ -153,13 +153,36 @@ if (!participantCode) {
   // load spreadsheet with all experiments, global variable
   stimuli = prosodylab.loadCSV(`${study.path}/${study.stimulusFile}`);
 
+  // set experiment mode if specified in urlParams
+  if(urlParams.get('mode')) {
+    let mode = urlParams.get('mode');
+  
+    if (mode=='testRun') {
+      study.testRun = true;
+    } else if (mode=='experimentOnly'){
+      study.experimentOnly = true;
+    }
+  }
+
+  // set recordOption if specified in urlParams
+  if(urlParams.get('recordOption')) { 
+    let recordOption = urlParams.get('recordOption');
+    if(recordOption=='rerecord'){
+        stimuli = stimuli.map(obj=> ({ ...obj, recordOption: 'rerecord'}));
+    } else if (recordOption=='play'){
+        stimuli = stimuli.map(obj=> ({ ...obj, recordOption: 'play'}));
+    }
+
+  }
+
+
   // Set name for response file with participant code
   const dataFilename = `data_${participantCode}`;
 
   
   //  ---- hello page ----
   
-  if (study.hello&!study.doExperimentOnly){
+  if (study.hello&!study.experimentOnly){
     mdFile = [];
     if (!stimuli[0].hello) {
       mdFile = `${study.path}/hello.md`;
@@ -177,13 +200,13 @@ if (!participantCode) {
   
   // ---- sound check (if audio is involved)
   
-  if (study.soundCheck&!study.doExperimentOnly){
+  if (study.soundCheck&!study.experimentOnly){
     timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
   }
   
   // ---- mic check (should be done if recording is involved)
   // you can pass sentence that participant should produce as argument
-  if (study.micCheck&!study.doExperimentOnly){
+  if (study.micCheck&!study.experimentOnly){
     prosodylab.audioRecorder(study.testRun,true);
     soundFileName = `${study.path}/data/recordedFiles/${participantCode}_miccheck`;
     timeline = [...timeline, ...prosodylab.micCheck(soundFileName,study.recordingTimeOut)];
@@ -200,7 +223,7 @@ if (!participantCode) {
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
-  if (study.consent&!study.doExperimentOnly){
+  if (study.consent&!study.experimentOnly){
     mdFile = [];
     if (!stimuli[0].consent) {
       mdFile = `${study.path}/consent.md`;
@@ -212,14 +235,14 @@ if (!participantCode) {
   
   // ---- language questionnaire ---
 
-  if (study.languageQuestionnaire&!study.doExperimentOnly){
+  if (study.languageQuestionnaire&!study.experimentOnly){
    timeline.push(prosodylab.languageQuestionnaire(study.language));
   }
     
   
   // ---- head phone screener ----
   
-  if (study.headphoneScreener&!study.doExperimentOnly){
+  if (study.headphoneScreener&!study.experimentOnly){
      timeline = [...timeline, ...prosodylab.headPhoneScreener()];
   }
   
@@ -227,7 +250,7 @@ if (!participantCode) {
   //  ---- build sessions of experiment trials and add to timeline  ----
   //
   
-  if(study.experimentSessions||doExperimentOnly){
+  if(study.experimentSessions||experimentOnly){
      experiment = 
         prosodylab.createSessions(stimuli,study,participantCode,messages);
   
@@ -238,13 +261,13 @@ if (!participantCode) {
   
   // ---- post-experiment questionnaire ---
   
-  if (!study.doExperimentOnly&study.postExQuestionnaire){
+  if (!study.experimentOnly&study.postExQuestionnaire){
     timeline.push(prosodylab.postExQuestionnaire(study.language));
   }
   
   // ---- music questionnaire ---
   
-  if (study.musicQustionnaire&!study.doExperimentOnly){
+  if (study.musicQustionnaire&!study.experimentOnly){
     //timeline.push(prosodylab.musicQuestionnaire('MusicianShip'));
   }
   
@@ -268,7 +291,7 @@ if (!participantCode) {
   
   // ---- goodbye screen (with completion code if applicable )----
   
-  if (study.goodbye&!study.doExperimentOnly){
+  if (study.goodbye&!study.experimentOnly){
     if (study.participantCodeMethod == 'randomAndDisplay') {
       mdFile = [];
       if (!stimuli[0].goodBye) {
