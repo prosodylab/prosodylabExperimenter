@@ -2848,17 +2848,21 @@ So far only implemented: Module 1, musicianship
       // Names of all experiments in current session
       sessionExperiments = [...new Set(sessionStimuli.map(value => value.experiment))];
       experimentN = sessionExperiments.length;
+      
+      // Names of all objects:
+      variables = Object.keys(sessionStimuli[0]);
 
       // load and display session instructions
-      if (!sessionStimuli[0].instructions){
+      if (!variables.includes('instructions')){
         sessionStimuli = sessionStimuli.map(obj=> ({ ...obj, instructions: 'instructions.md'}))
       } 
       
       instructionsFile = [...new Set(sessionStimuli.map(value => value.instructions))]; 
       
-      // display instructioions there is  no instruction file specified
+      
+      // display instructions unless there is  no instruction file specified
       // (which means empty cells in all rows of session in instruction colummn)
-      if (instructionsFile[0]){ 
+      if (instructionsFile[0]!=''){ 
         if (instructionsFile.length==1&instructionsFile[0]!='NA') {
           session.push(this.screenFromMD(`${study.path}/${instructionsFile}`,'Instructions','left'));
         } else if (instructionsFile.length>1) {
