@@ -1533,10 +1533,10 @@ So far only implemented: Module 1, musicianship
 
     if (design == 'Between') {
 
-      // same condition from each item
-      for (let i = 1; i <= items; i++) {
+      // same condition from each item set
+      for (let i = 0; i < items; i++) {
         playList[i] = stimuli.find(obj => {
-          return obj.item == i && obj.condition == pList
+          return obj.item == (i+1) && obj.condition == pList
         })
         // randomize order of trials
         playList = jsPsych.randomization.shuffle(playList);
