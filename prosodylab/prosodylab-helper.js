@@ -11,6 +11,7 @@ prosodylab = {
       fullScreen: `<p><br><br> <em>Please click the button below
         to enter full screen mode and start with the experiment</em></p>`,
       continueButton:  'Continue',
+      completionCode: 'Completion code',
       connectHeadphones: 'Please connect your headphones and adjust the volume please!',
       playSound: 'Play a sound',
       playAgain: 'Play sound again',
@@ -806,7 +807,7 @@ prosodylab = {
       let align = 'left';
     }
     if (!choice) { // default button text
-      choice = 'Continue'
+      choice = messages.continueButton;
     }
     text = `<div style="text-align: ${align}"> ${text} 
        </div><br>`;
@@ -846,7 +847,7 @@ prosodylab = {
     text =  `<div style="text-align: ${align}">${text}</div><br><br>`;
     // display participant code if desired (for final screen)
     if (completionCode) { // completion code for final screen
-      text = `${text} <b>Completion Code: ${completionCode}</b> <br><br><br>`
+      text = `${text} <b>${messages.completionCode}: ${completionCode}</b> <br><br><br>`
     }
     // screen object
     const screenObject = {
@@ -2042,14 +2043,18 @@ So far only implemented: Module 1, musicianship
       } else {
          lab = trial.plannedProduction;
       }
-            
+    
+      var recordSound = [];
+      var loop_node = [];    
+    
+    
       const fixationDuration = 1000 // show fixation cross for 1000 msec
       session.push(this.fixation(trialInfo,fixationDuration)); 
      
       var readStimulus =  {
         type: 'html-button-response',
         stimulus: function() {
-        const html = `${trial.plannedProduction}
+        const html = `<b>${trial.plannedProduction}</b>
            <br><br>
            <em>${prosodylab.md2html(trial.plannedProductionMessage)}</em>
            <br><br>`
@@ -2067,23 +2072,69 @@ So far only implemented: Module 1, musicianship
                }
       }
 
-      session.push(readStimulus);
+      recordSound.push(readStimulus);
       
      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
        
-      session.push(prosodylab.startRecording(
+      recordSound.push(prosodylab.startRecording(
           `${study.path}/data/recordedFiles/${soundFileName}`));
       
-      session.push(prosodylab.recordClickMessage(
-      `${trial.plannedProduction}
+      recordSound.push(prosodylab.recordClickMessage(
+      `<b>${trial.plannedProduction}</b>
          <br><br><br>
           <em>${messages.speakNow}</em>
           <br><br><br><br>`,trialInfo,soundFileName));
      
-      session.push(prosodylab.stopRecording());
+      recordSound.push(prosodylab.stopRecording());
       
       
-    }
+      if (trial.recordOption=='rerecord'){
+        
+            const choiceOne = messages.recordAgain;
+            const choiceTwo = messages.recordCheckOk;
+            recordCheckObject = {
+              type: 'html-button-response',
+              stimulus: ``,//`prosodylab/soundcheck_da.mp3`, // 
+              prompt: '<br><br>' +
+                 `<style> .centered {position: fixed; top: 50%; left: 50%;
+                 transform: translate(-50%, -50%);}</style>
+                <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
+                <p><em>${messages.adjustMicAfter}</p></>`,
+              choices: [choiceOne, choiceTwo],
+              on_trial_start: function() {
+               setTimeout(function() {
+               setDisplay("jspsych-btn", "")
+              }, 1000)
+             },
+            data: {
+              component: 'RerecordPrompt',
+              options: [choiceOne, choiceTwo]
+            },
+            button_html: '<button class="jspsych-btn">%choice% </button>'
+          };
+          
+          recordSound.push(recordCheckObject);
+          
+          loop_node = {
+             timeline: [...recordSound],
+             loop_function: function(data) {
+               if ('0' == data.values()[4].button_pressed) {
+                 return true;
+               } else { 
+                 return false;
+               } 
+             }
+          }
+          
+          session.push(loop_node);
+          } else {
+        session = [...session,...recordSound];  
+
+     }
+          
+     }
+      
+ 
     
     // incremental production
     if (trial.incrementalProduction&&trial.incrementalProduction!='NA') {
@@ -2358,7 +2409,7 @@ So far only implemented: Module 1, musicianship
              question.labels = eval(trial[`question${questionN}EndPoints`]);
           }
 
-          question.button_label = `${messages.continueButton}`;
+          question.button_label = messages.continueButton;
           question.require_movement = true;
           
           question.stimulus  = function(){
@@ -2385,7 +2436,7 @@ So far only implemented: Module 1, musicianship
              question.labels = eval(trial[`question${questionN}EndPoints`]);
           }
 
-          question.button_label = `${messages.continueButton}`;
+          question.button_label = messages.continueButton;
           question.require_movement = true;
           
           question.stimulus  = function(){
@@ -2586,7 +2637,7 @@ So far only implemented: Module 1, musicianship
           }
           
           question.stimulus = question.data.text;
-          question.button_label = 'Continue';
+          question.button_label = messages.continueButton;
           question.require_movement = true;
         
       } else if (qType=='Likert'){
@@ -2607,6 +2658,7 @@ So far only implemented: Module 1, musicianship
             `${question.data.options[question.data.options.length-1]} = ${question.data.endPoints[1]}`;
             
           question.type = 'survey-likert';
+          question.button_label = messages.continueButton;
           question.questions  = [{ 
             prompt: question.data.text, 
             labels: question.data.options,
@@ -2749,9 +2801,11 @@ So far only implemented: Module 1, musicianship
     
       var play = false;
       
-      if (variables.includes('rerecord')||variables.includes('play')) {
-        console.log('replay activated')
-        play = true;
+      if (variables.includes('recordOption')) {
+        if (stimuli[0].recordOption=='play'||stimuli[0].recordOption=='rerecord'){
+          console.log('replay activated')
+          play = true;
+        }
       }
     
       const startMediaRecorder = {
