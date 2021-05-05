@@ -163,6 +163,7 @@ prosodylab = {
       fullScreen: `<p> <br> <br> <em>フルスクリーン表示を可能し、実験を開始するために、以下のボタンを押してください。
       </ em> </ p> `,
       continueButton:  '次へ', //'次へ進むために、ここをクリックしてください。',
+      completionCode: '参加者コード',
       connectHeadphones: 'ヘッドホンを接続して、音量を調節してください。',
       playSound: '音を再生する。',
       playAgain: 'もう一度音をきく。',
@@ -434,6 +435,7 @@ prosodylab = {
       fullScreen:`<p> <br> <br> <em>请点击下面的按钮
         进入全屏模式并开始实验</ em> </ p>`,
       continueButton:'继续',
+      completionCode: '完成码',
       connectHeadphones:'请连接耳机并调节音量！',
       playSound: '播放声音',
       playAgain: '再次播放声音',
@@ -467,7 +469,6 @@ prosodylab = {
       naturalnessQuestionContext: '联系上下文, 您认为该回答有多自然？',
       naturalnessOptions: ['完全不自然','完全自然'],
      
-      completionCode: '完成码',
             // Music questionnaire
       mqTrainingTheory: '您接受了多少年的正规音乐培训（理论) ?',
       mqKnowTheory: '您对音乐的结构和理论了解多少?',
