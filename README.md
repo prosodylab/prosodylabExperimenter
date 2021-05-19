@@ -33,13 +33,23 @@ This tool provides a superset of the the functionality of the earlier [prosodyla
 
 ## Change settings with with urlparams
 
-Set 'mode' by urlParam:
+Switches with urlParam:
 
-?mode=testRun: Has effect that no data will be saved
-?mode=experimentOnly: Has effect that only experiment (with instructions) will be shown, but not other elements (e.g. consentn form, etc.)
+?mode=test: Has the effect that no data will be saved
+?mode=experiment: Has the effect that only experiment (with instructions) will be shown, but not other elements (e.g. consent form, etc.); full screen deactivated
+?session=2: Has the effect that only session with name '2' will be run; full screen deactivated
 
 
 Set 'recordOption' by urlParam: 
 
 ?recordOption=play: has effect that soundfile is played after recording
 ??recordOption=rerecord: has effect that soundfile is played and one has option to rerecord
+
+
+## To run experiment locally
+
+* go to the command line window (terminal on mac), and navigate to experiment folder
+* enter: `php -S localhost:8000`
+* the go to browser and open: http://localhost:8000
+
+
