@@ -31,19 +31,16 @@ So the use case this was designed for is where there is one or a few people who 
 This tool provides a superset of the the functionality of the earlier [prosodylab-offline-experimenter](https://github.com/prosodylab/prosodylab-experimenter), which used the Psychtoolbox in matlab, but is now defunct. We had used that for a decade in our lab for our research, and to teach the laboratory linguistics class. 
 
 
-## Change settings with with urlparams
+## Switches with urlparams
 
-Switches with urlParam:
 
 ?mode=test: Has the effect that no data will be saved
 ?mode=experiment: Has the effect that only experiment (with instructions) will be shown, but not other elements (e.g. consent form, etc.); full screen deactivated
+
 ?session=2: Has the effect that only session with name '2' will be run; full screen deactivated
 
-
-Set 'recordOption' by urlParam: 
-
-?recordOption=play: has effect that soundfile is played after recording
-??recordOption=rerecord: has effect that soundfile is played and one has option to rerecord
+?recordOption=play: play recorded files after recording
+?recordOption=rerecord: prompt participant whether they want to rerecord
 
 
 ## To run experiment locally
