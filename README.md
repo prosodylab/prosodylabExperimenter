@@ -33,14 +33,11 @@ This tool provides a superset of the the functionality of the earlier [prosodyla
 
 ## Switches with urlparams
 
-
-?mode=test: Has the effect that no data will be saved
-?mode=experiment: Has the effect that only experiment (with instructions) will be shown, but not other elements (e.g. consent form, etc.); full screen deactivated
-
-?session=2: Has the effect that only session with name '2' will be run; full screen deactivated
-
-?recordOption=play: play recorded files after recording
-?recordOption=rerecord: prompt participant whether they want to rerecord
+* ?mode=test: Has the effect that no data will be saved
+* ?mode=experiment: Has the effect that only experiment (with instructions) will be shown, but not other elements (e.g. consent form, etc.); full screen deactivated
+* ?session=2: Has the effect that only session with name '2' will be run; full screen deactivated
+* ?recordOption=play: play recorded files after recording
+* ?recordOption=rerecord: prompt participant whether they want to rerecord
 
 
 ## To run experiment locally
