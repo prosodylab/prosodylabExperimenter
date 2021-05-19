@@ -63,7 +63,7 @@ path from study.path to data/recordedFiles is hardcoded right now, desirable?
 
 // path and study file:
 let study = {
-  path: 'experiment', // contains folders with  audio/images if applicable
+  path: 'examples/listenAndRate', // contains folders with  audio/images if applicable
   stimulusFile: 'rhymeShortest.txt' 
 }; 
 
@@ -97,19 +97,19 @@ study = {...study,
     */    
   //
   // Various options settings:
-  displayDataAfterFinish: false, // shows collected data in json format after
+  displayDataAfterFinish: true, // shows collected data in json format after
   showProgressBar: true, // shows progress to participant during study
-  fullScreen: true, // doesn't work with IE, but will simply proceed anyway
+  fullScreen: false, // doesn't work with IE, but will simply proceed anyway
   //
   // Switch certain parts of study on or off
   hello: true,
-  consent: true,
-  languageQuestionnaire: true,
+  consent: false,
+  languageQuestionnaire: false,
   soundCheck: true,
   micCheck: false,
   headphoneScreener: false,
   experimentSessions: true,
-  postExQuestionnaire: true,
+  postExQuestionnaire: false,
   musicQuestionnaire: false,
   goodbye: false,
   experimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags, useful for testing
@@ -154,9 +154,9 @@ if (!participantCode) {
   if(urlParams.get('mode')) {
     let mode = urlParams.get('mode');
   
-    if (mode=='test') {
+    if (mode=='testRun') {
       study.testRun = true;
-    } else if (mode=='experiment'){
+    } else if (mode=='experimentOnly'){
       study.experimentOnly = true;
       study.fullScreen = false;
     }

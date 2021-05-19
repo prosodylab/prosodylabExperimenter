@@ -1025,23 +1025,16 @@ So far only implemented: Module 1, musicianship
     var recordLoop = [];
     
     soundFileName = `micCheck_${participantCode}`
-    soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
 
-
-    recordLoop.push(prosodylab.startRecording(soundFileName,lab));
-      
-    recordLoop.push(prosodylab.recordClickMessage(
-      `<em>${messages.speakNow}</em>
-      <br><br> <b>${lab}</b> <br><br>`,
-      {component: `micCheckRecording`}, 
-      soundFileName,recordingTimeOut));
-     
-    recordLoop.push(prosodylab.stopRecording());
-
+    let html = `<em>${messages.speakNow}</em>
+      <br><br> <b>${lab}</b> <br><br>`;
+    
+     recordLoop.push(...prosodylab.recordTillClick(html, {component: `micCheckRecording`},soundFileName,lab));  
   
     const choiceOne = messages.recordAgain;
     const choiceTwo = messages.recordCheckOk;
     const choiceThree = messages.recordCheckNotOk;
+    
     recordCheckObject = {
       type: 'html-button-response',
       stimulus: ``,//`prosodylab/soundcheck_da.mp3`, // 
@@ -1644,47 +1637,6 @@ So far only implemented: Module 1, musicianship
     return result;
   },
   
-  recordClickMessage: function(html,trialInfo,soundFileName,recordingTimeOut,message,contextFile) {
-  
-    let result = [];
-    
-    if (!trialInfo){var trialInfo=[];}
-    if (!message){message = messages.doneRecording};
-    
-    if (!contextFile){
-
-       result = {
-        type: 'html-button-response',
-        stimulus: html,
-        choices: [message],
-        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
-        trial_duration: recordingTimeOut,
-        data: {...trialInfo,
-             trialPart:'recordAndClickkMessage',
-             recordedFile: soundFileName
-        }
-      };
-    
-     } else {
-    
-       result = {
-        type: 'audio-button-response',
-        stimulus: `experiment/audio/${contextFile}`,
-        prompt: html,
-        choices: [message],
-        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
-        data: {...trialInfo,
-             trialPart:'recordAndClickkMessage',
-             contextFile: contextFile,
-             recordedFile: soundFileName
-        }
-       };    
-       
-    }
-           
-    return result;
-  },
-
 
   generateKeyChoices: function(nChoices){
     // creates array of n choices, e.g. ['1','2','3']
@@ -1748,19 +1700,18 @@ So far only implemented: Module 1, musicianship
   
 
   // start audio recording
-  startRecording: function (filename,labtext) {
+  startRecording: function (fileName,labtext) {
    return {
     type: "call-function", 
     func: function() {
       chunks = []; // clears  prior recordings
-      soundFileName = filename; 
+      soundFileName = `${study.path}/dataSound/${fileName}`; 
       lab = labtext;
       recorder.start();
     }
    }
   },
   
-
   // function for stopping audio recording
   stopRecording: function () {
    return {
@@ -1772,12 +1723,79 @@ So far only implemented: Module 1, musicianship
     }
    }
   },
- 
+
+ //
+  recordScreen: function(html,trialInfo,soundFileName,lab,recordingTimeOut,message,contextFile) {
+  
+    let result = [];
+        
+    if (!trialInfo){var trialInfo=[];}
+    if (!message){message = messages.doneRecording};
+    
+    if (!contextFile){
+
+       result = {
+        type: 'html-button-response',
+        stimulus: html,
+        choices: [message],
+        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
+        trial_duration: recordingTimeOut,
+        data: {...trialInfo,
+             trialPart:'recordAndClickkMessage',
+             recordedFile: soundFileName,
+             labText: lab
+        }
+      };
+    
+     } else {
+    
+       result = {
+        type: 'audio-button-response',
+        stimulus: `experiment/audio/${contextFile}`,
+        prompt: html,
+        choices: [message],
+        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
+        data: {...trialInfo,
+             trialPart:'recordAndClickkMessage',
+             contextFile: contextFile,
+             recordedFile: soundFileName,
+             labText: lab
+        }
+       };    
+       
+    }
+           
+    return result;
+  },
+
+  recordTillClick: function(html,trialInfo,soundFileName,lab,message,contextFile) {
+   
+    if (!message) {
+       message = messages.doneRecording;
+    }
+   
+    let recordTrial = []; 
+   
+    recordTrial.push(prosodylab.startRecording(soundFileName,lab));
+  
+    recordTrial.push(prosodylab.recordScreen(
+         html,trialInfo,soundFileName,lab,study.recordingTimeOut,message,contextFile));
+     
+    recordTrial.push(prosodylab.stopRecording());
+
+    return recordTrial;
+    
+  },
+
   // save audio data
   // this should be turned into async function!
   saveAudio: function(filename, audioData,lab) {
+  
     if (!lab){ var lab = ""}
     var url = 'prosodylab/record_audio.php'; // external .php file that should be in same folder as your experiment
+
+    console.log('saveAudio filename',filename);
+
     form_data = new FormData();
     form_data.append("filename", filename);
     form_data.append("filedata", audioData);
@@ -1814,6 +1832,7 @@ So far only implemented: Module 1, musicianship
         let blob = new Blob(chunks,{type:'audio/webm'});
         audioUrl = URL.createObjectURL(blob);
         if(!testRun) {
+          console.log('recorder.onstop lab',lab);
           prosodylab.saveAudio(soundFileName, blob,lab);
         }
         if(play){
@@ -1831,6 +1850,7 @@ So far only implemented: Module 1, musicianship
     var stimul = [];
     var playSound = [];
     var lab = [];
+
 
     if (trial.listenRepeatRecord&&trial.listenRepeatRecord!='NA') {
       
@@ -1860,6 +1880,7 @@ So far only implemented: Module 1, musicianship
       const loop_node = {
         timeline: [playSound],
         loop_function: function(data) {
+        
           if ('0' == data.values()[0].button_pressed) {
             return true;
           } else {
@@ -1883,14 +1904,9 @@ So far only implemented: Module 1, musicianship
       
       soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
        
-      session.push(prosodylab.startRecording(
-          `${study.path}/data/recordedFiles/${soundFileName}`));
-      
-      session.push(prosodylab.recordClickMessage(
-         `<br><br><em>${messages.speakNow}</em><br><br>`,
-         trialInfo,soundFileName,study.recordingTimeOut));
-     
-      session.push(prosodylab.stopRecording());
+      session.push(...
+         recordTillClick(html,trialInfo,soundFileName,lab,messages.doneRecording)
+      );
 
     }
     
@@ -1947,7 +1963,6 @@ So far only implemented: Module 1, musicianship
       
       
       soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`
-      soundFileName = `${study.path}/data/recordedFiles/${soundFileName}`
 
 
       // set text for .lab file that will be saved with soundfile 
@@ -1972,17 +1987,18 @@ So far only implemented: Module 1, musicianship
       listenToContext.data.trialPart =  'Listen to Context';
       
       recordSound.push(listenToContext);
+      
 
       recordSound.push(prosodylab.startRecording(soundFileName,lab));
       
       if (!trial.dialogueMemorizeResponse){
-        recordSound.push(prosodylab.recordClickMessage(
+        recordSound.push(prosodylab.recordScreen(
             htmlFunction(prosodylab.md2html(trial.dialogueRecordMessage)),
-           trialInfo,soundFileName,study.recordingTimeOut,messages.doneRecording
+           trialInfo,soundFileName,lab,study.recordingTimeOut,messages.doneRecording
            ));
             
       } else {
-         recordSound.push(prosodylab.recordClickMessage(messages.speakNow,trialInfo,soundFileName,study.recordingTimeOut,messages.doneRecording,trial.contextFile));
+         recordSound.push(prosodylab.recordScreen(messages.speakNow,trialInfo,soundFileName,lab,study.recordingTimeOut,messages.doneRecording,trial.contextFile));
       }
       
       recordSound.push(prosodylab.stopRecording());
@@ -2076,18 +2092,18 @@ So far only implemented: Module 1, musicianship
       recordSound.push(readStimulus);
       
      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
-       
-      recordSound.push(prosodylab.startRecording(
-          `${study.path}/data/recordedFiles/${soundFileName}`));
-      
-      recordSound.push(prosodylab.recordClickMessage(
-      `<b>${trial.plannedProduction}</b>
+     
+     trialInfo.recordedFile = soundFileName;
+     
+     let html = `<b>${trial.plannedProduction}</b>
          <br><br><br>
           <em>${messages.speakNow}</em>
-          <br><br><br><br>`,trialInfo,soundFileName));
-     
-      recordSound.push(prosodylab.stopRecording());
-      
+          <br><br><br><br>`;
+          
+      recordSound.push(
+         recordTillClick(html, trialInfo, soundFileName,lab,messages.doneRecording)
+      );    
+       
       
       if (trial.recordOption=='rerecord'){
         
@@ -2129,7 +2145,7 @@ So far only implemented: Module 1, musicianship
           
           session.push(loop_node);
           } else {
-        session = [...session,...recordSound];  
+        session.push(...recordSound);  
 
      }
           
@@ -2146,6 +2162,7 @@ So far only implemented: Module 1, musicianship
       } else {
          lab = trial.incrementalProduction;
       }
+      
             
       const fixationDuration = 1000 // show fixation cross for 1000 msec
       session.push(this.fixation(trialInfo,fixationDuration)); 
@@ -2186,8 +2203,7 @@ So far only implemented: Module 1, musicianship
       
       soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
        
-      session.push(prosodylab.startRecording(
-          `${study.path}/data/recordedFiles/${soundFileName}`));
+      session.push(prosodylab.startRecording(soundFileName,lab));
       
       session.push(firstScreen);
       
@@ -2239,14 +2255,14 @@ So far only implemented: Module 1, musicianship
      
 
        secondScreen  = 
-          prosodylab.recordClickMessage(secondScreen,trialInfo, soundFileName,study.recordingTimeOut,messages.doneRecording);
+          prosodylab.recordScreen(secondScreen,trialInfo, soundFileName,lab,study.recordingTimeOut,messages.doneRecording);
     
        secondScreen.data = {...secondScreen.Data,trialPart: 'incrementalSecondScreen'};
        if (trial.imageOrder) {
          secondScreen.data = {...secondScreen.Data,imageOrder: trial.imageOrder};
        }
        session.push(secondScreen);
-     
+       
        session.push(prosodylab.stopRecording());
     }
     
@@ -2312,7 +2328,7 @@ So far only implemented: Module 1, musicianship
       session.push(loop_node);
     }
     
-    if (trial.contextFile) {
+    if (trial.contextFile&&trial.contextFile!='NA'&&trial.contextFile!='') {
       
       playSound =  {
         type: 'audio-keyboard-response',
@@ -2328,10 +2344,10 @@ So far only implemented: Module 1, musicianship
         data: trialInfo
       }
       playSound.data.trialPart =  'Listen to contextFile';
-      stimul.push(playSound);
+      session.push(playSound);
     }
     
-    if (trial.answerFile) {
+    if (trial.answerFile&&trial.answerFile!='NA'&&trial.answerFile!='') {
       
       playSound =  {
         type: 'audio-keyboard-response',
@@ -2347,12 +2363,15 @@ So far only implemented: Module 1, musicianship
         data: trialInfo
       }
       playSound.data.trialPart =  'Listen to sound';
-      stimul.push(playSound);
+      session.push(playSound);
     }
     
     
+    //
+    // add questions
+    //
     
-
+    
     let questionN = 1;
 
     while (trial[`question${questionN}`]) {
@@ -2375,7 +2394,24 @@ So far only implemented: Module 1, musicianship
         trialPart: `question${questionN}`
         };
       
-
+      
+      // question stimulus
+      question.stimulus = `<br><em>${question.data.text}<em/><br>`;
+    
+      // add text if applicable
+      if (trial[`question${questionN}Stimulus`]) {
+          question.stimulus = eval(`trial.question${questionN}Stimulus`) + 
+          question.stimulus;
+      } 
+        
+      // add image to stimulus if one is specified in spreadsheet
+      if (trial[`question${questionN}Image`]) {
+          var image = eval(`trial.question${questionN}Image`);
+          if (image !='') {
+          question.stimulus = `<img src="${study.path}/images/${image}" alt="headphones" width="90">` + question.stimulus;
+          }
+      } 
+        
       
       if (qType=='ButtonOptionsFixed'||qType=='ButtonOptionsRandomBetween'||qType == 'ButtonOptions'){
             
@@ -2384,12 +2420,6 @@ So far only implemented: Module 1, musicianship
         question.button_html = '<button class="jspsych-btn"><b>%choice%</b></button>'
         question.data.options = question.choices;
 
-        question.stimulus = `<br><em>${question.data.text}<em/><br>`;
-        
-        if (trial[`question${questionN}Stimulus`]) {
-          question.stimulus = eval(`trial.question${questionN}Stimulus`) + 
-          question.stimulus;
-        } 
         
         if (qType == 'ButtonOptionsRandomBetween') {
           question.choices = this.shuffle(question.choices,randomNumbers[questionN-1]);
@@ -2399,7 +2429,42 @@ So far only implemented: Module 1, musicianship
         
         question.data.options = question.choices;
         
-      }  else if (qType=='ConditionalSlider'){
+        question.on_finish = function(data) {
+              data.chosenOption = data.options[data.button_pressed];
+            }
+     
+        
+       if (trial[`question${questionN}Repeat`]) {
+        
+          let repeatOption  = trial[`question${questionN}Repeat`];
+          
+          if (repeatOption == 'UntilCorrect'){
+          
+             let questionLoop = [];
+          
+             let correctAnswer = trial[`question${questionN}Correct`];
+             let choices = question.choices;
+             
+               questionLoop = {
+                  timeline: [question],
+                  loop_function: function(data){
+                      previousResponse = choices[data.values()[0].button_pressed];
+                      
+                     if(previousResponse != correctAnswer){                                        
+                       return true;
+                     } else {
+                       return false;
+                    }
+                 }
+              }
+              question = questionLoop;
+          }
+        }
+            
+
+        
+        
+      } else if (qType=='ConditionalSlider'){
           // sentence to be rated depends on prior question
                                 
           question.type = 'html-slider-response';
@@ -2426,7 +2491,7 @@ So far only implemented: Module 1, musicianship
             }   
             return conditionalStimulus;
           }
-       } else if (qType=='ConditionalSliderUnchosen'){
+      } else if (qType=='ConditionalSliderUnchosen'){
           // sentence to be rated depends on prior question
                                 
           question.type = 'html-slider-response';
@@ -2758,15 +2823,13 @@ So far only implemented: Module 1, musicianship
       
      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
        
-      session.push(prosodylab.startRecording(
-          `${study.path}/data/recordedFiles/${soundFileName}`));
+      session.push(prosodylab.startRecording(soundFileName,lab));
       
-      
-      session.push(prosodylab.recordClickMessage(
+      session.push(prosodylab.recordScreen(
          `<div style="position:relative; height400px;">
           <b>${trial.recordAfter}</b><br><br>
           <em>${messages.speakNow}</em><br><br><br>
-          </div>`,trialInfo,soundFileName));
+          </div>`,trialInfo,soundFileName,lab,study.recordingTimeOut,messages.doneRecording));
      
       session.push(prosodylab.stopRecording());
       
@@ -2781,7 +2844,7 @@ So far only implemented: Module 1, musicianship
 
   },
   
-  createSessions: function(stimuli,study,participantCode,messages) {
+  createSessions: function(stimuli,study,participantCode,messages,selectSession) {
   
     let allSessions = []; // trials will be stored in this variable;
     
@@ -2845,6 +2908,13 @@ So far only implemented: Module 1, musicianship
     // Set session to 1 for all experiments if no session is specified
     if (!stimuli[0].session) {
       stimuli = stimuli.map(obj=> ({ ...obj, session: '1'}))
+    }
+    
+    if (selectSession != 'all') {
+      // only keep selected session
+      stimuli = stimuli.filter(obj => obj.session == selectSession);
+      // avoid order error by setting session order to fixed
+      stimuli =  stimuli.map(obj=> ({ ...obj, sessionOrder: 'Fixed' }));
     }
 
     // get session names from spreadsheet
