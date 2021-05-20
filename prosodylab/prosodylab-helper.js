@@ -169,6 +169,15 @@ prosodylab = {
       playAgain: 'もう一度音をきく。',
       soundCheckOk: 'ちょうどいい音量で音がきこえます。',
       adjustVolume: '必要であれば音量を調節してください。',
+      saySentence: '準備ができたら、ボタンをクリックして、以下の文を音読してください。',
+      doneRecording: '録音が完了したら、ここをクリックしてください',
+      speakNow: '録音を開始します。',
+      recordAgain: '録音のやり直し',
+      recordCheckOk: '録音は良さそうです',
+      adjustMic: '必要に応じて、マイクの設定を行ってください。',
+      adjustMicAfter: 'あなたの声は聞こえましたか？マイクの設定を調整し、必要に応じて再試行してください ',
+      productionTestSentence:'りょうこさんは、箸を使って、ラーメンを食べさせられた。',
+      recordCheckNotOk: '録音できません。',
       instructionsHeadphoneCheck: `<br> <em>これから、サウンドテストを行います。テストを行うためには、ヘッドホンが必要です。</em>
         <p><br><br> 3つの音を続けてきき、その後、どの音が一番小さかったか答えてもらいます。
         <br><br> このテストは６回行われます。（テストの所要時間は、およそ３分です。）
@@ -216,6 +225,83 @@ prosodylab = {
                                      'よくします',
                                      'いつもします'
                                      ]
+    },
+    
+    // Korean
+    ko: {
+      itlWord: '어떤 단어가 들렸나요?',
+      itlSyllable: '어떤 음절이 더 강했나요?',
+      fullScreen: `<p><br><br> <em>아래 버튼을 클릭하여
+        전체 화면 모드로 들어가 실험을 시작하십시오.</em></p>`,
+      continueButton:  '계속',
+      connectHeadphones: '헤드폰을 연결하고 볼륨을 조정하십시오.',
+      playSound: '소리 재생',
+      playAgain: '소리 다시 재생',
+      adjustVolume: '필요하면 볼륨을 조정하십시오.',
+      soundCheckOk: '소리가 편안한 볼륨으로 들림.',
+      recordSound: '오디오 녹음 시작',
+      startRecording: '녹음를 시작하려면 여기를 클릭하십시오.',
+      recordDialogue:'대화를 녹음하려면 여기를 클릭하십시오',
+      saySentence: '준비가 되면 클릭하여 다음과 같은 문장을 큰소리로 읽으십시오:',
+      doneRecording: '녹음이 완료되면 여기를 클릭하십시오.',     
+      speakNow: '지금 읽으십시오.',
+      recordAgain: '녹음 다시하기',
+      recordCheckOk: '녹음이 만족스럽다',
+      adjustMic: '필요면 마이크 설정을 조정하십시오.',
+      adjustMicAfter: '목소리가 들리셨나요? 필요하면 마이크 설정을 조정하고 다시 시도하십시오.<br> 설정을 변경한 후 페이지를 다시 로드해야 할 수 있습니다.',
+      productionTestSentence: `뚱뚱한 다람쥐가 나무 위에서 견과류를 먹고 있다.`, 
+      recordCheckNotOk: '작동이 안 된다.',
+      instructionsHeadphoneCheck: `<br> <em>다음은 헤드폰 테스트입니다.
+        헤드폰 없이는 이 작업을 수행할 수 없습니다.</em>  <p><br><br> 세 개의 소리를 연속으로 듣고,
+		그중에 어떤 소리가 가장 조용했는지 답할 것입니다.
+        <br><br> 이와 같은 작업을 6번 반복합니다 (총 2분밖에 걸리지 않음).
+        <br><br></p>`,
+      startHeadphoneTest: '세 가지 소리의 첫 번째 세트를 재생하기.',
+      questionHeadphoneTest: '어떤 소리가 가장 조용했나요?',
+      optionsHeadphoneTest: [
+        '첫번째 소리가 가장 조용했다.',
+        '두 번째 소리가 가장 조용했다.',
+        '세 번째 소리가 가장 조용했다.'
+      ],
+      naturalnessQuestion: '이 문장은 얼마나 자연스러웠나요?',
+      naturalnessQuestionContext: '문맥에 따른 답이 얼마나 자연스러웠나요?',
+      naturalnessOptions: ['전혀 부자연스러움','완전히 자연스러운.'],
+      //
+      // Music questionnaire 
+      mqTrainingTheory: '정식 음악 교육(이론)을 몇 년 정도 받으셨나요?',
+      mqKnowTheory: '음악 구조와 이론에 대해 얼마나 알고 있나요?',
+      mqTrainingPractice: '정식 음악 교육(실천)을 몇 년 정도 받으셨나요?',
+      mqMakeProfessional: `전문적인 음악 제작을 얼마나 자주 하나요? 
+        (예: 노래, 악기 연주, 작곡)`,
+      mqMakePractice: '악기나 노래를 연습 혹은 리허설을 얼마나 자주 했나요/하나요?',
+      mqMakeHobby: '음악 제작을 취미로 또는 아마추어로서 얼마나 자주 하나요?',
+      //
+      scaleYears:  [
+        '없다',
+        '1년',
+        '2년',
+        '3년',
+        '4년',
+        '5년',
+        '6년', 
+        '7년',
+        '8년',
+        '9년 이상'
+      ],
+      scaleHowMuch: [
+         '없다',
+         '조금',
+         '적당히',
+         '꽤 많이',
+         '아주 많이'
+      ], 
+      scaleHowOften: [
+        '전혀',
+        '아주 드물게',
+        '때때로',
+        '자주',
+        '항상'
+      ] 
     },
     
     // Spanish (careful, mostly just google translate!)
@@ -316,18 +402,18 @@ prosodylab = {
         'Der zweite Ton war das leiseste.',
         'Der dritte Ton war das leiseste.'
       ],
-      naturalnessQuestion: 'Wie natürlich fandest Du diesen Satz?',
-      naturalnessQuestionContext: 'Wie natürlich fandest Du die Antwort in diesem Kontext?',
+      naturalnessQuestion: 'Wie natürlich fanden Sie diesen Satz?',
+      naturalnessQuestionContext: 'Wie natürlich fanden Sie die Antwort in diesem Kontext?',
       naturalnessOptions: ['völlig unnatürlich', 'völlig natürlich'],
       
       // Musikfragebogen
-      mqTrainingTheory: 'Wie viele Jahre formale Musikausbildung (Theorie) hattest Du?',
-      mqKnowTheory: 'Wie viel weißt du über Musikstruktur und -theorie?',
-      mqTrainingPractice: 'Wie viele Jahre formale Musikausbildung (Praxis) hattest Du?',
-      mqMakeProfessional: `Wie oft machst du professionell Musik
+      mqTrainingTheory: 'Wie viele Jahre formale Musikausbildung (Theorie) hatten Sie?',
+      mqKnowTheory: 'Wie viel wissen Sie über Musikstruktur und -theorie?',
+      mqTrainingPractice: 'Wie viele Jahre formale Musikausbildung (Praxis) hatten Sie?',
+      mqMakeProfessional: `Wie oft machen Sie professionell Musik
         (z. B. singen, ein Instrument spielen, komponieren)? `,
-      mqMakePractice: 'Wie oft übst Du heute oder hast du früher geübt (ob singen oder mit Instrument)?',
-      mqMakeHobby: 'Wie oft machst Du Hobby-mäßig Musik?',
+      mqMakePractice: 'Wie oft üben Sie heute oder haben Sie früher geübt (ob singen oder mit Instrument)?',
+      mqMakeHobby: 'Wie oft machen Sie Hobby-mäßig Musik?',
       //
       scaleYears: [
         'Gar nicht oder weniger als 1 Jahr',
@@ -468,7 +554,7 @@ prosodylab = {
       naturalnessQuestion: '您觉得这句话有多自然？',
       naturalnessQuestionContext: '联系上下文, 您认为该回答有多自然？',
       naturalnessOptions: ['完全不自然','完全自然'],
-     
+      completionCode: '完成码',
             // Music questionnaire
       mqTrainingTheory: '您接受了多少年的正规音乐培训（理论) ?',
       mqKnowTheory: '您对音乐的结构和理论了解多少?',
@@ -1768,7 +1854,7 @@ So far only implemented: Module 1, musicianship
     return result;
   },
 
-  recordTillClick: function(html,trialInfo,soundFileName,lab,message,contextFile) {
+  recordTillClick: function(html,trialInfo,soundFileName,lab,message, recordOption,contextFile) {
    
     if (!message) {
        message = messages.doneRecording;
@@ -1782,7 +1868,50 @@ So far only implemented: Module 1, musicianship
          html,trialInfo,soundFileName,lab,study.recordingTimeOut,message,contextFile));
      
     recordTrial.push(prosodylab.stopRecording());
-
+    
+    if (recordOption=='rerecord'){
+        
+        const choiceOne = messages.recordAgain;
+        const choiceTwo = messages.recordCheckOk;
+        
+        let recordCheck = {
+            type: 'html-button-response',
+            stimulus: ``,//`prosodylab/soundcheck_da.mp3`, // 
+            prompt: '<br><br>' +
+                 `<style> .centered {position: fixed; top: 50%; left: 50%;
+                 transform: translate(-50%, -50%);}</style>
+                <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
+                <p><em>${messages.adjustMicAfter}</p></>`,
+            choices: [choiceOne, choiceTwo],
+            on_trial_start: function() {
+               setTimeout(function() {
+               setDisplay("jspsych-btn", "")
+              }, 1000)
+            },
+            data: {
+            component: 'RerecordPrompt',
+            recordedFile: soundFileName,
+            options: [choiceOne, choiceTwo]
+         },
+            button_html: '<button class="jspsych-btn">%choice% </button>'
+          };
+          
+          recordTrial.push(recordCheck);
+          
+          loop_node = {
+             timeline: [...recordTrial],
+             loop_function: function(data) {
+               if ('0' == data.values()[3].button_pressed) {
+                 return true;
+               } else { 
+                 return false;
+               } 
+             }
+          }
+          
+          recordTrial = [loop_node];
+    }  
+    
     return recordTrial;
     
   },
@@ -1793,8 +1922,6 @@ So far only implemented: Module 1, musicianship
   
     if (!lab){ var lab = ""}
     var url = 'prosodylab/record_audio.php'; // external .php file that should be in same folder as your experiment
-
-    console.log('saveAudio filename',filename);
 
     form_data = new FormData();
     form_data.append("filename", filename);
@@ -1832,7 +1959,6 @@ So far only implemented: Module 1, musicianship
         let blob = new Blob(chunks,{type:'audio/webm'});
         audioUrl = URL.createObjectURL(blob);
         if(!testRun) {
-          console.log('recorder.onstop lab',lab);
           prosodylab.saveAudio(soundFileName, blob,lab);
         }
         if(play){
@@ -1905,12 +2031,12 @@ So far only implemented: Module 1, musicianship
       soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
        
       session.push(...
-         recordTillClick(html,trialInfo,soundFileName,lab,messages.doneRecording)
+         prosodylab.recordTillClick(html,trialInfo,soundFileName,lab,messages.doneRecording)
       );
 
     }
     
-        // dialogue
+     // dialogue
     if (trial.dialogueContext&&trial.dialogueContext!='no') {
     
        
@@ -1941,7 +2067,7 @@ So far only implemented: Module 1, musicianship
              alt="image" width="800"><br>`
           }
           if (trial.dialogueResponse) {
-             html = html + `<br>${trial.dialogueResponse}<br><br>`
+             html = html + `<br><b>${trial.dialogueResponse}</b><br><br>`
           } 
           html = html + `<em>${message}</em><br>`
               
@@ -1975,81 +2101,108 @@ So far only implemented: Module 1, musicianship
       var recordSound = [];
       var loop_node = [];
       
+      if (trial.contextFile&&trial.contextFile !='') {
       
-      var listenToContext =  {
+        var listenToContext =  {
+          type: 'audio-keyboard-response',
+          prompt: htmlFunction(prosodylab.md2html(trial.dialogueRecordMessage)),
+          stimulus: `${trial.path}/audio/${trial.contextFile}`,
+          choices: jsPsych.NO_KEYS,
+         trial_ends_after_audio: true,
+          data: trialInfo
+        }
+      
+        listenToContext.data.trialPart =  'Listen to Context';  
+      
+      recordSound.push(listenToContext);
+      
+      }
+
+     let html = '';
+      
+      if (!trial.dialogueMemorizeResponse){
+      
+        html = htmlFunction(prosodylab.md2html(trial.dialogueRecordMessage));
+            
+      } else {
+         html = prosodylab.md2html(trial.dialogueRecordMessage); 
+      }
+      
+     session.push(...prosodylab.recordTillClick(
+         html,
+         trialInfo,
+         soundFileName,
+         lab,
+         messages.doneRecording,
+         trial.recordOption,
+         trial.contextFile
+         )
+      );
+     
+   }
+    
+      // simply play soundfile
+    if (trial.soundFile) {
+      const fixationDuration = 1000 // show fixation cross for 1000 msec
+      session.push(this.fixation(trialInfo,fixationDuration)); 
+     
+     playSound =  {
         type: 'audio-keyboard-response',
-        prompt: htmlFunction(prosodylab.md2html(trial.dialogueRecordMessage)),
-        stimulus: `${trial.path}/audio/${trial.contextFile}`,
+        prompt: function() {
+        const html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
+          return html;
+        },
+        stimulus: `${trial.path}/audio/${trial.soundFile}`,
         choices: jsPsych.NO_KEYS,
         trial_ends_after_audio: true,
         data: trialInfo
       }
-      listenToContext.data.trialPart =  'Listen to Context';
-      
-      recordSound.push(listenToContext);
-      
+      playSound.data.trialPart =  'Listen to soundFile';
+      session.push(playSound);
+    }
+    
+    
+    // play soundfile and ask whether participant wants to hear it again
+    if (trial.soundFileRepeat) {
+      const fixationDuration = 1000 // show fixation cross for 1000 msec
+      session.push(this.fixation(trialInfo,fixationDuration)); 
 
-      recordSound.push(prosodylab.startRecording(soundFileName,lab));
+      playSound =  {
+        type: 'audio-button-response',
+        prompt: function() {
+        const html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <br>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
+          <br>
+          ${trial.soundFileRepeatMessage}
+          `
+          return html;
+        },
+        stimulus: `${trial.path}/audio/${trial.soundFileRepeat}`,
+        choices: [messages.playAgain,messages.continueButton],
+        button_html: '<button class="jspsych-btn">%choice% </button>',
+        data: trialInfo
+      }
+      playSound.data.trialPart =  'ListenRepeatRecord';
+      playSound.data.options = [messages.playAgain,messages.recordSound];
       
-      if (!trial.dialogueMemorizeResponse){
-        recordSound.push(prosodylab.recordScreen(
-            htmlFunction(prosodylab.md2html(trial.dialogueRecordMessage)),
-           trialInfo,soundFileName,lab,study.recordingTimeOut,messages.doneRecording
-           ));
-            
-      } else {
-         recordSound.push(prosodylab.recordScreen(messages.speakNow,trialInfo,soundFileName,lab,study.recordingTimeOut,messages.doneRecording,trial.contextFile));
+      const loop_node = {
+        timeline: [playSound],
+        loop_function: function(data) {
+          if ('0' == data.values()[0].button_pressed) {
+            return true;
+          } else {
+            return false;
+          }
+        }
       }
       
-      recordSound.push(prosodylab.stopRecording());
       
-      if (trial.rerecord=='Yes'){
-        
-            const choiceOne = messages.recordAgain;
-            const choiceTwo = messages.recordCheckOk;
-            recordCheckObject = {
-              type: 'html-button-response',
-              stimulus: ``,//`prosodylab/soundcheck_da.mp3`, // 
-              prompt: '<br><br>' +
-                 `<style> .centered {position: fixed; top: 50%; left: 50%;
-                 transform: translate(-50%, -50%);}</style>
-                <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
-                <p><em>${messages.adjustMicAfter}</p></>`,
-              choices: [choiceOne, choiceTwo],
-              on_trial_start: function() {
-               setTimeout(function() {
-               setDisplay("jspsych-btn", "")
-              }, 1000)
-             },
-            data: {
-              component: 'DialogueRerecordPrompt',
-              options: [choiceOne, choiceTwo]
-            },
-            button_html: '<button class="jspsych-btn">%choice% </button>'
-          };
-          
-          recordSound.push(recordCheckObject);
-          
-          loop_node = {
-             timeline: [...recordSound],
-             loop_function: function(data) {
-               if ('0' == data.values()[4].button_pressed) {
-                 return true;
-               } else { 
-                 return false;
-               } 
-             }
-          }
-          
-          session.push(loop_node);
-          
-     } else {
-        session = [...session,...recordSound];  
-
-     }
-     
-   }
-    
+      session.push(loop_node);
+    }
     
    // planned production
     if (trial.plannedProduction&&trial.plannedProduction!='NA') {
@@ -2063,10 +2216,6 @@ So far only implemented: Module 1, musicianship
     
       var recordSound = [];
       var loop_node = [];    
-    
-    
-      const fixationDuration = 1000 // show fixation cross for 1000 msec
-      session.push(this.fixation(trialInfo,fixationDuration)); 
      
       var readStimulus =  {
         type: 'html-button-response',
@@ -2091,17 +2240,16 @@ So far only implemented: Module 1, musicianship
 
       recordSound.push(readStimulus);
       
-     soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
-     
-     trialInfo.recordedFile = soundFileName;
+      soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
      
      let html = `<b>${trial.plannedProduction}</b>
          <br><br><br>
           <em>${messages.speakNow}</em>
           <br><br><br><br>`;
-          
-      recordSound.push(
-         recordTillClick(html, trialInfo, soundFileName,lab,messages.doneRecording)
+      
+      
+      recordSound.push(...
+         prosodylab.recordTillClick(html, trialInfo, soundFileName,lab,messages.doneRecording)
       );    
        
       
@@ -2266,67 +2414,7 @@ So far only implemented: Module 1, musicianship
        session.push(prosodylab.stopRecording());
     }
     
-    // simply play soundfile
-    if (trial.soundFile) {
-      const fixationDuration = 1000 // show fixation cross for 1000 msec
-      session.push(this.fixation(trialInfo,fixationDuration)); 
-     
-     playSound =  {
-        type: 'audio-keyboard-response',
-        prompt: function() {
-        const html = `<style> .centered {position: fixed; top: 50%; 
-          left: 50%; transform: translate(-50%, -50%);}</style>
-          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
-          return html;
-        },
-        stimulus: `${trial.path}/audio/${trial.soundFile}`,
-        choices: jsPsych.NO_KEYS,
-        trial_ends_after_audio: true,
-        data: trialInfo
-      }
-      playSound.data.trialPart =  'Listen to soundFile';
-      session.push(playSound);
-    }
-    
-    // play soundfile and ask whether participant wants to hear it again
-    if (trial.soundFileRepeat) {
-      const fixationDuration = 1000 // show fixation cross for 1000 msec
-      session.push(this.fixation(trialInfo,fixationDuration)); 
-
-      playSound =  {
-        type: 'audio-button-response',
-        prompt: function() {
-        const html = `<style> .centered {position: fixed; top: 50%; 
-          left: 50%; transform: translate(-50%, -50%);}</style>
-          <br>
-          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
-          <br>
-          ${trial.soundFileRepeatMessage}
-          `
-          return html;
-        },
-        stimulus: `${trial.path}/audio/${trial.soundFileRepeat}`,
-        choices: [messages.playAgain,messages.continueButton],
-        button_html: '<button class="jspsych-btn">%choice% </button>',
-        data: trialInfo
-      }
-      playSound.data.trialPart =  'ListenRepeatRecord';
-      playSound.data.options = [messages.playAgain,messages.recordSound];
-      
-      const loop_node = {
-        timeline: [playSound],
-        loop_function: function(data) {
-          if ('0' == data.values()[0].button_pressed) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-      }
-      
-      
-      session.push(loop_node);
-    }
+  
     
     if (trial.contextFile&&trial.contextFile!='NA'&&trial.contextFile!='') {
       
@@ -2910,6 +2998,13 @@ So far only implemented: Module 1, musicianship
       stimuli = stimuli.map(obj=> ({ ...obj, session: '1'}))
     }
     
+    
+    // Set session order scheme to 'Fixed' if no ordering scheme is specified
+    // if spreadsheet as sessionOrder column with 'Random' it will be random
+    if (!stimuli[0].sessionOrder) {
+      stimuli =  stimuli.map(obj=> ({ ...obj, sessionOrder: 'Fixed' }))
+    }
+    
     if (selectSession != 'all') {
       // only keep selected session
       stimuli = stimuli.filter(obj => obj.session == selectSession);
@@ -2920,12 +3015,6 @@ So far only implemented: Module 1, musicianship
     // get session names from spreadsheet
     sessionNames = new Set([...stimuli.map(value => value.session)]);
     
-    // Set session order scheme to 'Fixed' if no ordering scheme is specified
-    // if spreadsheet as sessionOrder column with 'Random' it will be random
-    if (!stimuli[0].sessionOrder) {
-      stimuli =  stimuli.map(obj=> ({ ...obj, sessionOrder: 'Fixed' }))
-    }
-
     // Order sessions
   
     if (stimuli[0].sessionOrder=='Fixed') {
@@ -2951,7 +3040,7 @@ So far only implemented: Module 1, musicianship
         throw new Error(`sessionOrder value not known: ${stimuli[1].sessionOrder}`);
     }
  
-    console.log('There are ${experimentSessions.length} Sessions:',experimentSessions);
+    console.log(`There are ${experimentSessions.length} Sessions:`,experimentSessions);
   
     for (let iSession=0; iSession < experimentSessions.length;iSession++) {
     
