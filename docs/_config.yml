@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: prosodylab-eExperimenter
+title: prosodylab-experimenter
 #email: mchlwgnr@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Write an awesome description for your new site here. You can edit this
@@ -33,6 +33,11 @@ description: >- # this means to ignore newlines until "baseurl:"
 remote_theme: pmarsceill/just-the-docs
 plugins:
   - jekyll-feed
+
+# Aux links for the upper right navigation
+aux_links:
+  "prosodylab-experimenter code":
+    - "//github.com/prosodylab/prosodylab-experimenter/"
 
 # Exclude from processing.
 # The following items will not be processed, by default.
