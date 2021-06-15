@@ -1,4 +1,4 @@
-# prosodylab-experimenter
+# prosodylabExperimenter
 
 Scripts to run prosody (and other) experiments, which makes use of Josh de Leeuw's [jspsych](https://www.jspsych.org/) to assemble online experiment from a simple spreadsheet. The javascript code will read in a tab-delimited spreadsheet with the stimuli and design information and generate and run the experiment. 
 
