@@ -1,22 +1,23 @@
 # prosodylab-experimenter
 
-Scripts to run prosody (and other) experiments, which makes use of Josh de Leeuw's [jspsych](https://www.jspsych.org/) to assemble online experiment from a simple spreadsheet. The javascript code will read in a tab-delimited spreadsheet with the stimuli and design information and generate and run the experiment. The output right now is in json format, and there is an .Rmd file that is used to read the data into a spreadsheet in R (so the 'spreadsheet-out' part is not really implemented yet).
+Scripts to run prosody (and other) experiments, which makes use of Josh de Leeuw's [jspsych](https://www.jspsych.org/) to assemble online experiment from a simple spreadsheet. The javascript code will read in a tab-delimited spreadsheet with the stimuli and design information and generate and run the experiment. 
 
-Some examples are posted [here](https://prosodylab.org/experimenter/examples).
-
-## Spreadsheet-in spreadsheet-out
-
-The goal of this tool be able to set up experiemnt just using a simple spreadsheet as input and receiving a simply spreadsheet as output. 
-
-As of now, the (main) input is tab-delimited spreadsheet with the experimental stimuli and information about the design, and the output is a .json file, which is then transformed into a spreadsheet using R.
-
-## Motivation and intended use case
+# Motivation and intended use case
 
 One motivation for creating this tool was to facilitate a class on laboratory linguistics taught at McGill. In this class, all students run experiments in groups. The goal of this tool is to make the process of turning the idea into an experiment maximally easy, so the class can focus on designing experiments, and not spend too much time on implementation, and without people having to learn how to code. 
 
 The tool is also useful in a situation where there are lots of students with the training to design an experment but only few have coding expertise, which is a common situation in a lab in a linguistics department. 
 
 So the use case this was designed for is where there is one or a few people who can and want to delve into the code itself, and lots of people who just want to run experiments. So be warned: This will be user-friendly for the people in your lab who use it, but not so much for whoever has to set it up and get it to run, and trouble shoot if something doesn't work as expected.
+
+# Limitations
+
+* There is no documentation yet
+* This is very beta, and if you're not comfortable editing javascript and fix bugs at this stage this may not be the best idea
+* The output right now is in json format, and there is an .Rmd file that is used to read the data into a spreadsheet in R (so the 'spreadsheet-out' part is not really implemented yet).
+
+
+Some examples are posted [here](https://prosodylab.org/experimenter/examples).
 
 ## Prerequsites
 
