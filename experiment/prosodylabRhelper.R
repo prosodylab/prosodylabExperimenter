@@ -1,8 +1,4 @@
 
-
-
-
-
 convertVariables <- function(df) {
   # columns that are usually read as factors but should be numeric:
   numericColMatlab = c("trialDuration")
@@ -63,7 +59,26 @@ importData <- function(pathData,pathStudyFile) {
   # questionnaire data:
   # how to convert json cell into  columns (there might be an easier way using  jsonlite more directly?): https://stackoverflow.com/questions/41988928/how-to-parse-json-in-a-dataframe-column-using-r
   
-  #  debriefing questionnaire data:
+  
+  #  study parameters:
+  if (nrow(filter(d,component=='experimentSettings'))!=0){
+    experimentSettings <- d %>% 
+      filter(component=='experimentSettings') %>% 
+      dplyr::select(c(c("path", "stimulusFile", "testRun", "language", "logFile", "soundCheckFile", 
+                        "recordingTimeOut", "completionLink", "completionCode", "pListMethod", 
+                        "participantCodeMethod", "displayDataAfterFinish", "showProgressBar", 
+                        "fullScreen", "hello", "consent", "languageQuestionnaire", "soundCheck", 
+                        "micCheck", "headphoneScreener", "experimentSessions", "postExQuestionnaire", 
+                        "musicQuestionnaire", "goodbye", "experimentOnly"))) 
+    d = d %>%  dplyr::select(-c("path", "stimulusFile", "testRun", "language", "logFile", "soundCheckFile", 
+                                "recordingTimeOut", "completionLink", "completionCode", "pListMethod", 
+                                "participantCodeMethod", "displayDataAfterFinish", "showProgressBar", 
+                                "fullScreen", "hello", "consent", "languageQuestionnaire", "soundCheck", 
+                                "micCheck", "headphoneScreener", "experimentSessions", "postExQuestionnaire", 
+                                "musicQuestionnaire", "goodbye", "experimentOnly"))
+  }
+  
+  #  post-experiment questionnaire data:
   if (nrow(filter(d,component=='Post-experiment Questionnaire'))!=0){
     participants <- d %>% 
       filter(component=='Post-experiment Questionnaire') %>% 
@@ -105,19 +120,36 @@ importData <- function(pathData,pathStudyFile) {
       right_join(participants, by = c("participant"))
   }
   
-  d <- d %>% filter(component=='Experiment') %>%
-    # combine  with participant data
-    left_join(participants,by = c("participant")) %>%
+  
+  # organize experimental results
+  
+  # some parts were missing component specification:
+  d$component[d$trialPart=='question1']='experiment'
+  
+  # goal: get all information for a trial on a single line
+  
+  experimentTrials = d %>% 
+    filter(trialPart%in%c("question1"))
+  
+  
+  # both.wide=stats::reshape(both,
+  #                          idvar=idvariable,
+  #                          timevar=timevariable,
+  #                          v.names=whichColumnsVary(both,idvariable,timevariable),
+  #                          direction="wide")
+  
+  experimentTrials <- experimentTrials %>%
+    # combine  with participant information
+    right_join(participants,by = c("participant")) %>%
     # turn empty strings (e.g., "",  '',  "  ") into NA
     apply(2, function(x) gsub("^$|^ $", NA, x))  %>%
     as.data.frame %>% convertVariables()
   
-  d = left_join(d,studyFile,by=c("experiment","item","condition")) ## %>%
-    #filter(!is.na(chosenOption))
+  experimentTrials = left_join(experimentTrials,studyFile,by=c("experiment","item","condition")) ## %>%
+  #filter(!is.na(chosenOption))
   
-  return(d)
+  
+  returnList = list("settings" = experimentSettings, "data" =  experimentTrials)
+  return(returnList)
   
 }
-
-
-

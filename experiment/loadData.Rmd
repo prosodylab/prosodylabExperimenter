@@ -9,6 +9,7 @@ output:
 # Load Data
 require(jsonlite)
 require(tidyverse)
+source("prosodylabRhelper.R")
 
 pathStudy = getwd()
 studyFileName = 'rhyme.txt'
@@ -16,11 +17,20 @@ studyFileName = 'rhyme.txt'
 pathData = paste0(pathStudy,'/data')
 pathStudyFile = paste0(pathStudy,'/',studyFileName)
 
-setwd(pathStudy)
-source("prosodylabRhelper.R")
-
 results = importData(pathData,pathStudyFile)
+
+d = results$data
+experimentSettings = results$settings
 
 ```
 
 
+
+```{r}
+
+d %>%
+  filter(experiment=='trialPart == 'question1') %>%
+  ggplot(d, aes(x=Exclusive, y=mean.value, fill=Syntax))
+
+
+```

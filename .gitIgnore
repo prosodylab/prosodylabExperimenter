@@ -10,6 +10,7 @@
 
 # rmd notebook from processing script
 processData.nb.html
+loadDAta.nb.html
 
 # ignore logs
 studyLog.json
