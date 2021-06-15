@@ -1,0 +1,26 @@
+---
+title: "Read data into spreadsheet"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r echo=F, message=FALSE, warning=FALSE}
+# Load Data
+require(jsonlite)
+require(tidyverse)
+
+pathStudy = getwd()
+studyFileName = 'rhyme.txt'
+
+pathData = paste0(pathStudy,'/data')
+pathStudyFile = paste0(pathStudy,'/',studyFileName)
+
+setwd(pathStudy)
+source("prosodylabRhelper.R")
+
+results = importData(pathData,pathStudyFile)
+
+```
+
+
