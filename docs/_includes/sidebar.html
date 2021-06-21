@@ -1,0 +1,27 @@
+
+<div id="sidebar">
+<!--
+<img src="{{ https://mchlwgnr.github.io/labpage }}public/headphones_frieda.jpg" alt="headphones" class="center" style="border-radius:50%" width=200 height=auto/>
+-->
+<img src="{{ https://mchlwgnr.github.io/labpage }}public/headphoneFrieda_wideCanvas.png" alt="kazoo" class="center" style="border-radius:50%" width=175 height=auto/>
+  <header>
+  
+    <{% if page.layout == "index" %}h1{% else %}div{% endif %} class="site-title">
+      <a href="{{ "/" | relative_url }}">
+        {% unless page.url == "/" %}
+          <span class="back-arrow icon">{% include svg/back-arrow.svg %}</span>
+        {% endunless %}
+        {{ site.title }}
+      </a>
+    </{% if page.layout == "index" %}h1{% else %}div{% endif %}>
+    <p class="lead">{{ site.description }}</p>
+  </header>
+  {% include sidebar-nav-links.html %}
+
+  {% if site.version %}
+    <span class="site-version">Currently v{{ site.version }}</span>
+  {% endif %}
+
+  {% include sidebar-icon-links.html %}
+  {% include copyright.html %}
+</div>
