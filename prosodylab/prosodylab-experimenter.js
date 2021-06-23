@@ -8,15 +8,18 @@ prosodylab = {
     
     // English
     en: {
+      thankyou: 'Thank you!',
       fullScreen: `<p><br><br> <em>Please click the button below
         to enter full screen mode and start with the experiment</em></p>`,
       continueButton:  'Continue',
       completionCode: 'Completion code',
       connectHeadphones: 'Please connect your headphones and adjust the volume please!',
       playSound: 'Play a sound',
-      playAgain: 'Play sound again',
+      playAgain: 'Play again',
+      proceed: 'Proceed to question',
       adjustVolume: 'Adjust volume if necessary',
       soundCheckOk: 'I can hear the sound at a comfortable volume',
+      askReplay: 'Would you like to listen to that again?',
       recordSound: 'Start audio recording now',
       startRecording: 'Click here to start recording',
       recordDialogue:'Click here to record dialogue!',
@@ -1701,28 +1704,44 @@ So far only implemented: Module 1, musicianship
   }, //  end of this.generatePlaylist
 
   fixation: function(trialInfo,duration) {
-    const result = {
-      type: 'html-keyboard-response',
-      stimulus: '<div style="font-size:60px;">+</div>',
-      choices: jsPsych.NO_KEYS,
-      trial_duration: duration, //duration in msec
-      data: {...trialInfo, component: 'experiment',trialPart:'Fixation' } 
-    };
-    return result;
+    return prosodylab.showText(trialInfo,duration,'<div style="font-size:60px;">+</div>');
+  },
+  
+  showText: function(trialInfo,duration,message){
+       //default message empty
+       if(!message){var message = ''}
+       //default duration 1 sec
+       if(!duration){duration=1000}
+       
+       var showTextElement = {
+          type: 'html-keyboard-response',
+          stimulus: message,
+          choices: jsPsych.NO_KEYS,
+          trial_duration: duration,
+          data: {...trialInfo, component: 'experiment',trialPart:'Fixation' } 
+       };
+       
+       console.log('showTextElement',showTextElement);
+       
+       return showTextElement;
   },
   
   noDataRecordedFlag: function(){
-    const result = {
-      type: 'html-keyboard-response',
-      stimulus: `<div style="font-size:50px;color:red">
-      <em>Test run <br><br><br> No data will be saved!</em></div>`,
-      choices: jsPsych.NO_KEYS,
-      trial_duration: 2000, //duration in msec
-      data: {component:'NoDataRecordedFlag' } 
-    };
-    return result;
+  
+    var flagText = `<div style="font-size:50px;color:red">
+      <em>Test run <br><br><br> No data will be saved!</em></div>`;
+  
+    return prosodylab.showText({component:'NoDataRecordedFlag'},2000,flagText);
+  
   },
   
+  thankYouFlag: function(){
+  
+    var flagText = `<div style="font-size:50px;color:red">
+      <em>Test run <br><br><br> messages.thankyou</em></div>`;
+      
+    return prosodylab.showText({component:'ThankYouFlag' },2000,flagText);
+  },
 
   generateKeyChoices: function(nChoices){
     // creates array of n choices, e.g. ['1','2','3']
@@ -1969,7 +1988,82 @@ So far only implemented: Module 1, musicianship
     .catch(// // error if browser doesn't support MediaRecorder or mic permission denied
        error => {errorQuit("Please allow microphone access and reload the page!")});
   },
- 
+  
+  
+  repeatTrial: function(trialTimeline,trialInfo,repeatMessage,repeatOptions,times){
+     
+     // if number of allowed repetitions is not specified, set it to unlimited (=0)
+     if(!times){
+       var times = 0;
+     }
+     
+     // if no options and message specified, assume it is about replaying a soundfile
+     if(!repeatOptions){
+       var repeatOptions = [messages.playAgain,messages.proceed];
+     }  
+     
+     if(!repeatMessage){
+       var repeatMessage = messages.askReplay;
+     }
+
+     var askRepeat = {
+          type: 'html-button-response',
+          stimulus: `${repeatMessage}<br><br>`,
+          choices: repeatOptions,
+          button_html: '<button class="jspsych-btn">%choice% </button>',
+          data: trialInfo,
+          prompt: ''
+     };
+
+      askRepeat.data.trialPart =  'askRepeat';
+      askRepeat.data.options = repeatOptions;
+      
+      
+      trialTimeline.push(askRepeat);
+      
+      lastElement = trialTimeline.length - 1; 
+      // If first button is pressed, repeat trial
+      const loopNode = {
+        timeline: trialTimeline,
+        loop_function: function(data) {
+        
+          if ('0' == data.values()[lastElement].button_pressed) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+      
+      return loopNode;
+  
+  },
+  
+  playSound: function(pathSound,playMessage) {
+  
+    if(!playMessage){var playMessage = '';}
+  
+    playSoundfile = {
+        type: 'audio-keyboard-response',
+        prompt: function() {
+        const html = `<style> .centered {position: fixed; top: 50%; 
+          left: 50%; transform: translate(-50%, -50%);}</style>
+          <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">
+          <em>${playMessage}</em><br>`
+          return html;
+        },
+        stimulus: `${pathSound}`,
+        choices: jsPsych.NO_KEYS,
+        trial_ends_after_audio: true,
+        data: {
+          trialPart:  'Listen to soundFile'
+        }
+      }
+      
+      
+      return playSoundfile;  
+      
+  },
  
   addTrial: function(session,trial,trialInfo,participant,randomNumbers,messages) {
 
@@ -2141,7 +2235,7 @@ So far only implemented: Module 1, musicianship
      
    }
     
-      // simply play soundfile
+   // simply play soundfile
     if (trial.soundFile) {
       const fixationDuration = 1000 // show fixation cross for 1000 msec
       session.push(this.fixation(trialInfo,fixationDuration)); 
@@ -2163,6 +2257,33 @@ So far only implemented: Module 1, musicianship
       session.push(playSound);
     }
     
+    
+    // ContextRetrieval
+    if (trial.contextRetrieval) {
+    
+      const fixationDuration = 1000 // show fixation cross for 1000 msec
+      session.push(this.fixation(trialInfo,fixationDuration)); 
+
+      // paths to contextFiles
+      var contextFiles = [`${trial.path}/audio/${trial.contextFile1}`, `${trial.path}/audio/${trial.contextFile2}`];
+      // shuffle soundfiles (if you want them shuffled, uncomment)
+      // contextFiles = jsPsych.randomization.shuffle(contextFiles);
+      // path to response file
+      responseFile = `${trial.path}/audio/${trial.responseFile}`
+    
+      var contextRetrievalTrial = [];
+      
+      contextRetrievalTrial.push(prosodylab.playSound(contextFiles[0],'Dialogue 1'));
+      contextRetrievalTrial.push(prosodylab.playSound(responseFile,'Dialogue 1'));
+      // add 500ms pause here
+      contextRetrievalTrial.push(prosodylab.fixation(trialInfo,1000));
+      //
+      contextRetrievalTrial.push(prosodylab.playSound(contextFiles[1],'Dialogue 2'));
+      contextRetrievalTrial.push(prosodylab.playSound(responseFile,'Dialogue 2'));
+    
+      session.push(prosodylab.repeatTrial(contextRetrievalTrial,trialInfo,trial.contextRetrieval));
+    
+    }
     
     // play soundfile and ask whether participant wants to hear it again
     if (trial.soundFileRepeat) {
@@ -2598,7 +2719,6 @@ So far only implemented: Module 1, musicianship
             const lastTrial = jsPsych.data.get().last(2).values()[0];
             
             let originalOptions = eval(trial[`question1Options`]);
-            console.log('originalOptions',originalOptions,'lastTrial.chosenOption',lastTrial.chosenOption)
             
             let conditionalStimulus =  `<b>${originalOptions.filter(option => option != lastTrial.chosenOption)}</b> <br>  <em>${question.data.text}</em>`;
                         
