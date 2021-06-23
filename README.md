@@ -17,7 +17,7 @@ So the use case this was designed for is where there is one or a few people who 
 * The output right now is in json format, and there is an .Rmd file that is used to read the data into a spreadsheet in R (so the 'spreadsheet-out' part is not really implemented yet).
 
 
-Some examples are posted [here](https://prosodylab.org/experimenter/examples).
+The live examples that is part of this template is posted [here](https://prosodylab.org/experimenter/template).
 
 ## Prerequsites
 
