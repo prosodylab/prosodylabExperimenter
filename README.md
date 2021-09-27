@@ -2,6 +2,8 @@
 
 Scripts to run prosody (and other) experiments, which makes use of Josh de Leeuw's [jspsych](https://www.jspsych.org/) to assemble online experiment from a simple spreadsheet. The javascript code will read in a tab-delimited spreadsheet with the stimuli and design information and generate and run the experiment. 
 
+You can find the beginnings of a documentation [here](https://prosodylab.github.io/prosodylabExperimenter/)
+
 # Motivation and intended use case
 
 One motivation for creating this tool was to facilitate a class on laboratory linguistics taught at McGill. In this class, all students run experiments in groups. The goal of this tool is to make the process of turning the idea into an experiment maximally easy, so the class can focus on designing experiments, and not spend too much time on implementation, and without people having to learn how to code. 
