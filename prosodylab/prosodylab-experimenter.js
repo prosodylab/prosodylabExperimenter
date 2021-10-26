@@ -2195,12 +2195,12 @@ So far only implemented: Module 1, musicianship
       var recordSound = [];
       var loop_node = [];
       
-      if (trial.contextFile&&trial.contextFile !='') {
+      if (trial.dialogueContextFile&&trial.dialogueContextFile !='') {
       
         var listenToContext =  {
           type: 'audio-keyboard-response',
           prompt: htmlFunction(prosodylab.md2html(trial.dialogueRecordMessage)),
-          stimulus: `${trial.path}/audio/${trial.contextFile}`,
+          stimulus: `${trial.path}/audio/${trial.dialogueContextFile}`,
           choices: jsPsych.NO_KEYS,
          trial_ends_after_audio: true,
           data: trialInfo
@@ -2229,7 +2229,7 @@ So far only implemented: Module 1, musicianship
          lab,
          messages.doneRecording,
          trial.recordOption,
-         trial.contextFile
+         trial.dialogueContextFile
          )
       );
      
@@ -2609,7 +2609,13 @@ So far only implemented: Module 1, musicianship
     
       // add text if applicable
       if (trial[`question${questionN}Stimulus`]) {
-          question.stimulus = eval(`trial.question${questionN}Stimulus`) + 
+          question.stimulus = '<b>' + eval(`trial.question${questionN}Stimulus`) +'<br></b>' + 
+          question.stimulus;
+      } 
+      
+      // add context if applicable
+      if (trial[`question${questionN}Context`]) {
+          question.stimulus = eval(`trial.question${questionN}Context`) + '<br>' +
           question.stimulus;
       } 
         
@@ -2910,7 +2916,6 @@ So far only implemented: Module 1, musicianship
              question.labels = eval(trial[`question${questionN}EndPoints`]);
           }
           
-          question.stimulus = question.data.text;
           question.button_label = messages.continueButton;
           question.require_movement = true;
         
@@ -2934,7 +2939,7 @@ So far only implemented: Module 1, musicianship
           question.type = 'survey-likert';
           question.button_label = messages.continueButton;
           question.questions  = [{ 
-            prompt: question.data.text, 
+            prompt: question.stimulus, 
             labels: question.data.options,
             required: true
           }]
