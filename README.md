@@ -21,7 +21,7 @@ So the use case this was designed for is where there is one or a few people who 
 
 The live examples that is part of this template is posted [here](https://prosodylab.org/experimenter/template).
 
-## Prerequsites
+## Prerequisites
 
 Using these scripts minimally requires:
 
