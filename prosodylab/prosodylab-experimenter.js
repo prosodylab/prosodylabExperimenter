@@ -1721,7 +1721,6 @@ So far only implemented: Module 1, musicianship
           data: {...trialInfo, component: 'experiment',trialPart:'Fixation' } 
        };
        
-       console.log('showTextElement',showTextElement);
        
        return showTextElement;
   },
@@ -2229,7 +2228,7 @@ So far only implemented: Module 1, musicianship
          lab,
          messages.doneRecording,
          trial.recordOption,
-         trial.dialogueContextFile
+         trial.contextFile
          )
       );
      
@@ -2336,20 +2335,87 @@ So far only implemented: Module 1, musicianship
       }
     
       var recordSound = [];
-      var loop_node = [];    
-     
+      var loop_node = [];
+      
+      stimulusDisplay = [];
+      
+      if (trial.images){
+          
+          var images = eval(trial.images);
+          
+          if (!trial.imageOrder) {trial.imageOrder = 'random'}
+          
+          // set image to default size if size is not specified
+          // xx would be good to have default image size set in index?
+
+          if (!trial.imageSizes) {
+            imageSizes = Array(images.length).fill(150);
+          } else {
+            imageSizes = eval(trial.imageSizes);
+          }
+          
+          topCoordinates = imageSizes.map(function(element){return 30-element/15;});
+          
+          
+        if ((!trial.imageOrder)|(trial.imageOrder=='random')) {
+           imageOrder = Array.from({length: images.length}, (_, i) => i)
+           imageOrder = jsPsych.randomization.shuffle(imageOrder);
+        } else if (trial.imageOrder=='Fixed') {
+           imageOrder = Array.from({length: images.length}, (_, i) => i)
+        } else if (trial.imageOrder=='random2x2'){
+           imageOrder = [...jsPsych.randomization.shuffle([1,2]), ...jsPsych.randomization.shuffle([3,4])];
+           console.log('2x2imageorder',imageOrder);
+        } else{
+           imageOrder = eval(trial.imageOrder);
+        }
+        
+        // two-by-two arrangement by default:
+          if (!trial.imageLocations){
+            imageLocations = [
+                 {top: 30,left: 10},
+                 {top: 30,left: 30},
+                 {top: 30,left: 60},
+                 {top: 30,left: 80}
+                 ]; 
+          } else {
+            imageLocations = eval(trial.imageLocations);
+          }
+        
+        var image = []; 
+        
+        for (let i=0; i<images.length; i++){
+        
+         image = `${trialInfo.path}/images/${images[imageOrder[i]]}`;
+        
+         if (!preload.images.includes(image)) {
+           preload.images.push(image);
+         }
+          
+          stimulusDisplay = stimulusDisplay + `
+            <img 
+               src=${image} 
+               style="
+                 position:absolute;
+                 left: ${imageLocations[i].left}%; 
+                 top: ${topCoordinates[imageOrder[i]]}%; 
+                 border:none;
+                 width: ${imageSizes[imageOrder[i]]}px;
+                 "
+               alt="image" width="100"> 
+               `
+         }
+        
+        }
+        
+        stimulusDisplay = stimulusDisplay + `<br><b><br><br><br><br> ${trial.plannedProduction}</b>`
+        
+
       var readStimulus =  {
         type: 'html-button-response',
-        stimulus: function() {
-        const html = `<b>${trial.plannedProduction}</b>
+        stimulus: stimulusDisplay + `
            <br><br>
            <em>${prosodylab.md2html(trial.plannedProductionMessage)}</em>
-           <br><br>`
-          return html;
-        },
-        //stimulus: `<style> .centered {position: fixed; top: 50%; 
-        //  left: 50%; transform: translate(-50%, -50%);}</style>
-        //   <em>${trial.plannedProduction}</em>`,
+           <br><br>`,          
         choices: [messages.startRecording],
         //trial_ends_after_audio: true,
         button_html: '<button class="jspsych-btn">%choice% </button>',
@@ -2363,16 +2429,16 @@ So far only implemented: Module 1, musicianship
       
       soundFileName = `${trialInfo.experiment}_${participant}_${trialInfo.item}_${trialInfo.condition}`;
      
-     let html = `<b>${trial.plannedProduction}</b>
-         <br><br><br>
+     let html =  stimulusDisplay + `<br><br><br>
           <em>${messages.speakNow}</em>
-          <br><br><br><br>`;
+          <br><br><br>`;
       
       
       recordSound.push(...
          prosodylab.recordTillClick(html, trialInfo, soundFileName,lab,messages.doneRecording)
       );    
        
+
       
       if (trial.recordOption=='rerecord'){
         
