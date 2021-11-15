@@ -1,20 +1,18 @@
 
-convertVariables <- function(df) {
-  # columns that are usually read as factors but should be numeric:
-  numericColMatlab = c("trialDuration")
+convertColumnsExperimenter <- function(df) {
+ 
+  # these columns will be coded as numeric, all others as factors:
+  numericColumnsExperimenter = c("trial_index","time_elapsed","rt","correct","headPhoneScreenerScore",
+                                 "birth.year",
+                                 "firstStartage","firstSpeaking","firstUnderstanding",
+                                 "secondStartage","secondSpeaking","secondUnderstanding",
+                                 "thirdStartage","thirdSpeaking","thirdUnderstanding",
+                                 "fourthStartage","fourthSpeaking","fourthUnderstanding"
+                                 ) 
   
-  numericColPraatscript = c("rIntensity","rPitch","rDuration","duration", "silence", "duraSil", "phoneLength", "meanPitch", "maxPitch", "maxPitTime", "minPitch", "minPitTime", "pitch1", "pitch1_time", "pitch2", "pitch2_time", "pitch3", "pitch3_time", "pitch4", "pitch4_time", "pitch5", "pitch5_time", "pitch6", "pitch6_time", "pitch7", "pitch7_time", "pitch8", "pitch8_time", "pitch9", "pitch9_time", "pitch10", "pitch10_time", "meanIntensity", "maxIntensity", "maxIntTime", "intensity1", "intensity1_time", "intensity2", "intensity2_time", "intensity3", "intensity3_time", "intensity4", "intensity4_time", "intensity5", "intensity5_time", "intensity6", "intensity6_time", "intensity7", "intensity7_time", "intensity8", "intensity8_time", "intensity9", "intensity9_time", "intensity10", "intensity10_time", "zstart", "zend", "zDuration", "zPhonelength", "zmeanPitch", "zmaxPitch", "zmaxPitTime", "zminPitch", "zminPitTime", "zmeanIntensity", "zmaxIntensity", "zmaxIntTime", "response", "duration", "silence", "durasil", "meanpitch", "maxpitch", "maxPitTime", "minPitch", "minPitTime", "firstpitch", "secondpitch", "thirdpitch", "fourthpitch", "meanIntensity", "maxIntensity", "zduration", "zbeginzone", "zendzone", "zphonelength", "zmeanpitch", "zmaxpitch", "zmaxPitTime", "zminPitch", "zminPitTime", "zfirstpitch", "zsecondpitch", "zthirdpitch", "zfourthpitch", "zmeanIntensity", "zmaxIntensity", "durasil", "meanpit", "maxpitch", "maxPitTime", "minpitch", "minPitTime", "firstpitch", "secondpitch", "thirdpitch", "fourthpitch", "meanIntensity", "maxIntensity", "firstF1", "firstF2", "firstdif", "secondF1", "secondF2", "seconddif", "thirdF1", "thirdF2", "thirddif", "fourthF1", "fourthF2", "fourthdif", "fifthF1", "fifthF2", "fifthdif")
-  
-  numericColJspsychExperimenter = c("trial_index","time_elapsed","rt","correct","headPhoneScreenerScore") 
-  
-  numeriColOther = c("F1","F2")
-  
-  numericCols = c(numericColMatlab,numericColPraatscript, numericColJspsychExperimenter)
-  
-  nColumns = ncol(df)
   # convert to numeric column, otherwise treat as factor:
-  for (i in 1:nColumns) {
-    if (colnames(df)[i] %in% numericCols) {
+  for (i in 1:ncol(df)) {
+    if (colnames(df)[i] %in% numericColumnsExperimenter) {
       df[, i] <- as.numeric(as.character(df[, i]))
     } else {
       df[, i] <- as.factor(as.character(df[, i]))
@@ -24,13 +22,30 @@ convertVariables <- function(df) {
 }
 
 
-importData <- function(pathData,pathStudyFile) {
+# imports json files and process them, returning to data frames, one with the particiants information
+# one with the participant information
+importData <- function(partsToKeep='question1',pathStimulusFile,pathData='data') {
+  
+  # determine name of stimulusFile based on index.html file
+  if (missing(pathStimulusFile)) {
+    #
+    # load index.html file
+    pathStimulusFile = readLines('../index.html')
+    # keep only the line with the text we're looking for
+    pathStimulusFile <- pathStimulusFile[grepl(pattern = "  stimulusFile: ", x = pathStimulusFile, fixed = TRUE)]
+    # extract stimulusFile name:
+    pathStimulusFile  = paste0(regmatches(pathStimulusFile, gregexpr("(?<=\')(.*?)(?=\')", pathStimulusFile, perl = TRUE)))
+    # doesn't work:
+    #gsub(".*\'|\'.*", "", stimulusFile)
+    #str_extract(stimulusFile, "\'.*?\'")
+  }
   
   require(jsonlite)
   require(tidyverse)
   
-  studyFile = read.csv(pathStudyFile,
-                       sep="\t", header=TRUE) %>% convertVariables()
+  # import experiment spreadsheet and turn columns into factors
+  studyFile = read.csv(pathStimulusFile,
+                       sep="\t", header=TRUE) %>% convertColumnsExperimenter()
   
   # create a list of the "data*"  files from your target directory
   fileList <- list.files(path=pathData,pattern="data*")
@@ -42,7 +57,7 @@ importData <- function(pathData,pathStudyFile) {
   # load in  data files  from all participants
   for (i in 1:length(fileList)){
     #print(fileList[i])
-    paste0('data/',fileList[i])
+    #paste0('data/',fileList[i])
     tempData = fromJSON(paste0(pathData,'/',fileList[i]), flatten=TRUE)
     
     # this line replaces NA for experiments where due to a bug components other than the test trials didn't have participant number added ot them
@@ -60,7 +75,7 @@ importData <- function(pathData,pathStudyFile) {
   # how to convert json cell into  columns (there might be an easier way using  jsonlite more directly?): https://stackoverflow.com/questions/41988928/how-to-parse-json-in-a-dataframe-column-using-r
   
   
-  #  study parameters:
+  #  extract study parameters into variable:
   if (nrow(filter(d,component=='experimentSettings'))!=0){
     experimentSettings <- d %>% 
       filter(component=='experimentSettings') %>% 
@@ -78,7 +93,7 @@ importData <- function(pathData,pathStudyFile) {
                                 "musicQuestionnaire", "goodbye", "experimentOnly"))
   }
   
-  #  post-experiment questionnaire data:
+  #  add post-experiment questionnaire data to participant data frame:
   if (nrow(filter(d,component=='Post-experiment Questionnaire'))!=0){
     participants <- d %>% 
       filter(component=='Post-experiment Questionnaire') %>% 
@@ -89,7 +104,7 @@ importData <- function(pathData,pathStudyFile) {
       right_join(participants, by = c("participant"))
   }
   
-  #  music  questionnaire data:
+  #  add music  questionnaire data to participant data frame:
   if (nrow(filter(d,component=='Music Questionnaire'))!=0){
     participants <- d %>% 
       filter(component=='Music Questionnaire') %>% 
@@ -100,6 +115,7 @@ importData <- function(pathData,pathStudyFile) {
       right_join(participants, by = c("participant"))
   }
   
+  # add language questionnaire to participant data frame
   if (nrow(filter(d,component=='Language Questionnaire'))!=0){
     participants <- d %>% 
       filter(component=='Language Questionnaire') %>% 
@@ -110,6 +126,7 @@ importData <- function(pathData,pathStudyFile) {
       right_join(participants, by = c("participant"))
   }
   
+  # head headphone screener to participant data frame
   if (nrow(filter(d,component=='Headphone screener'))!=0){
     participants = d %>% 
       filter(component=='Headphone screener'&grepl("Headphone screener question",trialPart)) %>%
@@ -121,35 +138,28 @@ importData <- function(pathData,pathStudyFile) {
   }
   
   
-  # organize experimental results
+  # process experimental results, keeping only specified trialparts:
   
-  # some parts were missing component specification:
-  d$component[d$trialPart=='question1']='experiment'
+  # questions were missing component specification in early experiments:
+  d$component[d$trialPart=='question1'&is.na(d$component)]='experiment'
   
   # goal: get all information for a trial on a single line
   
   experimentTrials = d %>% 
-    filter(trialPart%in%c("question1"))
-  
-  
-  # both.wide=stats::reshape(both,
-  #                          idvar=idvariable,
-  #                          timevar=timevariable,
-  #                          v.names=whichColumnsVary(both,idvariable,timevariable),
-  #                          direction="wide")
+    filter(trialPart%in%partsToKeep)
   
   experimentTrials <- experimentTrials %>%
     # combine  with participant information
     right_join(participants,by = c("participant")) %>%
     # turn empty strings (e.g., "",  '',  "  ") into NA
     apply(2, function(x) gsub("^$|^ $", NA, x))  %>%
-    as.data.frame %>% convertVariables()
+    as.data.frame %>% convertColumnsExperimenter()
   
   experimentTrials = left_join(experimentTrials,studyFile,by=c("experiment","item","condition")) ## %>%
   #filter(!is.na(chosenOption))
-  
   
   returnList = list("settings" = experimentSettings, "data" =  experimentTrials)
   return(returnList)
   
 }
+

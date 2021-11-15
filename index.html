@@ -137,6 +137,11 @@ let participantCode = prosodylab.assignParticipantcode(study.participantCodeMeth
 let timeline = []; // this is where experiment will be stored
 let mdFile = []; // used for filenames of .md files
 
+// files that should be preloaded
+preload = { images: [],
+            audio: []
+          };
+
 
 // Only continue if participantCode is defined
 if (!participantCode) { 
@@ -150,15 +155,18 @@ if (!participantCode) {
   // load spreadsheet with all experiments, global variable
   stimuli = prosodylab.loadCSV(`${study.path}/${study.stimulusFile}`);
 
-  // set experiment mode if specified in urlParams
+ // set experiment mode if specified in urlParams
+  let mode = [];
   if(urlParams.get('mode')) {
-    let mode = urlParams.get('mode');
+    mode = urlParams.get('mode');
   
     if (mode=='test') {
       study.testRun = true;
     } else if (mode=='experiment'){
       study.experimentOnly = true;
       study.fullScreen = false;
+    } else if (mode=='finalPart'){
+      study.experimentOnly = true;
     }
   }
   
@@ -211,6 +219,8 @@ if (!participantCode) {
   // ---- sound check (if audio is involved)
   
   if (study.soundCheck&!study.experimentOnly){
+    preload.audio.push(study.soundCheckFile);
+    preload.images.push('prosodylab/headphones_frieda.jpg');
     timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
   }
   
@@ -225,7 +235,7 @@ if (!participantCode) {
   
   // ---- full screen mode if applicable --
   
-  if (study.fullScreen) {
+ if (study.fullScreen&!study.experimentOnly) {
     timeline.push(prosodylab.fullScreenOn());
   }
   
@@ -260,7 +270,7 @@ if (!participantCode) {
   //  ---- build sessions of experiment trials and add to timeline  ----
   //
   
-  if(study.experimentSessions||experimentOnly){
+  if((study.experimentSessions||experimentOnly)&!(mode=='finalPart')){
      experiment = 
         prosodylab.createSessions(stimuli,study,participantCode,messages,selectSession);
   
@@ -271,14 +281,14 @@ if (!participantCode) {
   
   // ---- post-experiment questionnaire ---
   
-  if (!study.experimentOnly&study.postExQuestionnaire){
+  if (study.postExQuestionnaire&(!study.experimentOnly||mode=='finalPart')){
     timeline.push(prosodylab.postExQuestionnaire(study.language));
   }
   
   // ---- music questionnaire ---
   
-  if (study.musicQustionnaire&!study.experimentOnly){
-    //timeline.push(prosodylab.musicQuestionnaire('MusicianShip'));
+  if (study.musicQustionnaire&(!study.experimentOnly||mode=='finalPart')){
+    timeline.push(prosodylab.musicQuestionnaire('MusicianShip'));
   }
   
   // ----  save data ----
@@ -286,13 +296,16 @@ if (!participantCode) {
   if(!study.testRun) {
     // use 'csv' as second argument if you want to save  as .csv instead of json
     timeline.push(prosodylab.saveData(`${study.path}/data/${dataFilename}`,'json'));
-    timeline.push(prosodylab.appendJsonCallFunction(
-       experiment.newStudyLogEntries,study.logFile));  
+    
+     if (mode!='finalPart') {
+      timeline.push(prosodylab.appendJsonCallFunction(
+       experiment.newStudyLogEntries,study.logFile));
+    }   
   }
 
    // exit full screen
   
-  if (study.fullScreen) {
+  if ((study.fullScreen&!study.experimentOnly)) {
     timeline.push({
       type: 'fullscreen',
       fullscreen_mode: false
@@ -301,10 +314,10 @@ if (!participantCode) {
   
   // ---- goodbye screen (with completion code if applicable )----
   
-  if (study.goodbye&!study.experimentOnly){
+  if (study.goodbye&(!study.experimentOnly||mode=='finalPart')){
     if (study.participantCodeMethod == 'randomAndDisplay') {
       mdFile = [];
-      if (!stimuli[0].goodBye) {
+      if (!stimuli[0].goodbye) {
         mdFile = `${study.path}/goodbye.md`;
       } else {
         mdFile = `${study.path}/${stimuli[0].goodbye}`;
@@ -312,19 +325,29 @@ if (!participantCode) {
       timeline.push(prosodylab.screenFromMD(mdFile,'goodbye','center',participantCode));      
       
     } else if (study.completionCode) { 
-      //timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center',completionCode));
+      timeline.push(prosodylab.screenFromMD(mdFile, 'goodBye','center', completionCode));
     } else {
-      //timeline.push(prosodylab.screenFromMD(study.goodbyeFile,'goodBye','center'));
+      timeline.push(prosodylab.screenFromMD(mdFile,'goodBye','center'));
     }
   }
   
   
   } 
   
-  //  ---- general settings  ----
+   //  ---- general settings  ----
+  
+  if (preload.images.length!=0){
+    console.log('Number of images to preload: ',preload.images.length);
+  }
+  
+  if (preload.audio.length!=0){
+    console.log('Number of soundfiles to preload: ',preload.audio.length);
+  }
 
   jsPsych.init({
       timeline: timeline,
+      preload_audio: preload.audio,
+      preload_images: preload.images,
       //// uncomment to save data on close (but closing the tab could mean wihdrawn consent!)
       //on_close:  function(){
       //  prosodylab.saveData(`${study.path}/data/${dataFilename}.json, jsPsych.data.get().json());

@@ -1,0 +1,49 @@
+---
+title: "Load result into data frames"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+    collapsed: no
+    number_sections: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+```{r setup, include=FALSE}
+# some basic settings for this .Rmd file
+knitr::opts_chunk$set(echo = TRUE, cache=F)
+```
+
+```{r,echo=F,warning=F,message=F,cache=F}
+require(jsonlite)
+require(tidyverse)
+library(ggplot2)
+
+# avoids that `select` from MASSinstead of dplyr is used:
+select <- dplyr::select
+# by default, show only 3 digits:
+options(digits=3)
+```
+
+```{r,echo=F,message=F}
+
+# load some R functions:
+source('importJSONData.R')
+
+# Load your data
+results = importData()
+
+# experimental trials with participant information:
+d = results$data
+
+# experiment settings:
+experimentSettings = results$settings
+
+ 
+```
+

@@ -45,6 +45,7 @@ prosodylab = {
         'The second sound was the softest.',
         'The third sound was the softest.'
       ],
+      rateScale: 'Rate on a scale between: ',
       naturalnessQuestion: 'How natural did you find this sentence?',
       naturalnessQuestionContext: 'How natural did you find the response given the context?',
       naturalnessOptions: ['completely unnatural','completely natural'],
@@ -554,6 +555,7 @@ prosodylab = {
         '第二声最小。',
         '第三声最小。'
       ],
+      rateScale: '请在此区间内评分',
       naturalnessQuestion: '您觉得这句话有多自然？',
       naturalnessQuestionContext: '联系上下文, 您认为该回答有多自然？',
       naturalnessOptions: ['完全不自然','完全自然'],
@@ -3044,7 +3046,7 @@ So far only implemented: Module 1, musicianship
          
          question.data.options = question.choices;
          question.stimulus = `${question.data.text} <br/><br/>  
-            <em>Rate on a scale between: <br><br> 
+            <em>${messages.rateScale} <br><br> 
             ${question.choices[0]} = <b>${question.data.endPoints[0]}</b> and 
             ${question.choices[question.choices.length-1]} = <b>${question.data.endPoints[1]}</b></em>`;
        }
