@@ -2198,6 +2198,7 @@ So far only implemented: Module 1, musicianship
       
       if (trial.dialogueContextFile&&trial.dialogueContextFile !='') {
       
+      
         var listenToContext =  {
           type: 'audio-keyboard-response',
           prompt: htmlFunction(prosodylab.md2html(trial.dialogueRecordMessage)),
@@ -2209,7 +2210,7 @@ So far only implemented: Module 1, musicianship
       
         listenToContext.data.trialPart =  'Listen to Context';  
       
-      recordSound.push(listenToContext);
+      session.push(listenToContext);
       
       }
 

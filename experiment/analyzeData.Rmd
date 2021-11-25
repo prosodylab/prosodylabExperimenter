@@ -36,7 +36,7 @@ options(digits=3)
 source('importJSONData.R')
 
 # Load your data
-results = importData()
+results = importData(c('question1','question2'))
 
 # experimental trials with participant information:
 d = results$data
