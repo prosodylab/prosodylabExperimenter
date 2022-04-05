@@ -2410,7 +2410,13 @@ So far only implemented: Module 1, musicianship
         
         }
         
-        stimulusDisplay = stimulusDisplay + `<br><b><br><br><br><br> ${trial.plannedProduction}</b>`
+        stimulusDisplay = stimulusDisplay + `<br><br>`;
+        
+        if (trial.context){
+        	stimulusDisplay = stimulusDisplay + `${trial.context}<br>`;
+        }
+        
+        stimulusDisplay = stimulusDisplay + `<br><br> <b>${trial.plannedProduction}</b>`;
         
 
       var readStimulus =  {
