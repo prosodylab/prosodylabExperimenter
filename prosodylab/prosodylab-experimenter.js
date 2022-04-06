@@ -1739,7 +1739,7 @@ So far only implemented: Module 1, musicianship
   thankYouFlag: function(){
   
     var flagText = `<div style="font-size:50px;color:red">
-      <em>Test run <br><br><br> messages.thankyou</em></div>`;
+      <em><br><br><br> ${messages.thankyou}</em></div>`;
       
     return prosodylab.showText({component:'ThankYouFlag' },2000,flagText);
   },

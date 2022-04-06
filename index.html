@@ -112,6 +112,7 @@ study = {...study,
   postExQuestionnaire: true,
   musicQuestionnaire: false,
   goodbye: false,
+  thankYou: true,
   experimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags, useful for testing
   //
  };
@@ -312,6 +313,7 @@ if (!participantCode) {
     });
   }
   
+  
   // ---- goodbye screen (with completion code if applicable )----
   
   if (study.goodbye&(!study.experimentOnly||mode=='finalPart')){
@@ -331,6 +333,11 @@ if (!participantCode) {
     }
   }
   
+  // ---- thank you message
+  
+  if (study.thankYou&(!study.experimentOnly||mode=='finalPart')){
+    timeline.push(prosodylab.thankYouFlag());
+  }
   
   } 
   
