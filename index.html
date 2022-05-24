@@ -72,7 +72,7 @@ study = {...study,
   //
   testRun: true, // **if true, no data will be recorded**
   //
-  language: 'en', // set which language interaction will be in
+  language: 'fr', // set which language interaction will be in
   //
   logFile: `${study.path}/studyLog.json`, // this is where log will be saved
   soundCheckFile: `prosodylab/soundcheck_da.mp3`,// file played for soundcheck
@@ -126,6 +126,7 @@ const contactEmail = ''
 
 // load messages for interaction with participant:
 const messages  = prosodylab.getMessages(study.language);
+// console.log('message:', messages);
 
 // Get urlParams if there are any
 let urlParams = prosodylab.getURLParameters();
@@ -155,6 +156,7 @@ if (!participantCode) {
 
   // load spreadsheet with all experiments, global variable
   stimuli = prosodylab.loadCSV(`${study.path}/${study.stimulusFile}`);
+
 
  // set experiment mode if specified in urlParams
   let mode = [];
