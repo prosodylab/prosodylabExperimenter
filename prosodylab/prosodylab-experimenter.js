@@ -2,667 +2,6 @@
 
 prosodylab = {
 
-  getMessages: function(language){
-  
-    const messages = {
-    
-    // English
-    en: {
-      thankyou: 'Thank you!',
-      fullScreen: `<p><br><br> <em>Please click the button below
-        to enter full screen mode and start with the experiment</em></p>`,
-      continueButton:  'Continue',
-      completionCode: 'Completion code',
-      connectHeadphones: 'Please connect your headphones and adjust the volume please!',
-      playSound: 'Play a sound',
-      playAgain: 'Play again',
-      proceed: 'Proceed to question',
-      adjustVolume: 'Adjust volume if necessary',
-      soundCheckOk: 'I can hear the sound at a comfortable volume',
-      askReplay: 'Would you like to listen to that again?',
-      recordSound: 'Start audio recording now',
-      startRecording: 'Click here to start recording',
-      recordDialogue:'Click here to record dialogue!',
-      saySentence: 'When you\'re ready, click and say the following sentence:',
-      doneRecording: 'Click here when you\'re done recording',     
-      speakNow: 'Please speak now!',
-      recordAgain: 'Redo recording',
-      recordCheckOk: 'The recording sounds good',
-      adjustMic: 'Adjust mic settings if necessary',
-      adjustMicAfter: 'Did you hear your voice? Adjust mic settings and retry if necessary',
-      productionTestSentence: `The cat followed the squirrel stealthily to its nest.`, 
-
-      recordCheckNotOk: 'I cannot get it to work',
-      instructionsHeadphoneCheck: `<br> <em>The following is a headphone test--you will not 
-        be able to do this without headphones!</em>  <p><br><br> You will hear three 
-        sounds in a row, and you will be asked which one was the quietest of them.
-        <br><br> This task will be repeated 6 times(this should take only 2 minutes).
-        <br><br></p>`,
-      startHeadphoneTest: 'Play the first set of three sounds!',
-      questionHeadphoneTest: 'Which sound was quietest?',
-      optionsHeadphoneTest: [
-        'The first sound was the softest.',
-        'The second sound was the softest.',
-        'The third sound was the softest.'
-      ],
-      rateScale: 'Rate on a scale between: ',
-      naturalnessQuestion: 'How natural did you find this sentence?',
-      naturalnessQuestionContext: 'How natural did you find the response given the context?',
-      naturalnessOptions: ['completely unnatural','completely natural'],
-      //
-      // Music questionnaire 
-      mqTrainingTheory: 'How many years of formal music training (theory) have you had?',
-      mqKnowTheory: 'How much do you know about music structure and theory?',
-      mqTrainingPractice: 'How many years of formal music training (practice) have you had?',
-      mqMakeProfessional: `How often do you engage in professional music making 
-        (e.g., singing, playing an instrument, composing)?`,
-      mqMakePractice: 'How often did or do you practice or rehearse with an instrument or singing?',
-      mqMakeHobby: 'How often do you engage in music making as a hobby or as an amateur?',
-      //
-      scaleYears:  [
-        'None',
-        '1 year',
-        '2 years',
-        '3 years',
-        '4 years',
-        '5 years',
-        '6 years', 
-        '7 years',
-        '8 years',
-        'more than 8 years'
-      ],
-      scaleHowMuch: [
-         'Nothing',
-         'A little',
-         'A fair amount',
-         'A moderate amount',
-         'A great deal'
-      ], 
-      scaleHowOften: [
-        'Never',
-        'Rarely',
-        'Sometimes',
-        'Often',
-        'All the time'
-      ] 
-    },
-    
-    // French
-    fr: {
-      fullScreen: `<p> <br> <br> <em> Veuillez cliquer sur le bouton ci-dessous
-        pour passer en mode plein écran et débuter l'expérience </em> </p> `,
-      continueButton: 'Cliquer içi pour continuer',
-      connectHeadphones: 'Veuillez connecter vos écouteurs et régler le volume s\'il vous plaît!',
-      playSound: 'Écouter le son',
-      playAgain: 'Rejouer le son',
-      speakNow: 'Veuillez parler maintenant!',
-      soundCheckOk: 'Je peux entendre le son à un volume confortable',
-      adjustVolume: 'Ajustez le volume si nécessaire',
-      recordSound: 'Démarrer l\'enregistrement audio maintenant',
-      startRecording: 'Cliquez ici pour commencer l\'enregistrement?',
-      doneRecording: 'Cliquez ici lorsque vous avez terminé l\'enregistrement',
-      speakNow: 'Parlez maintenant!',
-      recordAgain: 'Refaire l\'enregistrement',
-      recordCheckOk: 'L\'enregistrement sonne bien',
-      adjustMic: 'Ajustez les paramètres du micro si nécessaire',
-      adjustMicAfter: 'Avez-vous entendu votre voix? Ajustez les paramètres du micro et réessayez si nécessaire ',
-      saySentence: 'Lorsque vous êtes prêt pour l\'enregistrement, cliquez et dites la phrase suivante:',
-      productionTestSentence: 'Le chat a suivi l\'écureuil furtivement jusqu\'à son nid.',
-      recordCheckNotOk: 'Je ne peux pas le faire fonctionner',
-      instructionsHeadphoneCheck: `<br> <em> Ce qui suit est un test test sonore. Des
-        écouteurs sont nécessaires pour effectuer le test. </ em>
-        <p> <br> <br> Écoutez les trois notes, puis choisissez celle qui était la plus silencieuse.
-        <br> <br> Cette tâche sera répétée 6 fois. (La durée du test est d'environ 2 minutes.)
-        <br> <br> </ p> `,
-      startHeadphoneTest: 'Jouez le premier ensemble de trois sons!',
-      questionHeadphoneTest: 'Quel son était le plus silencieux?',
-      optionsHeadphoneTest: [
-        "Le premier son était le plus doux.",
-        "Le deuxième son était le plus doux.",
-        "Le troisième son était le plus doux."
-      ],
-      naturalnessQuestion: 'Cette phrase semblait-elle naturelle?',
-      naturalnessQuestionContext: 'Comment jugez-vous la réponse en fonction du contexte?',
-      naturalnessOptions: ['complètement pas naturel', 'complètement naturel'],
-     
-      // Questionnaire musical
-      mqTrainingTheory: 'Combien d\'années de formation musicale formelle (théorie) avez-vous eues?',
-      mqKnowTheory: 'Que connaissez-vous de la structure et de la théorie musicale?',
-      mqTrainingPractice: 'Combien d\'années de formation (pratique) musicale formelle avez-vous eues?',
-      mqMakeProfessional: `À quelle fréquence vous engagez-vous dans la création musicale professionnelle
-        (par exemple, chanter, jouer d'un instrument, composer)?`,
-      mqMakePractice: 'À quelle fréquence est-ce que vous pratiquez avec un instrument ou chantez?',
-      mqMakeHobby: 'À quelle fréquence vous engagez-vous dans la création musicale comme passe-temps ou comme amateur?',
-      //
-      scaleYears: [
-        'Aucun',
-        '1 année',
-        '2 années',
-        '3 années',
-        '4 années',
-        '5 années',
-        '6 années',
-        '7 années',
-        '8 années',
-        'plus de 8 ans'
-      ],
-      scaleHowMuch: [
-         'Rien',
-         'Un peu',
-         'Une quantité modérée',
-         'Assez beaucoup',
-         'Énormément'
-      ],
-      scaleHowOften: [
-        'Jamais',
-        'Rarement',
-        'Parfois',
-        'Souvent',
-        'Tout le temps'
-      ]
-    },
-    
-    // Japanese
-    ja: {
-      fullScreen: `<p> <br> <br> <em>フルスクリーン表示を可能し、実験を開始するために、以下のボタンを押してください。
-      </ em> </ p> `,
-      continueButton:  '次へ', //'次へ進むために、ここをクリックしてください。',
-      completionCode: '参加者コード',
-      connectHeadphones: 'ヘッドホンを接続して、音量を調節してください。',
-      playSound: '音を再生する。',
-      playAgain: 'もう一度音をきく。',
-      soundCheckOk: 'ちょうどいい音量で音がきこえます。',
-      adjustVolume: '必要であれば音量を調節してください。',
-      saySentence: '準備ができたら、ボタンをクリックして、以下の文を音読してください。',
-      doneRecording: '録音が完了したら、ここをクリックしてください',
-      speakNow: '録音を開始します。',
-      recordAgain: '録音のやり直し',
-      recordCheckOk: '録音は良さそうです',
-      adjustMic: '必要に応じて、マイクの設定を行ってください。',
-      adjustMicAfter: 'あなたの声は聞こえましたか？マイクの設定を調整し、必要に応じて再試行してください ',
-      productionTestSentence:'りょうこさんは、箸を使って、ラーメンを食べさせられた。',
-      recordCheckNotOk: '録音できません。',
-      instructionsHeadphoneCheck: `<br> <em>これから、サウンドテストを行います。テストを行うためには、ヘッドホンが必要です。</em>
-        <p><br><br> 3つの音を続けてきき、その後、どの音が一番小さかったか答えてもらいます。
-        <br><br> このテストは６回行われます。（テストの所要時間は、およそ３分です。）
-        <br><br></p>`,
-      startHeadphoneTest: '１セット目の3つの音をきく。',
-      questionHeadphoneTest: 'どの音が一番小さかったですか。',
-      optionsHeadphoneTest: [
-        '1つ目の音が一番小さかったです。', 
-        '２つ目の音が一番小さかったです。', 
-        '３つ目の音が一番小さかったです。'
-      ],
-      naturalnessQuestion: 'この文はどのくらい自然ですか。',
-      naturalnessQuestionContext: '与えられた文脈を踏まえると、この返答はどのくらい自然ですか。',
-      naturalnessOptions: ['完全に不自然','完全に自然'],
-      
-      //
-      // Music questionnaire 
-      mqTrainingTheory: 'あなたは何年間音楽の理論を正式に勉強しましたか。',
-      mqKnowTheory: 'あなたはどのくらい音楽の構造と理論を理解していますか。',
-      mqTrainingPractice: 'あなたは何年間音楽の演奏技術を正式に訓練していますか。',
-      mqMakeProfessional: `あなたが仕事として音楽を作成する頻度を教えてください。(例:作曲、演奏、声楽)`,
-      mqMakePractice: 'あなたが楽器の演奏や声楽を練習する、もしくは練習した頻度を教えてください。',
-      mqMakeHobby: 'あたながプロとしてではなく、趣味で音楽を作成する頻度を教えてください。',
-      //
-      scaleYears: [ '全くない',
-                                    '１年',
-                                    '２年',
-                                    '３年',
-                                    '４年',
-                                    '５年',
-                                    '６年', 
-                                    '７年',
-                                    '８年',
-                                    '9年以上'
-                                    ],
-      scaleHowMuch: ['全く理解してない',
-                                     '少し理解している',
-                                     'ある程度理解している',
-                                     'だいたい理解している',
-                                     'とてもよく理解している'
-                                     ], 
-      scaleHowOften:['全くしません',
-                                     'ごくたまにします',
-                                     '時々します',
-                                     'よくします',
-                                     'いつもします'
-                                     ]
-    },
-    
-    // Korean
-    ko: {
-      itlWord: '어떤 단어가 들렸나요?',
-      itlSyllable: '어떤 음절이 더 강했나요?',
-      fullScreen: `<p><br><br> <em>아래 버튼을 클릭하여
-        전체 화면 모드로 들어가 실험을 시작하십시오.</em></p>`,
-      continueButton:  '계속',
-      connectHeadphones: '헤드폰을 연결하고 볼륨을 조정하십시오.',
-      playSound: '소리 재생',
-      playAgain: '소리 다시 재생',
-      adjustVolume: '필요하면 볼륨을 조정하십시오.',
-      soundCheckOk: '소리가 편안한 볼륨으로 들림.',
-      recordSound: '오디오 녹음 시작',
-      startRecording: '녹음를 시작하려면 여기를 클릭하십시오.',
-      recordDialogue:'대화를 녹음하려면 여기를 클릭하십시오',
-      saySentence: '준비가 되면 클릭하여 다음과 같은 문장을 큰소리로 읽으십시오:',
-      doneRecording: '녹음이 완료되면 여기를 클릭하십시오.',     
-      speakNow: '지금 읽으십시오.',
-      recordAgain: '녹음 다시하기',
-      recordCheckOk: '녹음이 만족스럽다',
-      adjustMic: '필요면 마이크 설정을 조정하십시오.',
-      adjustMicAfter: '목소리가 들리셨나요? 필요하면 마이크 설정을 조정하고 다시 시도하십시오.<br> 설정을 변경한 후 페이지를 다시 로드해야 할 수 있습니다.',
-      productionTestSentence: `뚱뚱한 다람쥐가 나무 위에서 견과류를 먹고 있다.`, 
-      recordCheckNotOk: '작동이 안 된다.',
-      instructionsHeadphoneCheck: `<br> <em>다음은 헤드폰 테스트입니다.
-        헤드폰 없이는 이 작업을 수행할 수 없습니다.</em>  <p><br><br> 세 개의 소리를 연속으로 듣고,
-		그중에 어떤 소리가 가장 조용했는지 답할 것입니다.
-        <br><br> 이와 같은 작업을 6번 반복합니다 (총 2분밖에 걸리지 않음).
-        <br><br></p>`,
-      startHeadphoneTest: '세 가지 소리의 첫 번째 세트를 재생하기.',
-      questionHeadphoneTest: '어떤 소리가 가장 조용했나요?',
-      optionsHeadphoneTest: [
-        '첫번째 소리가 가장 조용했다.',
-        '두 번째 소리가 가장 조용했다.',
-        '세 번째 소리가 가장 조용했다.'
-      ],
-      naturalnessQuestion: '이 문장은 얼마나 자연스러웠나요?',
-      naturalnessQuestionContext: '문맥에 따른 답이 얼마나 자연스러웠나요?',
-      naturalnessOptions: ['전혀 부자연스러움','완전히 자연스러운.'],
-      //
-      // Music questionnaire 
-      mqTrainingTheory: '정식 음악 교육(이론)을 몇 년 정도 받으셨나요?',
-      mqKnowTheory: '음악 구조와 이론에 대해 얼마나 알고 있나요?',
-      mqTrainingPractice: '정식 음악 교육(실천)을 몇 년 정도 받으셨나요?',
-      mqMakeProfessional: `전문적인 음악 제작을 얼마나 자주 하나요? 
-        (예: 노래, 악기 연주, 작곡)`,
-      mqMakePractice: '악기나 노래를 연습 혹은 리허설을 얼마나 자주 했나요/하나요?',
-      mqMakeHobby: '음악 제작을 취미로 또는 아마추어로서 얼마나 자주 하나요?',
-      //
-      scaleYears:  [
-        '없다',
-        '1년',
-        '2년',
-        '3년',
-        '4년',
-        '5년',
-        '6년', 
-        '7년',
-        '8년',
-        '9년 이상'
-      ],
-      scaleHowMuch: [
-         '없다',
-         '조금',
-         '적당히',
-         '꽤 많이',
-         '아주 많이'
-      ], 
-      scaleHowOften: [
-        '전혀',
-        '아주 드물게',
-        '때때로',
-        '자주',
-        '항상'
-      ] 
-    },
-    
-    // Spanish (careful, mostly just google translate!)
-    es: {
-      fullScreen: `<p> <br> <br> <em> Haga clic en el botón abajo
-        para ingresar al modo de pantalla completa y empezar con el experimento </em> </p> `,
-      continueButton: 'Continuar',
-      connectHeadphones: '¡Conecte sus audífonos y ajuste el volumen, por favor!',
-      playSound: 'Reproducir sonido',
-      playAgain: 'Reproducir sonido de nuevo',
-      soundCheckOk: 'Puedo escuchar el sonido a un volumen cómodo',
-      adjustVolume: 'Ajuste el volumen si es necesario',
-      instructionsHeadphoneCheck: `<br> <em> Vamos hacer una prueba de sonido. Se requiere 
-        audífonos para realizar la prueba. </ em>
-        <p> <br> <br> Siga los tres sonidos y luego decida cuál fue el más suave.
-        <br> <br> Esta prueba se ejecutará 6 veces. (El tiempo total es de aproximadamente 2 minutos).
-        <br> <br> </ p>`,
-      startHeadphoneTest: '¡Reproducir el primer conjunto de tres sonidos!',
-      questionHeadphoneTest: '¿Qué sonido fue el más suave?',
-      optionsHeadphoneTest: [
-        'El primer sonido fue el más suave',
-        'El segundo sonido fue el más suave',
-        'El tercer sonido fue el más suave'
-      ],
-      naturalnessQuestion: '¿Qué tan natural le pareció la oración?',
-      naturalnessQuestionContext: '¿Qué tan natural le pareció la respuesta dado el contexto?',
-      naturalnessOptions: ['para nada natural', 'completamente natural'],
-     
-      // cuestionario de música
-      mqTrainingTheory: '¿Cuántos años de entrenamiento formal (teoría) en música ha recibido?',
-      mqKnowTheory: '¿Cuánto sabe sobre la estructura y la teoría de la música?',
-      mqTrainingPractice: '¿Cuántos años de entrenamiento formal (práctica) en música ha recibido?',
-      mqMakeProfessional: `¿Con qué frecuencia se involucra en la realización de música como profesional?
-        (p. ej., cantar, tocar un instrumento, componer)?`,
-      mqMakePractice: '¿Con qué frecuencia practica instrumentos musicales o canta?',
-      mqMakeHobby: '¿Con qué frecuencia se involucra en la música como pasatiempo o como aficionado?',
-     
-      //
-      scaleYears: [
-        'Ninguno',
-        '1 año',
-        '2 años',
-        '3 años',
-        '4 años',
-        '5 años',
-        '6 años',
-        '7 años',
-        '8 años',
-        'más de 8 años'
-      ],
-      scaleHowMuch: [
-         'Nada',
-         'Un poco',
-         'Una cantidad moderada',
-         'Bastante',
-         'Mucho'
-      ],
-      scaleHowOften: [
-        'Nunca',
-        'Raramente',
-        'Algunas veces',
-        'A menudo',
-        'Todo el tiempo'
-      ]
-    },
-    
-    // German
-    de: {
-      fullScreen: `<p> <br> <br> <em> Bitte klicken um in den Vollbildmodus zu wechseln 
-        und mit dem Experiment zu beginnen! </ em> </ p> `,
-      continueButton: 'Weiter',
-      connectHeadphones: 'Bitte Kopfhörer benutzen und Lautstärke einstellen!',
-      playSound: 'Aufnahme abspielen',
-      playAgain: 'Aufnahme noch mal abspielen',
-      soundCheckOk: 'Die Lautstärke ist angenehm',
-      adjustVolume: 'Lautstärke bei Bedarf bitte anpassen',
-      recordSound: 'Audioaufnahme jetzt starten',
-      startRecording: 'Klicken Sie hier, um die Aufnahme zu starten',
-      recordDialogue: 'Klicken Sie hier, um den Dialog aufzuzeichnen!',
-      saySentence: 'Wenn Sie fertig sind, klicken Sie und sagen Sie den folgenden Satz:',
-      doneRecording: 'Klicken Sie hier, wenn Sie mit der Aufnahme fertig sind',
-      speakNow: 'Bitte sprechen Sie jetzt!',
-      recordAgain: 'Aufnahme wiederholen',
-      recordCheckOk: 'Die Aufnahme klingt gut',
-      adjustMic: 'Gegebenenfalls Mikrofoneinstellungen anpassen',
-      adjustMicAfter: 'Haben Sie Ihre Stimme gehört? Wenn nicht, überprüfen Sie die Mikrofoneinstellungen und versuchen Sie es erneut!',
-      productionTestSentence: `Die Katze folgte dem Eichhörnchen heimlich zu seinem Nest.`,
-      recordCheckNotOk: 'Es klappt nicht',
-      instructionsHeadphoneCheck: `<br> <em> Es folgt ein Kopfhörertest -- Kopfhörer sind
-         dazu absolut notwendig! </ em> <p> <br> <br> Du wirst drei Töne hören, und 
-         musst dann beantworteen, welcher der leiseste von ihnen war.
-        <br> <br> Dies wird 6 Mal wiederholt (und dauert insgesamt etwa 2 Minuten).
-        <br> <br> </ p> `,
-      startHeadphoneTest: 'Die ersten drei Töne abspielen',
-      questionHeadphoneTest: 'Welcher Ton war am leisesten?',
-      optionsHeadphoneTest: [
-        'Der erste Ton war der leiseste.',
-        'Der zweite Ton war das leiseste.',
-        'Der dritte Ton war das leiseste.'
-      ],
-      naturalnessQuestion: 'Wie natürlich fanden Sie diesen Satz?',
-      naturalnessQuestionContext: 'Wie natürlich fanden Sie die Antwort in diesem Kontext?',
-      naturalnessOptions: ['völlig unnatürlich', 'völlig natürlich'],
-      
-      // Musikfragebogen
-      mqTrainingTheory: 'Wie viele Jahre formale Musikausbildung (Theorie) hatten Sie?',
-      mqKnowTheory: 'Wie viel wissen Sie über Musikstruktur und -theorie?',
-      mqTrainingPractice: 'Wie viele Jahre formale Musikausbildung (Praxis) hatten Sie?',
-      mqMakeProfessional: `Wie oft machen Sie professionell Musik
-        (z. B. singen, ein Instrument spielen, komponieren)? `,
-      mqMakePractice: 'Wie oft üben Sie heute oder haben Sie früher geübt (ob singen oder mit Instrument)?',
-      mqMakeHobby: 'Wie oft machen Sie Hobby-mäßig Musik?',
-      //
-      scaleYears: [
-        'Gar nicht oder weniger als 1 Jahr',
-        '1 Jahr',
-        '2 Jahre',
-        '3 Jahre',
-        '4 Jahre',
-        '5 Jahre',
-        '6 Jahre',
-        '7 Jahre',
-        '8 Jahre',
-        "mehr als 8 Jahre"
-      ],
-      scaleHowMuch: [
-         'Nichts',
-         'Ein wenig',
-         "Einigermaßen viel",
-         "Relativ viel",
-         'Sehr viel'
-      ],
-      scaleHowOften: [
-        'Noch nie',
-        'Selten',
-        'Manchmal',
-        'Häufig',
-        'Ständig'
-      ]
-    },
-    
-    // Dutch  
-    nl: {
-      fullScreen: `<p><br><br> <em>Klik op de onderstaande knop om volledig scherm te openen and het experiment te beginnen</em></p>`,
-      continueButton:  'Volgende',
-      connectHeadphones: 'Steek de koptelefoon in and pas het volume aan!',
-      playSound: 'Geluid afspelen',
-      recordSound: 'Begin opname',
-      playAgain: 'Geluid opnieuw afspelen',
-      startRecording: 'Klik hier om de opname te beginnen',
-      recordDialogue: 'Klik hier om het dialoog op te nemen!',
-      saySentence: 'Als u zover bent, klik hier en spreek de volgende zin in:',
-      doneRecording: 'Klik hier als u klaar bent met de opname.',
-      speakNow: 'Begin met spreken',
-      recordAgain: 'Opnieuw opnemen',
-      soundCheckOk: 'Ik hoor het geluid op een comfortabel volume',
-      recordCheckOk: 'De opname klinkt goed',
-      recordCheckNotOk: 'Ik krijg het niet aan de praat',
-      adjustVolume: 'Pas het volume aan indien nodig',
-      adjustMic: 'Pas de microfoon configuratie aan indien nodig',
-      adjustMicAfter: 'Heeft u uw stem gehoord? Zo niet, controleer dan de microfooninstellingen en probeer het opnieuw',
-      productionTestSentence: `Een andere naam voor Den Haag is 's-Gravenhage.`,
-      instructionsHeadphoneCheck: `<br> <em>Nu komt een koptelefoon test -- hiervoor heb je een koptelefoon nodig!</em>  <p><br><br> Je krijgt drie geluiden 
-      in een reeks te horen, aan jou de taak om te bepalen welke het zachtste is.         
-      <br><br> Deze taak wordt 6 keer herhaald (dit duurt slechts 2 minuten).
-        <br><br></p>`,
-      startHeadphoneTest: 'Speel de eerste reeks met drie geluiden af!',
-      questionHeadphoneTest: 'Welk geluid was het zachtst?',
-      optionsHeadphoneTest: [
-        'Het eerste geluid was het zachtst.',
-        'Het tweede geluid was het zachtst.',
-        'Het derde geluid was het zachtst.'
-      ],
-      naturalnessQuestion: 'Hoe natuurlijk klonk deze zin?',
-      naturalnessQuestionContext: 'Hoe natuurlijk klonk het antwoord met de gegeven context?',
-      naturalnessOptions: ['volledig onnatuurlijk','volledig natuurlijk'],
-      //
-      // Music questionnaire 
-      mqTrainingTheory: 'Hoeveel jaar formele muzikale training heb jij gehad?',
-      mqKnowTheory: 'Hoeveel weet jij over muzikale structuren and muziektheorie?',
-      mqTrainingPractice: 'Hoeveel jaar heb jij een muziekinstrument bespeelt op hoog niveau?',
-      mqMakeProfessional: `Hoe vaak houd jij je bezig met muziek op hoog niveau 
-      (bijv. zang, instrument bespelen, componeren)?`,
-      mqMakePractice: 'Hoe vaak speel/speelde je een muziekinstrument of zing/zong jij?',
-      mqMakeHobby: 'Hoe vaak houd jij je bezig met muziek als een hobby of als amateur?',
-      //
-      scaleYears:  [
-        'nooit',
-        '1 jaar',
-        '2 jaar',
-        '3 jaar',
-        '4 jaar',
-        '5 jaar',
-        '6 jaar', 
-        '7 jaar',
-        '8 jaar',
-        'meer dan 8 jaar'
-      ],
-      scaleHowMuch: [
-         'Niks',
-         'Een beetje',
-         'Best wel veel',
-         'Veel',
-         'Heel veel'
-      ], 
-      scaleHowOften: [
-        'Nooit',
-        'Zelden',
-        'Soms',
-        'Vaak',
-        'Altijd'
-      ] 
-    },
-    
-    // Mandarin
-    'zh-cn':{
-      fullScreen:`<p> <br> <br> <em>请点击下面的按钮
-        进入全屏模式并开始实验</ em> </ p>`,
-      continueButton:'继续',
-      completionCode: '完成码',
-      connectHeadphones:'请连接耳机并调节音量！',
-      playSound: '播放声音',
-      playAgain: '再次播放声音',
-      soundCheckOk: '我可以听到声音且音量适中',
-      adjustVolume: '如需要请调节音量',
-      recordSound:'立即开始录音',
-      startRecording:'单击此处开始录音',
-      recordDialogue:'单击此处录对话',
-      saySentence:'准备就绪后,单击并说以下句子:',
-      doneRecording:'录完后,请单击此处',
-      speakNow:'请现在发音！',
-      recordAgain:'重新录音',
-      recordCheckOk:'录音听起来不错',
-      adjustMic:'必要时调整麦克风设置',
-      adjustMicAfter:'听到你的声音了吗？如果需要,再次调整麦克风音量',
-      productionTestSentence:'北风承认还是太阳的本事大',
-      recordCheckNotOk:'我无法使它正常工作',
-      instructionsHeadphoneCheck: `<br> <em>以下是耳机测试---您需要戴上耳机
-才能开始测试！</ em> <p> <br> <br>您将连续听到三个声音
-      ,请回答哪个声音最小。
-        <br> <br>此任务将重复6次（此过程仅需2分钟）。
-        <br> <br> </ p>`,
-      startHeadphoneTest: '播放第一组的三个声音！',
-      questionHeadphoneTest: '哪个声音最小？',
-      optionsHeadphoneTest:[
-        '第一声最小。',
-        '第二声最小。',
-        '第三声最小。'
-      ],
-      rateScale: '请在此区间内评分',
-      naturalnessQuestion: '您觉得这句话有多自然？',
-      naturalnessQuestionContext: '联系上下文, 您认为该回答有多自然？',
-      naturalnessOptions: ['完全不自然','完全自然'],
-      completionCode: '完成码',
-            // Music questionnaire
-      mqTrainingTheory: '您接受了多少年的正规音乐培训（理论) ?',
-      mqKnowTheory: '您对音乐的结构和理论了解多少?',
-      mqTrainingPractice: '您接受了多少年的正规音乐培训（练习) ?',
-      mqMakeProfessional: `您多长时间从事一次专业音乐制作
-        （例如:唱歌, 弹奏乐器, 作曲) ?`,
-      mqMakePractice: '您多久进行一次乐器或歌唱练习/排练？',
-      mqMakeHobby: '您多久从事一次业余音乐制作?',
-      //
-      scaleYears:  [
-        '无',
-        '1  年',
-        '2 年',
-        '3 年',
-        '4 年',
-        '5 年',
-        '6 年',
-        '7 年',
-        '8 年',
-        '超过8年'
-      ],
-      scaleHowMuch: [
-         '无',
-         '一点',
-         '相当数量',
-         '适量',
-         '很多'
-      ],
-      scaleHowOften: [
-        '从不',
-        '很少',
-        '有时',
-        '经常',
-        '每时每刻'
-      ]
-    },
-    
-    // Korean (careful, just google translate!)
-    ko: {
-      fullScreen:`<p> <br> <br> <em> 아래 버튼을 클릭하십시오
-        전체 화면 모드로 들어가서 실험으로 시작 </ em> </ p>`,
-      continueButton: '계속',
-      connectHeadphones: '헤드폰을 연결하고 볼륨을 조정하십시오!',
-      playAgain: '다시 소리 재생',
-      soundCheckOk: '편안한 볼륨으로 소리를들을 수 있습니다',
-      adjustVolume : '필요한 경우 볼륨 조정',
-      instructionsHeadphoneCheck:`<br> <em> 다음은 헤드폰 테스트입니다.
-        헤드폰없이이 작업을 수행 할 수 있습니다! </ em> <p> <br> <br>
-        연속해서 들리면 어느 것이 가장 조용한 지 묻습니다.
-        <br> <br>이 작업은 6 번 반복됩니다 (2 분 소요).
-        <br> <br> </ p>`,
-      startHeadphoneTest: '첫 번째 세 세트의 사운드를 연주하십시오!',
-      questionHeadphoneTest: '어떤 소리가 가장 조용한가?',
-      optionsHeadphoneTest: [
-        '첫 번째 소리가 가장 부드럽습니다.',
-        '두 번째 소리가 가장 부드럽습니다.',
-        '세번째 소리가 가장 부드럽습니다.'
-      ],
-      naturalnessQuestion: '이 문장을 얼마나 자연스럽게 찾았습니까?',
-      naturalnessQuestionContext: '컨텍스트가 주어진 응답을 얼마나 자연스럽게 찾았습니까?',
-      naturalnessOptions: [ '완전히 부자연 스러움', '완전히 자연 스러움'],
-      
-      // Music questionnaire 
-      mqTrainingTheory: '몇 년 동안 공식 음악 교육 (이론)을 받았습니까',
-      mqKnowTheory: '음악 구조와 이론에 대해 얼마나 알고 있습니까',
-      mqTrainingPractice: '몇 년 동안 공식 음악 훈련 (연습)을 했습니까',
-      mqMakeProfessional: `전문 음악 제작에 얼마나 자주 참여하십니까 (예 : 노래, 악기 연주, 작곡)`,
-      mqMakePractice: '악기 나 노래로 얼마나 자주 연습하거나 연습합니까',
-      mqMakeHobby: '취미 나 아마추어로서 음악 제작에 얼마나 자주 참여하십니까',
-      //
-      scaleYears:  [
-        '없음',
-        '일년',
-        '2 년',
-        '3 년',
-        '4 년',
-        '5 년',
-        '6 년',
-        '7 년',
-        '8 년',
-        '8 년 이상'
-      ],
-      scaleHowMuch: [
-         '아무것도',
-         '조금',
-         '공정한 금액',
-         '중간 정도',
-         '아주 더'
-      ], 
-      scaleHowOften: [
-        '못',
-        '드물게',
-        '때때로',
-        '자주',
-        '항상'
-      ] 
-      
-      
-    }
-    }
-    
-    return messages[language];
-  },
   
   getURLParameters: function() {
   // get URL parameters from web address
@@ -835,16 +174,67 @@ prosodylab = {
   },
 
   // load tab-delimited csv and convert to html
-  loadCSV: function(fileName) {
+  loadCSV: function(fileName, header=true) {
     let txt = this.loadTxt(fileName);
     txt = Papa.parse(txt, {
-      header: true,
+      header: header,
       delimiter: '\t'
     });;
     return txt.data;
   },
+
+  transpose: function(a) {
+
+  // Calculate the width and height of the Array
+  var w = a.length || 0;
+  var h = a[0] instanceof Array ? a[0].length : 0;
+
+  // In case it is a zero matrix, no transpose routine needed.
+  if(h === 0 || w === 0) { return []; }
+
+  /**
+   * @var {Number} i Counter
+   * @var {Number} j Counter
+   * @var {Array} t Transposed data is stored in this array.
+   */
+  var i, j, t = [];
+
+  // Loop through every item in the outer array (height)
+  for(i=0; i<h; i++) {
+
+    // Insert a new row (array)
+    t[i] = [];
+
+    // Loop through every item per item in outer array (width)
+    for(j=0; j<w; j++) {
+
+      // Save transposed data.
+      t[i][j] = a[j][i];
+    }
+  }
+
+  return t;
+},
+
+  getMessages: function(language){
+  	// load messages spreadsheet and return messages from desired language
+    var allMessages = this.loadCSV(`prosodylab/messages.tsv`,false);
+    var allMessages = this.transpose(allMessages);
+ 
+    var languages  = allMessages.map(x => x[0]);
+    var thisLanguage = languages.indexOf(language);
+
+    // create new object with messages from the desired language
+    var keys = allMessages[0];
+    var values = allMessages[thisLanguage];
+    var messages = {};
+    keys.forEach((key, i) => messages[key] = values[i]);
   
-    saveData: function(fileName,format){
+   return messages;
+ 
+  },
+
+  saveData: function(fileName,format){
     // save  as json by default
     if (!format){ format = 'json';}
     // add extension to filename

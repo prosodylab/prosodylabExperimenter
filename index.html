@@ -125,9 +125,10 @@ const contactEmail = ''
 //  Set basic parameters for the study 
 
 // load messages for interaction with participant:
-const messages  = prosodylab.getMessages(study.language);
 
- allMessages = prosodylab.loadCSV(`prosodylab/messages.tsv`);
+const messages = prosodylab.getMessages(study.language);
+ 
+
  
 // Get urlParams if there are any
 let urlParams = prosodylab.getURLParameters();
@@ -158,7 +159,7 @@ if (!participantCode) {
   // load spreadsheet with all experiments, global variable
   stimuli = prosodylab.loadCSV(`${study.path}/${study.stimulusFile}`);
   
-
+ console.log('stimuli',stimuli);
 
  // set experiment mode if specified in urlParams
   let mode = [];
