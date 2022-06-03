@@ -1302,7 +1302,7 @@ So far only implemented: Module 1, musicianship
   saveAudio: function(filename,path, audioData,lab) {
   
     if (!lab){ var lab = ""}
-    var url = 'prosodylab/record_audio.php'; // external .php file that should be in same folder as your experiment
+    var url = 'prosodylab/write_audio.php'; // external .php file that should be in same folder as your experiment
 
     form_data = new FormData();
     form_data.append("filename", filename);
