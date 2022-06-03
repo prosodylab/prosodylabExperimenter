@@ -64,13 +64,13 @@ path from study.path to data/recordedFiles is hardcoded right now, desirable?
 // path and study file:
 let study = {
   path: 'experiment', // contains folders with  audio/images if applicable
-  stimulusFile: 'rhymeShortest.tsv' 
+  stimulusFile: 'phocusTwo.tsv' 
 }; 
 
 // other settings for study:
 study = {...study, 
   //
-  testRun: true, // **if true, no data will be recorded**
+  testRun: false, // **if true, no data will be recorded**
   //
   language: 'en', // set which language interaction will be in
   //
@@ -106,7 +106,7 @@ study = {...study,
   consent: true,
   languageQuestionnaire: true,
   soundCheck: true,
-  micCheck: false,
+  micCheck: true,
   headphoneScreener: false,
   experimentSessions: true,
   postExQuestionnaire: true,
@@ -234,8 +234,9 @@ if (!participantCode) {
   // you can pass sentence that participant should produce as argument
   if (study.micCheck&!study.experimentOnly){
     prosodylab.audioRecorder(study.testRun,true);
-    soundFileName = `${study.path}/data/recordedFiles/${participantCode}_miccheck`;
-    timeline = [...timeline, ...prosodylab.micCheck(soundFileName,study.recordingTimeOut)];
+    soundFilePath = `${study.path}/dataSound/`;
+    soundFileName = `${participantCode}_miccheck`;
+    timeline = [...timeline, ...prosodylab.micCheck(soundFileName,soundFilePath,study.recordingTimeOut)];
   }
 
   

@@ -445,7 +445,7 @@ So far only implemented: Module 1, musicianship
     return soundCheck;
   },
   
-  micCheck: function(soundFileName,recordingTimeOut,lab) {
+  micCheck: function(soundName,soundPath,recordingTimeOut,lab) {
       
     if (!lab){
       var lab = messages.productionTestSentence;
@@ -476,12 +476,12 @@ So far only implemented: Module 1, musicianship
     
     var recordLoop = [];
     
-    soundFileName = `micCheck_${participantCode}`
+    //soundFileName = `micCheck_${participantCode}`
 
     let html = `<em>${messages.speakNow}</em>
       <br><br> <b>${lab}</b> <br><br>`;
     
-     recordLoop.push(...prosodylab.recordTillClick(html, {component: `micCheckRecording`},soundFileName,lab));  
+     recordLoop.push(...prosodylab.recordTillClick(html, {component: `micCheckRecording`},soundName,lab));  
   
     const choiceOne = messages.recordAgain;
     const choiceTwo = messages.recordCheckOk;
@@ -1167,12 +1167,12 @@ So far only implemented: Module 1, musicianship
   
 
   // start audio recording
-  startRecording: function (fileName,labtext) {
+  startRecording: function (soundFileName,labtext) {
    return {
     type: "call-function", 
     func: function() {
       chunks = []; // clears  prior recordings
-      soundFileName = `${study.path}/dataSound/${fileName}`; 
+      soundFilePath = `${study.path}/dataSound/`; 
       lab = labtext;
       recorder.start();
     }
@@ -1299,13 +1299,14 @@ So far only implemented: Module 1, musicianship
 
   // save audio data
   // this should be turned into async function!
-  saveAudio: function(filename, audioData,lab) {
+  saveAudio: function(filename,path, audioData,lab) {
   
     if (!lab){ var lab = ""}
     var url = 'prosodylab/record_audio.php'; // external .php file that should be in same folder as your experiment
 
     form_data = new FormData();
     form_data.append("filename", filename);
+    form_data.append("path", path);
     form_data.append("filedata", audioData);
     form_data.append("lab", lab);
     fetch(url, {
@@ -1340,7 +1341,8 @@ So far only implemented: Module 1, musicianship
         let blob = new Blob(chunks,{type:'audio/webm'});
         audioUrl = URL.createObjectURL(blob);
         if(!testRun) {
-          prosodylab.saveAudio(soundFileName, blob,lab);
+          console.log('soundFileName', soundFileName, 'soundFilePath',soundFilePath);
+          prosodylab.saveAudio(soundFileName, soundFilePath, blob,lab);
         }
         if(play){
           var audio = new Audio(audioUrl);
