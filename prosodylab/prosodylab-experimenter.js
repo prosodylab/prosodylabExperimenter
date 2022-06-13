@@ -184,6 +184,17 @@ prosodylab = {
   },
 
 
+  convertToJSON: function(string){
+  // convert to json if possible, if not, keep as is
+  
+   try {  string = JSON.parse(string); } 
+   catch(e) {}
+
+   return string;
+  
+  },
+
+
   getMessages: function(language){
   	// load messages spreadsheet and return messages from desired language
     var allMessages = this.loadCSV(`prosodylab/messages.tsv`,false);
@@ -199,8 +210,8 @@ prosodylab = {
     var keys = allMessages[0];
     var values = allMessages[thisLanguage];
     var messages = {};
-    keys.forEach((key, i) => messages[key] = values[i]);
-  
+    keys.forEach((key, i) => messages[key] = this.convertToJSON(values[i]));
+    
    return messages;
  
   },
@@ -1168,11 +1179,13 @@ So far only implemented: Module 1, musicianship
 
   // start audio recording
   startRecording: function (soundFileName,labtext) {
+   soundFileNameSave = soundFileName;
    return {
     type: "call-function", 
     func: function() {
       chunks = []; // clears  prior recordings
-      soundFilePath = `${study.path}/dataSound/`; 
+      soundFilePath = `${study.path}/dataSound/`;
+      audioName = soundFileName; 
       lab = labtext;
       recorder.start();
     }
@@ -1315,7 +1328,7 @@ So far only implemented: Module 1, musicianship
     });
   },
   
-  // throw error
+  // throw error on screen
   errorQuit: function (message) {
    var body = document.getElementsByTagName('body')[0];
    body.innerHTML = '<p style="color: #FF0000">'+message+'</p>'+body.innerHTML;
@@ -1341,8 +1354,8 @@ So far only implemented: Module 1, musicianship
         let blob = new Blob(chunks,{type:'audio/webm'});
         audioUrl = URL.createObjectURL(blob);
         if(!testRun) {
-          console.log('soundFileName', soundFileName, 'soundFilePath',soundFilePath);
-          prosodylab.saveAudio(soundFileName, soundFilePath, blob,lab);
+          //console.log('audioName', audioName, 'soundFilePath',soundFilePath);
+          prosodylab.saveAudio(audioName, soundFilePath, blob,lab);
         }
         if(play){
           var audio = new Audio(audioUrl);
