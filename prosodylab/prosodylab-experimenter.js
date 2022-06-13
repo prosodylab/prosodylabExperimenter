@@ -184,6 +184,17 @@ prosodylab = {
   },
 
 
+  convertToJSON: function(string){
+  // convert to json if possible, if not, keep as is
+  
+   try {  string = JSON.parse(string); } 
+   catch(e) {}
+
+   return string;
+  
+  },
+
+
   getMessages: function(language){
   	// load messages spreadsheet and return messages from desired language
     var allMessages = this.loadCSV(`prosodylab/messages.tsv`,false);
@@ -199,11 +210,12 @@ prosodylab = {
     var keys = allMessages[0];
     var values = allMessages[thisLanguage];
     var messages = {};
-    keys.forEach((key, i) => messages[key] = values[i]);
-  
+    keys.forEach((key, i) => messages[key] = this.convertToJSON(values[i]));
+    
    return messages;
  
   },
+
 
   saveData: function(fileName,format){
     // save  as json by default
