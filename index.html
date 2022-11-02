@@ -49,6 +49,8 @@ path from study.path to data/recordedFiles is hardcoded right now, desirable?
 
     <!-- prosodylab -->
     <script src="prosodylab/prosodylab-experimenter.js"></script>
+    <script src="prosodylab/headPhoneScreener.js"></script>
+    
     
     <!-- css -->
     <link href="javascripts/jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
@@ -71,6 +73,8 @@ let study = {
 study = {...study, 
   //
   testRun: false, // **if true, no data will be recorded**
+  //
+  align: true,
   //
   language: 'en', // set which language interaction will be in
   //
@@ -99,15 +103,21 @@ study = {...study,
   // Various options settings:
   displayDataAfterFinish: false, // shows collected data in json format after
   showProgressBar: true, // shows progress to participant during study
-  fullScreen: true, // doesn't work with IE, but will simply proceed anyway
+  fullScreen: false, // doesn't work with IE, but will simply proceed anyway
   //
   // Switch certain parts of study on or off
-  hello: true,
-  consent: true,
-  languageQuestionnaire: true,
-  soundCheck: true,
-  micCheck: true,
-  headphoneScreener: false,
+  hello: false,
+  consent: false,
+  languageQuestionnaire: false,
+  soundCheck: false,
+  micCheck: false,
+  headphoneScreener: true,
+  headphoneScreenerOptions: {
+    stimuli: 'short', // options: ['short','original'],
+    secondChance: false, // tell participant when they failed and offer second chance,
+    excludeOnFail: false, // end experiment if participant fails
+    threshold: 5/6 // if equal or higher, participant passes
+  },
   experimentSessions: true,
   postExQuestionnaire: true,
   musicQuestionnaire: false,
@@ -157,7 +167,7 @@ if (!participantCode) {
   // load spreadsheet with all experiments, global variable
   stimuli = prosodylab.loadCSV(`${study.path}/${study.stimulusFile}`);
   
- console.log('stimuli',stimuli);
+// console.log('stimuli',stimuli);
 
  // set experiment mode if specified in urlParams
   let mode = [];
@@ -268,7 +278,7 @@ if (!participantCode) {
   // ---- head phone screener ----
   
   if (study.headphoneScreener&!study.experimentOnly){
-     timeline = [...timeline, ...prosodylab.headPhoneScreener()];
+     timeline = [...timeline, ...headPhoneScreener(study.headphoneScreenerOptions)];
   }
   
   //  
