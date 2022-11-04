@@ -189,8 +189,7 @@ function headPhoneScreener(options) {
         type: "call-function",
         func: function() {
             // get hpScore
-            var hpScore = jsPsych.data.get().last(1).values()[0].value;
-    
+            let hpScore = jsPsych.data.get().last(1).values()[0].value;
             let belowThreshold = hpScore < options.threshold;
             let abortExperiment = belowThreshold && options.excludeOnFail;
 
@@ -204,22 +203,19 @@ function headPhoneScreener(options) {
             component: 'headPhoneScreener' 
         },
         on_finish: function(data){
-            console.log('study.completionFailLink.length>0&&participantCode',study.completionFailLink.length>0);
-
             if(data.value.abortExperiment){
               if (study.completionFailLink.length>0&&participantCode) {
                  var flagText = `<div style="font-size:50px;color:red">
                     <em><br><br><br> ${study.failMessage}</em></div>`;
                  prosodylab.showText({component:'failMessage' },5000,flagText);
-                 location.href=study.completionFailLink
+                 location.href=study.completionFailLink;
+                 jsPsych.endExperiment(study.failMessage);
               } else {
                 jsPsych.endExperiment(study.failMessage)
               };
             }
           }
         };
-
-    // headPhoneScreenerTrial = [...headPhoneScreenerTrial, ...headPhoneLoop];
 
     headPhoneScreenerTrial.push(resultHPLoop)
 
