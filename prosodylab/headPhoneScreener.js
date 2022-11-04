@@ -1,23 +1,35 @@
 // implements headphone screener task from McDermott et al. 
-// with option of shorter sounds (created by M.W.)
+// with option of shorter sounds (shorter sounds are published on prosodylab github)
 // optionally can be repeated if participant fails
 // optionally leads to end of experiment if participant fails
 
 // todo: select soundfiles according to options
 // implement mixed? 
-// end on fail option
-// loop option for second round
+// end on fail option: if return link exist, return to prolific but without payment
+
 
 function headPhoneScreener(options) {
 
     const path = 'prosodylab/headphonescreener'
-    const sounds = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
-    
+
+    var sounds = [];
     let headPhoneScreenerTrial= [];
     let headPhoneLoop = [];
     let playSound = [];
     let question = [];
-    let round = 1;
+    let currentHeadPhoneLoop = 1;
+
+    if (options.stimuli == 'short'){
+         sounds = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
+    } else if (options.stimuli =='original'){
+        sounds = ['antiphase_HC_IOS.wav',
+        'antiphase_HC_ISO.wav',
+        'antiphase_HC_OIS.wav',
+        'antiphase_HC_OSI.wav',
+        'antiphase_HC_SIO.wav',
+        'antiphase_HC_SOI.wav'
+        ];
+    };
     
     const instructionsHeadPhoneScreener = {
       type: 'html-button-response',
@@ -69,7 +81,7 @@ function headPhoneScreener(options) {
             correctButton: correctButton
           }
         }
-        // headPhoneLoop.push(playSound);
+        //headPhoneLoop.push(playSound);
         
       }
       
@@ -95,7 +107,7 @@ function headPhoneScreener(options) {
       }      
       headPhoneLoop.push(question);
       
-    }
+    };
 
     var computeScore = {
         type: "call-function",
@@ -114,11 +126,15 @@ function headPhoneScreener(options) {
             const average = array => array.reduce((a, b) => a + b) / array.length;
             hpScore = average(hpScore);
 
-            console.log('hpScore', typeof(hpScore),hpScore);
-
-            return(hpScore);
+            return hpScore;
+        },
+        data: {
+            currentHeadPhoneLoop: function() { 
+            return currentHeadPhoneLoop; 
+          }
         }
-    } 
+    };
+    //secondScreen.data = {...secondScreen.Data,imageOrder: trial.imageOrder};
 
     headPhoneLoop.push(computeScore);
 
@@ -137,7 +153,7 @@ function headPhoneScreener(options) {
           trialPart:  'Headphone screener ask whether to do it again',
           choices: messages.headPhoneScreenerAgainOptions
         },
-    }
+    };
 
     var if_node = {
         timeline: [headPhoneScreenerAgain],
@@ -145,9 +161,8 @@ function headPhoneScreener(options) {
             // get the hpScore and check whether participant passed
             var data = jsPsych.data.get().last(1).values()[0];
 
-            console.log('if<threshold',data.value,data.value < options.threshold);
-
-            if(data.value < options.threshold){
+            if(data.value < options.threshold && data.currentHeadPhoneLoop < options.numberChances){
+                currentHeadPhoneLoop = currentHeadPhoneLoop + 1;
                 return true;
             } else {
                 return false;
@@ -166,10 +181,47 @@ function headPhoneScreener(options) {
           return false;
         }
       }
-    } 
+    };
+    
+    headPhoneScreenerTrial.push(loop_node);
+
+    var resultHPLoop = {
+        type: "call-function",
+        func: function() {
+            // get hpScore
+            var hpScore = jsPsych.data.get().last(1).values()[0].value;
+    
+            let belowThreshold = hpScore < options.threshold;
+            let abortExperiment = belowThreshold && options.excludeOnFail;
+
+            return {
+                hpScore: hpScore, 
+                belowThreshold: belowThreshold, 
+                abortExperiment: abortExperiment
+            };
+        },
+        data: {
+            component: 'headPhoneScreener' 
+        },
+        on_finish: function(data){
+            console.log('study.completionFailLink.length>0&&participantCode',study.completionFailLink.length>0);
+
+            if(data.value.abortExperiment){
+              if (study.completionFailLink.length>0&&participantCode) {
+                 var flagText = `<div style="font-size:50px;color:red">
+                    <em><br><br><br> ${study.failMessage}</em></div>`;
+                 prosodylab.showText({component:'failMessage' },5000,flagText);
+                 location.href=study.completionFailLink
+              } else {
+                jsPsych.endExperiment(study.failMessage)
+              };
+            }
+          }
+        };
 
     // headPhoneScreenerTrial = [...headPhoneScreenerTrial, ...headPhoneLoop];
-    headPhoneScreenerTrial.push(loop_node);
+
+    headPhoneScreenerTrial.push(resultHPLoop)
 
     return headPhoneScreenerTrial;
   }

@@ -452,7 +452,7 @@ So far only implemented: Module 1, musicianship
         }
       }
     }
-    soundCheck.push(loop_node);https://open.spotify.com/artist/4QkSD9TRUnMtI8Fq1jXJJe
+    soundCheck.push(loop_node);
 
     return soundCheck;
   },

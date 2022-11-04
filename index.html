@@ -86,6 +86,9 @@ study = {...study,
   completionLink: "", // link to send participant after end, e.g. for Prolific studies
   completionCode: "", // not necessary unless it will be displayed at the end
   //
+  completionFailLink: "https://app.prolific.co/submissions/complete?cc=CVQQOK6I",
+  failMessage: "The experiment was ended because you didn't pass the headphone test. Thanks for trying!",
+  //
   pListMethod: 'log',/* Some designs (Blocked, Between, LatinSquare, Within) 
        assign different types of playlists to different participants. 
        --  'log' = use log to count which playlist has been run least
@@ -114,8 +117,8 @@ study = {...study,
   headphoneScreener: true,
   headphoneScreenerOptions: {
     stimuli: 'short', // options: ['short','original'],
-    secondChance: false, // tell participant when they failed and offer second chance,
-    excludeOnFail: false, // end experiment if participant fails
+    numberChances: 2, // how many attempts do participants get?
+    excludeOnFail: true, // end experiment if participant fails after last attempt
     threshold: 5/6 // if equal or higher, participant passes
   },
   experimentSessions: true,
@@ -237,7 +240,7 @@ if (!participantCode) {
     preload.images.push('prosodylab/headphones_frieda.jpg');
     timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
   }
-  
+
   // ---- mic check (should be done if recording is involved)
   // you can pass sentence that participant should produce as argument
   if (study.micCheck&!study.experimentOnly){
@@ -247,14 +250,7 @@ if (!participantCode) {
     timeline = [...timeline, ...prosodylab.micCheck(soundFileName,soundFilePath,study.recordingTimeOut)];
   }
 
-  
-  // ---- full screen mode if applicable --
-  
- if (study.fullScreen&!study.experimentOnly) {
-    timeline.push(prosodylab.fullScreenOn());
-  }
-  
-  //  ---- consent page  ----
+   //  ---- consent page  ----
   
   // The last paragraph of the consent  form will be the  consent button
   // and will  be stored with the participant's data:
@@ -267,19 +263,25 @@ if (!participantCode) {
     }
     timeline.push(prosodylab.screenFromMD(mdFile,'consent','left'));
   }
+
+ // ---- head phone screener ----
   
+ if (study.headphoneScreener&!study.experimentOnly){
+     timeline = [...timeline, ...headPhoneScreener(study.headphoneScreenerOptions)];
+  }
+    
   // ---- language questionnaire ---
 
   if (study.languageQuestionnaire&!study.experimentOnly){
    timeline.push(prosodylab.languageQuestionnaire(study.language));
   }
     
+  // ---- full screen mode if applicable --
   
-  // ---- head phone screener ----
-  
-  if (study.headphoneScreener&!study.experimentOnly){
-     timeline = [...timeline, ...headPhoneScreener(study.headphoneScreenerOptions)];
+ if (study.fullScreen&!study.experimentOnly) {
+    timeline.push(prosodylab.fullScreenOn());
   }
+ 
   
   //  
   //  ---- build sessions of experiment trials and add to timeline  ----
