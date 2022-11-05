@@ -337,10 +337,10 @@ prosodylab = {
   
   
   // Post-experiment questions
-  postExQuestionnaire: function(language) {
+  postExperimentQuestionnaire: function(language) {
     if (!language) {language = 'en'}
     let postEx = [];
-    postEx.html = prosodylab.loadTxt(`prosodylab/debriefing_${language}.html`);
+    postEx.html = prosodylab.loadTxt(`prosodylab/postExperimentQuestionnaire/postExperiment_${language}.html`);
     postEx.type = 'survey-html-form';
     postEx.button_label = messages.continueButton,
     postEx.data = {
@@ -354,7 +354,7 @@ prosodylab = {
   languageQuestionnaire: function(language) {
     if (!language) {language = 'en'}
     
-    const lq = prosodylab.loadTxt(`prosodylab/languageQuestionnaire_${language}.html`);
+    const lq = prosodylab.loadTxt(`prosodylab/languageQuestionnaire/languageQuestionnaire_${language}.html`);
     const languageQuestionnaire = {
       type: 'survey-html-form',
       html: lq,

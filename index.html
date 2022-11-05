@@ -54,7 +54,7 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/imp
 
     <!-- prosodylab -->
     <script src="prosodylab/prosodylab-experimenter.js"></script>
-    <script src="prosodylab/headPhoneScreener.js"></script>
+    <script src="prosodylab/headPhoneScreener/headPhoneScreener.js"></script>
     
     
     <!-- css -->
@@ -112,13 +112,13 @@ study = {...study,
   fullScreen: false, // doesn't work with IE, but will simply proceed anyway
   //
   // Switch certain parts of study on or off
-  hello: true,
-  consent: true,
+  hello: false,
+  consent: false,
   languageQuestionnaire: true,
-  soundCheck:true,
-  micCheck: true,
+  soundCheck:false,
+  micCheck: false,
   headphoneScreener: {
-    includeHeadPhoneScreener: true,
+    includeHeadPhoneScreener: false,
     stimuli: 'original', // options: ['short','original'],
     numberChances: 2, // how many attempts do participants get?
     threshold: 5/6, // if equal or higher, participant passes,
@@ -130,7 +130,7 @@ study = {...study,
     failMessage: ""
   },
   experimentSessions: true,
-  postExQuestionnaire: true,
+  postExperimentQuestionnaire: true,
   musicQuestionnaire: false,
   goodbye: false,
   thankYou: true,
@@ -306,8 +306,8 @@ if (!participantCode) {
   
   // ---- post-experiment questionnaire ---
   
-  if (study.postExQuestionnaire&(!study.experimentOnly||mode=='finalPart')){
-    timeline.push(prosodylab.postExQuestionnaire(study.language));
+  if (study.postExperimentQuestionnaire&(!study.experimentOnly||mode=='finalPart')){
+    timeline.push(prosodylab.postExperimentQuestionnaire(study.language));
   }
   
   // ---- music questionnaire ---

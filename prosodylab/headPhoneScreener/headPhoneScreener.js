@@ -3,10 +3,6 @@
 // optionally can be repeated if participant fails
 // optionally leads to end of experiment if participant fails
 
-// todo: select soundfiles according to options
-// implement mixed? 
-// end on fail option: if return link exist, return to prolific but without payment
-
 function headPhoneScreener(options) {
 
   // timelines
@@ -111,7 +107,7 @@ function headPhoneScreener(options) {
         correctButton: correctButton
       }
     }
-    //headPhoneLoop.push(playSound);
+    headPhoneLoop.push(playSound);
 
     question = {
       type: 'html-button-response',
