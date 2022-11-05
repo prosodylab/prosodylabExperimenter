@@ -99,7 +99,7 @@ study = {...study,
   showProgressBar: true, // shows progress to participant during study
   fullScreen: false, // doesn't work with IE, but will simply proceed anyway
   //
-  // Switch certain parts of study on or off
+  // Switch certain components of study on or off
   hello: true,
   consent: true,
   languageQuestionnaire: true,
@@ -206,11 +206,9 @@ if (!participantCode) {
   // Set name for response file with participant code
   const dataFilename = `data_${participantCode}`;
   
-  
   // add experiment settings to experiment data json
   timeline.push(prosodylab.storeExperimentSettings(study));
 
-  
   //  ---- hello page ----
   
   if (study.hello&!study.experimentOnly){
@@ -278,7 +276,6 @@ if (!participantCode) {
     timeline.push(prosodylab.fullScreenOn());
   }
  
-  
   //  
   //  ---- build sessions of experiment trials and add to timeline  ----
   //
