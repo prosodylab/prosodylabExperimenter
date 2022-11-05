@@ -39,13 +39,13 @@ Scale intensity... 77.0
 selectObject: stereoInPhaseQuietShort
 Scale intensity... 71.0
 
-Save as WAV file... stereoInPhaseQuietShort.wav
+Save as WAV file... ../individual/inPhaseSoftShort.wav
 
 selectObject: stereoInPhaseShort
-Save as WAV file... stereoInPhaseShort.wav
+Save as WAV file... ../individual/inPhaseShort.wav
 
 selectObject: stereoOutOfPhaseShort
-Save as WAV file... stereoOutOfPhaseShort.wav
+Save as WAV file... ../individual/outOfPhaseShort.wav
 
 select monoPos 
 Remove

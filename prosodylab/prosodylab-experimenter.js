@@ -545,97 +545,6 @@ So far only implemented: Module 1, musicianship
     return recordCheck;
   },
 
-
-  headPhoneScreener: function() {
-    const path = 'prosodylab/headphonescreener'
-    const sounds = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
-    
-    let headPhoneScreenerTrial= [];
-    let playSound = [];
-    let question = [];
-    
-    const instructionsHeadPhoneScreener = {
-      type: 'html-button-response',
-      stimulus: messages.instructionsHeadphoneCheck,
-      choices: [messages.startHeadphoneTest],
-      on_trial_start: function() {
-        setTimeout(function() {
-          setDisplay("jspsych-btn", "")
-        }, 1000)
-      },
-      data: {
-        component: 'Headphone screener',
-        trialPart:  'Headphone screener instructions',
-        choices: messages.startHeadphoneTest
-      },
-    }
-    headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
-    
-    
-    // create variable for random order
-    let randomOrder = [0,1,2];
-    
-    let correct  = 0;
-        
-    for  (let i=0;i<6;i++){
-    
-      randomOrder  = jsPsych.randomization.shuffle(randomOrder);
-          
-      correctButton = randomOrder.indexOf(0);
-      
-      for (let j=0;j<3;j++) {
-      
-        playSound = {
-          type: 'audio-keyboard-response',
-          prompt: function() {
-          const html = `<style> .centered {position: fixed; top: 50%; 
-            left: 50%; transform: translate(-50%, -50%);}</style>
-            <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
-            return html;
-          },
-          stimulus: `${path}/${sounds[randomOrder[j]]}`,
-          choices: jsPsych.NO_KEYS,
-          trial_ends_after_audio: true,
-          post_trial_gap: 500,
-          data:  {
-            component: 'Headphone screener',
-            trialPart: `Listen to head phone screener sequence ${i} sound ${j}`,
-            sound: `${sounds[randomOrder[j]]}`,
-            setUsed: sounds,
-            correctButton: correctButton
-          }
-        }
-        headPhoneScreenerTrial.push(playSound);
-        
-      }
-      
-      question = {
-        type: 'html-button-response',
-        stimulus: messages.questionHeadphoneTest,
-        choices: messages.optionsHeadphoneTest,
-        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
-        data:  {
-          options: messages.optionsHeadphoneTest,
-          component: 'Headphone screener',
-          trialPart:  `Headphone screener question ${i}`,
-          setUsed: sounds,
-          correctButton: correctButton
-        },   
-        on_finish: function(data){
-          if(data.button_pressed==data.correctButton){
-              data.correct = 1;
-          } else {
-              data.correct = 0;
-          }
-        }   
-      }      
-      headPhoneScreenerTrial.push(question);
-      
-    }
-
-    return headPhoneScreenerTrial;
-  },
-
   headPhoneScreenerMixed: function() {
     const path = 'prosodylab/headphonescreener'
     let sounds = [];
@@ -740,101 +649,6 @@ So far only implemented: Module 1, musicianship
       
     }
 
-    return headPhoneScreenerTrial;
-  },
-
-
-  headPhoneScreenerOriginal: function() {
-    const path = 'prosodylab/headphonescreener/original'
-    let sounds = [];
-    sounds = ['antiphase_HC_IOS.wav',
-              'antiphase_HC_ISO.wav',
-              'antiphase_HC_OIS.wav',
-              'antiphase_HC_OSI.wav',
-              'antiphase_HC_SIO.wav',
-              'antiphase_HC_SOI.wav'
-              ];
-    const correctChoice = [2,1,2,1,0,0];
-    let randomOrder = [0,1,2,3,4,5];
-    randomOrder  = jsPsych.randomization.shuffle(randomOrder);
-    
-    let headPhoneScreenerTrial= [];
-    let playSound = [];
-    let question = [];
-    let correctButton = [];
-    
-    const buttonText = [messages.startHeadphoneTest];
-    const instructionsHeadPhoneScreener = {
-      type: 'html-button-response',
-      stimulus: messages.instructionsHeadphoneCheck,
-      choices: buttonText,
-      on_trial_start: function() {
-        setTimeout(function() {
-          setDisplay("jspsych-btn", "")
-        }, 1000)
-      },
-      data: {
-        component: 'Headphone screener instructions',
-        choices: buttonText
-      },
-    }
-    headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
-    
-    // create variable for random order
-
-    let correct  = 0;
-    
-    for  (let i=0;i<6;i++){
-      
-      
-        correctButton = correctChoice[randomOrder[i]];
-        
-        playSound = {
-          type: 'audio-keyboard-response',
-          prompt: function() {
-          const html = `<style> .centered {position: fixed; top: 50%; 
-            left: 50%; transform: translate(-50%, -50%);}</style>
-            <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
-            return html;
-          },
-          stimulus: `${path}/${sounds[randomOrder[i]]}`,
-          choices: jsPsych.NO_KEYS,
-          trial_ends_after_audio: true,
-          post_trial_gap: 500,
-          data:  {
-            component: 'Headphone screener sound',
-            trialPart: `Listen to head phone screener sound ${i}`,
-            sound: `${sounds[randomOrder[i]]}`,
-            setUsed: 'original',
-            correctButton: correctButton
-          }
-        }
-        headPhoneScreenerTrial.push(playSound);
-      
-
-      
-      question = {
-        type: 'html-button-response',
-        stimulus: messages.questionHeadphoneTest,
-        choices: messages.optionsHeadphoneTest,
-        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
-        data:  {
-          options: messages.optionsHeadphoneTest,
-          component: 'Headphone screener question',
-          setUsed: 'original',
-          correctButton: correctButton
-        },   
-        on_finish: function(data){
-          if(data.button_pressed==data.correctButton){
-              data.correct = 1;
-          } else {
-              data.correct = 0;
-          }
-        }   
-      }      
-      headPhoneScreenerTrial.push(question);
-      
-    }
     return headPhoneScreenerTrial;
   },
   
@@ -1093,7 +907,7 @@ So far only implemented: Module 1, musicianship
           stimulus: message,
           choices: jsPsych.NO_KEYS,
           trial_duration: duration,
-          data: {...trialInfo, component: 'experiment',trialPart:'Fixation' } 
+          data: {...trialInfo, component: 'experiment',trialPart:'ShowText' } 
        };
        
        

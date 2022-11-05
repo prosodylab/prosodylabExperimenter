@@ -7,217 +7,263 @@
 // implement mixed? 
 // end on fail option: if return link exist, return to prolific but without payment
 
-
 function headPhoneScreener(options) {
 
-    const path = 'prosodylab/headphonescreener'
+  // timelines
+  let headPhoneScreenerTrial = [];
+  let headPhoneLoop = [];
+  let playSound = [];
+  let question = [];
+  let currentHeadPhoneLoop = 1;
 
-    var sounds = [];
-    let headPhoneScreenerTrial= [];
-    let headPhoneLoop = [];
-    let playSound = [];
-    let question = [];
-    let currentHeadPhoneLoop = 1;
+  let failMessage = [];
+  if (options.failMessage!=""){
+    failMessage = options.failMessage;
+  } else {
+    failMessage = messages.headPhoneFailMessage;
+  }
 
-    if (options.stimuli == 'short'){
-         sounds = [`stereoInPhaseQuietShort.mp3`,`stereoInPhaseShort.mp3`,`stereoOutOfPhaseShort.mp3`];
-    } else if (options.stimuli =='original'){
-        sounds = ['antiphase_HC_IOS.wav',
-        'antiphase_HC_ISO.wav',
-        'antiphase_HC_OIS.wav',
-        'antiphase_HC_OSI.wav',
-        'antiphase_HC_SIO.wav',
-        'antiphase_HC_SOI.wav'
-        ];
-    };
-    
-    const instructionsHeadPhoneScreener = {
-      type: 'html-button-response',
-      stimulus: messages.instructionsHeadphoneCheck,
-      choices: [messages.startHeadphoneTest],
-      on_trial_start: function() {
-        setTimeout(function() {
-          setDisplay("jspsych-btn", "")
-        }, 1000)
-      },
-      data: {
-        component: 'Headphone screener',
-        trialPart:  'Headphone screener instructions',
-        choices: messages.startHeadphoneTest
-      },
-    }
-    headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
-    
-    // add 6 randomized perception trials for head phone screener to loop
+  // set up correct choices and randomization of order
+  let correctButton = [];
+  const correctChoice = [2, 1, 2, 1, 0, 0];
+  let randomOrder = [0, 1, 2, 3, 4, 5];
+  randomOrder = jsPsych.randomization.shuffle(randomOrder);
 
-    // create variable for random order
-    let randomOrder = [0,1,2];
-    let correct  = 0;
-        
-    for  (let i=0;i<6;i++){
-    
-      randomOrder  = jsPsych.randomization.shuffle(randomOrder);
-      correctButton = randomOrder.indexOf(0);
-      
-      for (let j=0;j<3;j++) {
-      
-        playSound = {
-          type: 'audio-keyboard-response',
-          prompt: function() {
-          const html = `<style> .centered {position: fixed; top: 50%; 
+  // set up stimuli to be used
+  let path = `prosodylab/headphonescreener/sequences/original`
+  let sounds = [];
+  sounds =
+    ['antiphase_HC_IOS.wav',
+      'antiphase_HC_ISO.wav',
+      'antiphase_HC_OIS.wav',
+      'antiphase_HC_OSI.wav',
+      'antiphase_HC_SIO.wav',
+      'antiphase_HC_SOI.wav'
+    ];
+
+  // choose different set if desired
+  if (options.stimuli == 'short') {
+    path = `prosodylab/headphonescreener/sequences/short`
+    sounds = [
+      `inPhaseShort_outOfPhaseShort_inPhaseSoftShort.wav`,
+      `inPhaseShort_inPhaseSoftShort_outOfPhaseShort.wav`,
+      `outOfPhaseShort_inPhaseShort_inPhaseSoftShort.wav`,
+      `outOfPhaseShort_inPhaseSoftShort_inPhaseShort.wav`,
+      `inPhaseSoftShort_inPhaseShort_outOfPhaseShort.wav`,
+      `inPhaseSoftShort_outOfPhaseShort_inPhaseShort.wav`,
+    ];
+  } else if (options.stimuli == 'regularLengthGenerated') {
+    path = `prosodylab/headphonescreener/sequences/regular`
+    sounds = [
+      `inPhase_outOfPhase_inPhaseSoft.wav`,
+      `inPhase_inPhaseSoft_outOfPhase.wav`,
+      `outOfPhase_inPhase_inPhaseSoft.wav`,
+      `outOfPhase_inPhaseSoft_inPhase.wav`,
+      `inPhaseSoft_inPhase_outOfPhase.wav`,
+      `inPhaseSoft_outOfPhase_inPhase.wav`,
+    ];
+  } else if (options.stimuli == 'original') {
+    // using default original stimuli;
+  } else { console.log('No value headphone screener stimuli selected--using original ones!', 'options.stimuli: ', options.stimuli) };
+
+  const instructionsHeadPhoneScreener = {
+    type: 'html-button-response',
+    stimulus: messages.instructionsHeadphoneCheck,
+    choices: [messages.startHeadphoneTest],
+    on_trial_start: function () {
+      setTimeout(function () {
+        setDisplay("jspsych-btn", "")
+      }, 1000)
+    },
+    data: {
+      component: 'Headphone screener',
+      trialPart: 'Headphone screener instructions',
+      choices: messages.startHeadphoneTest
+    },
+  }
+  headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
+
+  // add 6 randomized perception trials for head phone screener to loop
+
+  let correct = 0;
+
+  for (let i = 0; i < 6; i++) {
+
+    correctButton = correctChoice[randomOrder[i]];
+
+    playSound = {
+      type: 'audio-keyboard-response',
+      prompt: function () {
+        const html = `<style> .centered {position: fixed; top: 50%; 
             left: 50%; transform: translate(-50%, -50%);}</style>
             <img src="prosodylab/headphones_frieda.jpg" alt="headphones" width="90">`
-            return html;
-          },
-          stimulus: `${path}/${sounds[randomOrder[j]]}`,
-          choices: jsPsych.NO_KEYS,
-          trial_ends_after_audio: true,
-          post_trial_gap: 500,
-          data:  {
-            component: 'Headphone screener',
-            trialPart: `Listen to head phone screener sequence ${i} sound ${j}`,
-            sound: `${sounds[randomOrder[j]]}`,
-            setUsed: sounds,
-            correctButton: correctButton
-          }
-        }
-        //headPhoneLoop.push(playSound);
-        
+        return html;
+      },
+      stimulus: `${path}/${sounds[randomOrder[i]]}`,
+      choices: jsPsych.NO_KEYS,
+      trial_ends_after_audio: true,
+      post_trial_gap: 500,
+      data: {
+        component: 'Headphone screener',
+        trialPart: `Listen to head phone screener sound ${i}`,
+        sound: `${sounds[randomOrder[i]]}`,
+        setUsed: 'original',
+        correctButton: correctButton
       }
-      
-      question = {
-        type: 'html-button-response',
-        stimulus: messages.questionHeadphoneTest,
-        choices: messages.optionsHeadphoneTest,
-        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
-        data:  {
-          options: messages.optionsHeadphoneTest,
-          component: 'Headphone screener',
-          trialPart:  `Headphone screener question ${i}`,
-          setUsed: sounds,
-          correctButton: correctButton
-        },   
-        on_finish: function(data){
-          if(data.button_pressed==data.correctButton){
-              data.correct = 1;
-          } else {
-              data.correct = 0;
-          }
-        }   
-      }      
-      headPhoneLoop.push(question);
-      
-    };
-
-    var computeScore = {
-        type: "call-function",
-        func: function() {
-            // get results from headphone screener questions
-            
-            let hpResponses = jsPsych.data.get().filter({stimulus: "Which sound was quietest?"}).last(6).values();
-
-            //let hpResponses = jsPsych.data.get().last(21).values();
-            // only take trials with responses (relevant trial information: [0,4,8,12,16,20])
-            //hpResponses = [0,4,8,12,16,20].map(x=>hpResponses[x]);
-
-            // calculate proportion of correct responses:
-            let hpScore = hpResponses.map(({ correct }) => correct);
-            // average function
-            const average = array => array.reduce((a, b) => a + b) / array.length;
-            hpScore = average(hpScore);
-
-            return hpScore;
-        },
-        data: {
-            currentHeadPhoneLoop: function() { 
-            return currentHeadPhoneLoop; 
-          }
-        }
-    };
-    //secondScreen.data = {...secondScreen.Data,imageOrder: trial.imageOrder};
-
-    headPhoneLoop.push(computeScore);
-
-    var headPhoneScreenerAgain = {
-        type: 'html-button-response',
-        stimulus: messages.headPhoneScreenerAgain,
-        choices: messages.headPhoneScreenerAgainOptions,
-        button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
-        on_trial_start: function() {
-          setTimeout(function() {
-            setDisplay("jspsych-btn", "")
-          }, 1000)
-        },
-        data: {
-          component: 'Headphone screener',
-          trialPart:  'Headphone screener ask whether to do it again',
-          choices: messages.headPhoneScreenerAgainOptions
-        },
-    };
-
-    var if_node = {
-        timeline: [headPhoneScreenerAgain],
-        conditional_function: function(){
-            // get the hpScore and check whether participant passed
-            var data = jsPsych.data.get().last(1).values()[0];
-
-            if(data.value < options.threshold && data.currentHeadPhoneLoop < options.numberChances){
-                currentHeadPhoneLoop = currentHeadPhoneLoop + 1;
-                return true;
-            } else {
-                return false;
-            }
-        }
     }
+    //headPhoneLoop.push(playSound);
 
-    headPhoneLoop.push(if_node);
-
-    const loop_node = {
-      timeline: [...headPhoneLoop],
-      loop_function: function(data) {
-        if ('0' == jsPsych.data.getLastTrialData().values()[0].button_pressed) {
-          return true;
+    question = {
+      type: 'html-button-response',
+      stimulus: messages.questionHeadphoneTest,
+      choices: messages.optionsHeadphoneTest,
+      button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
+      data: {
+        options: messages.optionsHeadphoneTest,
+        component: 'Headphone screener',
+        trialPart: 'Head phone screener question',
+        setUsed: 'original',
+        correctButton: correctButton
+      },
+      on_finish: function (data) {
+        if (data.button_pressed == data.correctButton) {
+          data.correct = 1;
         } else {
-          return false;
+          data.correct = 0;
         }
       }
-    };
-    
-    headPhoneScreenerTrial.push(loop_node);
+    }
+    headPhoneLoop.push(question);
+  };
 
-    var resultHPLoop = {
-        type: "call-function",
-        func: function() {
-            // get hpScore
-            let hpScore = jsPsych.data.get().last(1).values()[0].value;
-            let belowThreshold = hpScore < options.threshold;
-            let abortExperiment = belowThreshold && options.excludeOnFail;
+  var computeScore = {
+    type: "call-function",
+    func: function () {
+      // get results from headphone screener questions
 
-            return {
-                hpScore: hpScore, 
-                belowThreshold: belowThreshold, 
-                abortExperiment: abortExperiment
-            };
-        },
-        data: {
-            component: 'headPhoneScreener' 
-        },
-        on_finish: function(data){
-            if(data.value.abortExperiment){
-              if (study.completionFailLink.length>0&&participantCode) {
-                 var flagText = `<div style="font-size:50px;color:red">
-                    <em><br><br><br> ${study.failMessage}</em></div>`;
-                 prosodylab.showText({component:'failMessage' },5000,flagText);
-                 location.href=study.completionFailLink;
-                 jsPsych.endExperiment(study.failMessage);
-              } else {
-                jsPsych.endExperiment(study.failMessage)
-              };
-            }
-          }
-        };
+      let hpResponses = jsPsych.data.get().filter({ stimulus: "Which sound was quietest?" }).last(6).values();
 
-    headPhoneScreenerTrial.push(resultHPLoop)
+      //let hpResponses = jsPsych.data.get().last(21).values();
+      // only take trials with responses (relevant trial information: [0,4,8,12,16,20])
+      //hpResponses = [0,4,8,12,16,20].map(x=>hpResponses[x]);
 
-    return headPhoneScreenerTrial;
+      // calculate proportion of correct responses:
+      let hpScore = hpResponses.map(({ correct }) => correct);
+      // average function
+      const average = array => array.reduce((a, b) => a + b) / array.length;
+      hpScore = average(hpScore);
+
+      return hpScore;
+    },
+    data: {
+      component: 'Headphone screener',
+      trialPart: 'Compute Score',
+      currentHeadPhoneLoop: function () {
+        return currentHeadPhoneLoop;  
+      }
+    }
+  };
+  headPhoneLoop.push(computeScore);
+
+  var headPhoneScreenerAgain = {
+    type: 'html-button-response',
+    stimulus: messages.headPhoneScreenerAgain,
+    choices: messages.headPhoneScreenerAgainOptions,
+    button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
+    on_trial_start: function () {
+      setTimeout(function () {
+        setDisplay("jspsych-btn", "")
+      }, 1000)
+    },
+    data: {
+      component: 'Headphone screener',
+      trialPart: 'Ask whether to do it again',
+      choices: messages.headPhoneScreenerAgainOptions
+    },
+  };
+
+  var if_node = {
+    timeline: [headPhoneScreenerAgain],
+    conditional_function: function () {
+      // get the hpScore and check whether participant passed
+      var data = jsPsych.data.get().last(1).values()[0];
+
+      if (data.value < options.threshold && data.currentHeadPhoneLoop < options.numberChances) {
+        currentHeadPhoneLoop = currentHeadPhoneLoop + 1;
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
+
+  headPhoneLoop.push(if_node);
+
+  const loop_node = {
+    timeline: [...headPhoneLoop],
+    loop_function: function (data) {
+      if ('0' == jsPsych.data.getLastTrialData().values()[0].button_pressed) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  };
+
+  headPhoneScreenerTrial.push(loop_node);
+
+  var resultHPLoop = {
+    type: "call-function",
+    func: function () {
+      // get hpScore
+      let hpScore = jsPsych.data.get().filter({trialPart: 'Compute Score'}).last(1).values()[0].value;
+      let belowThreshold = hpScore < options.threshold;
+      let abortExperiment = belowThreshold && options.excludeOnFail;
+
+      return {
+        hpScore: hpScore,
+        belowThreshold: belowThreshold,
+        abortExperiment: abortExperiment
+      };
+    },
+    data: {
+      component: 'headPhoneScreener',
+      trialPart: 'computeResult'
+    }
+  };
+
+  headPhoneScreenerTrial.push(resultHPLoop)
+
+  var abortExperiment = {
+    type: 'html-keyboard-response',
+    stimulus: `<div style="font-size:20px;color:red">
+    <em><br><br><br> ${failMessage}</em></div>`,
+    choices: jsPsych.NO_KEYS,
+    trial_duration: 2000, // text will be displayed 2 seconds
+    data: {component: 'headPhoneScreener', trialPart: 'abortExperiment' },
+    post_trial_gap: 2000, // to prevent next screen to be shown before redirect
+    on_finish: function () {
+      if (options.completionFailLink.length > 0) {
+        location.href = options.completionFailLink;
+      } else { // if no redirect link, just show message
+        jsPsych.endExperiment(['<br><br><em> No redirection link set!</em>'])
+      };
+    }
+  };
+
+  var if_node = {
+    timeline: [abortExperiment],
+    conditional_function: function () {
+      // check whether participant passed
+      if (jsPsych.data.get().last(1).values()[0].value.abortExperiment == true) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  headPhoneScreenerTrial.push(if_node)
+
+  return headPhoneScreenerTrial;
+}

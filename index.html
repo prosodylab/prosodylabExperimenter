@@ -2,7 +2,7 @@
 <!-- prosodylab-jspsych-experimenter Michael Wagner chael@mcgill.ca-->
 
 <!--todo:
-experiment of a certain name cant have more than one session, script should check that! (
+experiment of a certain name can't have more than one session, script should check that! (
 otherwise, recordings will get overwritten)
 
 path from study.path to data/recordedFiles is hardcoded right now, desirable?
@@ -91,8 +91,6 @@ study = {...study,
   completionLink: "", // link to send participant after end, e.g. for Prolific studies
   completionCode: "", // not necessary unless it will be displayed at the end
   //
-  completionFailLink: "https://app.prolific.co/submissions/complete?cc=CVQQOK6I",
-  failMessage: "The experiment was ended because you didn't pass the headphone test. Thanks for trying!",
   //
   pListMethod: 'log',/* Some designs (Blocked, Between, LatinSquare, Within) 
        assign different types of playlists to different participants. 
@@ -114,17 +112,22 @@ study = {...study,
   fullScreen: false, // doesn't work with IE, but will simply proceed anyway
   //
   // Switch certain parts of study on or off
-  hello: false,
-  consent: false,
-  languageQuestionnaire: false,
-  soundCheck: false,
-  micCheck: false,
-  headphoneScreener: true,
-  headphoneScreenerOptions: {
-    stimuli: 'short', // options: ['short','original'],
+  hello: true,
+  consent: true,
+  languageQuestionnaire: true,
+  soundCheck:true,
+  micCheck: true,
+  headphoneScreener: {
+    includeHeadPhoneScreener: true,
+    stimuli: 'original', // options: ['short','original'],
     numberChances: 2, // how many attempts do participants get?
+    threshold: 5/6, // if equal or higher, participant passes,
+    // exclude participant on fail?
     excludeOnFail: true, // end experiment if participant fails after last attempt
-    threshold: 5/6 // if equal or higher, participant passes
+    // set link if participant should be redirected:
+    completionFailLink: "",
+    // set fail message here, other default from prosodylab/messages.tsv will be used
+    failMessage: ""
   },
   experimentSessions: true,
   postExQuestionnaire: true,
@@ -271,8 +274,8 @@ if (!participantCode) {
 
  // ---- head phone screener ----
   
- if (study.headphoneScreener&!study.experimentOnly){
-     timeline = [...timeline, ...headPhoneScreener(study.headphoneScreenerOptions)];
+ if (study.headphoneScreener.includeHeadPhoneScreener&!study.experimentOnly){
+     timeline = [...timeline, ...headPhoneScreener(study.headphoneScreener)];
   }
     
   // ---- language questionnaire ---
