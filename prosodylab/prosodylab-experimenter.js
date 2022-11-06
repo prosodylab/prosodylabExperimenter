@@ -2,7 +2,7 @@
 
 prosodylab = {
 
-  
+
   getURLParameters: function() {
   // get URL parameters from web address
   
@@ -2578,5 +2578,5 @@ So far only implemented: Module 1, musicianship
   
   }
 
-
 } // end of  object prosodylab
+
