@@ -12,18 +12,8 @@
     <script src="javascripts/papaparse.min.js"></script>
     <script src="javascripts/jquery.min.js"></script>
     <script src="javascripts/showdown.min.js"></script>
-    
-    <!-- country/region select -->
     <script src="javascripts/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="javascripts/jquery-ui.css">
-    <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
-    <link rel="stylesheet" href="javascripts/node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
-    <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po" />
-    <!-- Japanese country options -->
-    <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/ja/LC_MESSAGES/ja.po" />
-    <script type="text/javascript" src="javascripts/node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
-     
-    
+
     <!-- jspsych -->
     <script src="javascripts/jspsych-6.1.0/jspsych.js"></script>
     <script src="javascripts/jspsych-6.1.0/plugins/jspsych-call-function.js"></script>
@@ -40,9 +30,25 @@
     <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
     <script src="javascripts/jspsych-6.1.0/plugins/jspsych-survey-html-form.js"></script>
 
-    <!-- prosodylab -->
     <script src="prosodylab/prosodylab-experimenter.js"></script>
     <script src="prosodylab/headPhoneScreener/headPhoneScreener.js"></script>
+
+    <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
+    <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
+
+
+    <link rel="stylesheet" href="javascripts/jquery-ui.css">
+    <link rel="stylesheet" href="javascripts/node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
+
+    <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po">
+    
+
+    <!-- Japanese country options -->
+ <!--    <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/ja/LC_MESSAGES/ja.po" />
+   -->  
+     
+    
+    
     
     
     <!-- css -->
@@ -103,10 +109,10 @@ study = {...study,
   hello: true,
   consent: true,
   languageQuestionnaire: true,
-  soundCheck: true,
+  soundCheck: false,
   micCheck: true,
   headphoneScreener: {
-    includeHeadPhoneScreener: true,
+    includeHeadPhoneScreener: false,
     stimuli: 'original', // options: ['short','original'],
     numberChances: 2, // how many attempts do participants get?
     threshold: 5/6, // if equal or higher, participant passes,

@@ -1869,11 +1869,13 @@ So far only implemented: Module 1, musicianship
         trialPart: `question${questionN}`
         };
       
-      
       // question stimulus
-      question.stimulus = `<br><em>${question.data.text}<em/><br>`;
+      if (question.data.text){
+        question.stimulus = `<br><em>${question.data.text}<em/><br>`;
+      }
     
       // add text if applicable
+     
       if (trial[`question${questionN}Stimulus`]) {
           question.stimulus = '<b>' + eval(`trial.question${questionN}Stimulus`) +'<br></b>' + 
           question.stimulus;
@@ -1892,7 +1894,7 @@ So far only implemented: Module 1, musicianship
           question.stimulus = `<img src="${study.path}/images/${image}" alt="headphones" width="90">` + question.stimulus;
           }
       } 
-        
+      
       
       if (qType=='ButtonOptionsFixed'||qType=='ButtonOptionsRandomBetween'||qType == 'ButtonOptions'){
             
@@ -2227,27 +2229,27 @@ So far only implemented: Module 1, musicianship
             columns: dimensions.columns
           }];
         } else {// LikertKey with number key response as default
-         // use naturalness scale  as default endpoint labels
-         if (!trial[`question${questionN}EndPoints`]){ 
-             question.data.endPoints = messages.naturalnessOptions;
-         } else { // or else use endpoint labels given in experiment spreadsheet
-             question.data.endPoints = eval(trial[`question${questionN}EndPoints`]);
-         }
-         // default likert scale with even number of choices in order
-         // to avoid 3-partite partition into 'low','neutral/don't  know', 'high'
-         // I use 6 as the default number of options
-         if (!trial[`question${questionN}LikertScale`]){
-             question.choices=this.generateKeyChoices(6)
-         } else {
-             question.choices = eval(trial[`question${questionN}LikertScale`])
-         }
-         
-         question.data.options = question.choices;
-         question.stimulus = `${question.data.text} <br/><br/>  
-            <em>${messages.rateScale} <br><br> 
-            ${question.choices[0]} = <b>${question.data.endPoints[0]}</b> and 
-            ${question.choices[question.choices.length-1]} = <b>${question.data.endPoints[1]}</b></em>`;
-       }
+          // use naturalness scale as default endpoint labels
+          if (!trial[`question${questionN}EndPoints`]){ 
+              question.data.endPoints = messages.naturalnessOptions;
+          } else { // or else use endpoint labels given in experiment spreadsheet
+              question.data.endPoints = eval(trial[`question${questionN}EndPoints`]);
+          }
+          // default likert scale with even number of choices in order
+          // to avoid 3-partite partition into 'low','neutral/don't  know', 'high'
+          // I use 6 as the default number of options
+          if (!trial[`question${questionN}LikertScale`]){
+              question.choices=this.generateKeyChoices(6)
+          } else {
+              question.choices = eval(trial[`question${questionN}LikertScale`])
+          }
+
+          question.data.options = question.choices;
+          question.stimulus = `${question.stimulus}  
+             <em>Rate on a scale between: <br> 
+             ${question.choices[0]} = <b>${question.data.endPoints[0]}</b> and 
+             ${question.choices[question.choices.length-1]} = <b>${question.data.endPoints[1]}</b></em>`;
+        }
 
 
 
