@@ -114,10 +114,10 @@ study = {...study,
   headphoneScreener: {
     includeHeadphoneScreener: false,
     stimuli: 'original', // options: ['short','original'],
-    numberChances: 2, // how many attempts do participants get?
+    numberChances: 1, // how many attempts do participants get?
     threshold: 5/6, // if equal or higher, participant passes,
     // exclude participant on fail?
-    excludeOnFail: true, // end experiment if participant fails after last attempt
+    excludeOnFail: false, // end experiment if participant fails after last attempt
     // set link if participant should be redirected:
     completionFailLink: "",
     // set fail message here, other default from prosodylab/messages.tsv will be used
