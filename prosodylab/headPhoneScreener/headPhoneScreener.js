@@ -130,7 +130,6 @@ function headphoneScreener(options) {
         } else {
           data.correct = 0;
         }
-        console.log(sounds[randomOrder[i]],' resp: ',data.button_pressed,'data.correctButton: ',data.correctButton,' correct:', data.correct);
       }
     }
     headphoneLoop.push(question);
