@@ -6,8 +6,8 @@
 function headphoneScreener(options) {
 
   // timelines
-  let headPhoneScreenerTrial = [];
-  let headPhoneLoop = [];
+  let headphoneScreenerTrial = [];
+  let headphoneLoop = [];
   let playSound = [];
   let question = [];
   let currentHeadPhoneLoop = 1;
@@ -16,7 +16,7 @@ function headphoneScreener(options) {
   if (options.failMessage!=""){
     failMessage = options.failMessage;
   } else {
-    failMessage = messages.headPhoneFailMessage;
+    failMessage = messages.headphoneFailMessage;
   }
 
   // set up correct choices and randomization of order
@@ -63,7 +63,7 @@ function headphoneScreener(options) {
     // using default original stimuli;
   } else { console.log('No value headphone screener stimuli selected--using original ones!', 'options.stimuli: ', options.stimuli) };
 
-  const instructionsHeadPhoneScreener = {
+  const instructionsheadphoneScreener = {
     type: 'html-button-response',
     stimulus: messages.instructionsHeadphoneCheck,
     choices: [messages.startHeadphoneTest],
@@ -78,7 +78,7 @@ function headphoneScreener(options) {
       choices: messages.startHeadphoneTest
     },
   }
-  headPhoneScreenerTrial.push(instructionsHeadPhoneScreener);
+  headphoneScreenerTrial.push(instructionsheadphoneScreener);
 
   // add 6 randomized perception trials for head phone screener to loop
 
@@ -109,7 +109,7 @@ function headphoneScreener(options) {
         correctButton: correctButton
       }
     }
-    headPhoneLoop.push(playSound);
+    headphoneLoop.push(playSound);
 
     question = {
       type: 'html-button-response',
@@ -133,7 +133,7 @@ function headphoneScreener(options) {
         console.log(sounds[randomOrder[i]],' resp: ',data.button_pressed,'data.correctButton: ',data.correctButton,' correct:', data.correct);
       }
     }
-    headPhoneLoop.push(question);
+    headphoneLoop.push(question);
   };
 
   var computeScore = {
@@ -163,12 +163,12 @@ function headphoneScreener(options) {
       }
     }
   };
-  headPhoneLoop.push(computeScore);
+  headphoneLoop.push(computeScore);
 
-  var headPhoneScreenerAgain = {
+  var headphoneScreenerAgain = {
     type: 'html-button-response',
-    stimulus: messages.headPhoneScreenerAgain,
-    choices: messages.headPhoneScreenerAgainOptions,
+    stimulus: messages.headphoneScreenerAgain,
+    choices: messages.headphoneScreenerAgainOptions,
     button_html: '<button class="jspsych-btn"><b>%choice%</b></button>',
     on_trial_start: function () {
       setTimeout(function () {
@@ -178,12 +178,12 @@ function headphoneScreener(options) {
     data: {
       component: 'Headphone screener',
       trialPart: 'Ask whether to do it again',
-      choices: messages.headPhoneScreenerAgainOptions
+      choices: messages.headphoneScreenerAgainOptions
     },
   };
 
   var if_node = {
-    timeline: [headPhoneScreenerAgain],
+    timeline: [headphoneScreenerAgain],
     conditional_function: function () {
       // get the hpScore and check whether participant passed
       var data = jsPsych.data.get().last(1).values()[0];
@@ -197,10 +197,10 @@ function headphoneScreener(options) {
     }
   }
 
-  headPhoneLoop.push(if_node);
+  headphoneLoop.push(if_node);
 
   const loop_node = {
-    timeline: [...headPhoneLoop],
+    timeline: [...headphoneLoop],
     loop_function: function (data) {
       if ('0' == jsPsych.data.getLastTrialData().values()[0].button_pressed) {
         return true;
@@ -210,7 +210,7 @@ function headphoneScreener(options) {
     }
   };
 
-  headPhoneScreenerTrial.push(loop_node);
+  headphoneScreenerTrial.push(loop_node);
 
   var resultHPLoop = {
     type: "call-function",
@@ -227,12 +227,12 @@ function headphoneScreener(options) {
       };
     },
     data: {
-      component: 'headPhoneScreener',
+      component: 'headphoneScreener',
       trialPart: 'computeResult'
     }
   };
 
-  headPhoneScreenerTrial.push(resultHPLoop)
+  headphoneScreenerTrial.push(resultHPLoop)
 
   var abortExperiment = {
     type: 'html-keyboard-response',
@@ -240,7 +240,7 @@ function headphoneScreener(options) {
     <em><br><br><br> ${failMessage}</em></div>`,
     choices: jsPsych.NO_KEYS,
     trial_duration: 2000, // text will be displayed 2 seconds
-    data: {component: 'headPhoneScreener', trialPart: 'abortExperiment' },
+    data: {component: 'headphoneScreener', trialPart: 'abortExperiment' },
     post_trial_gap: 2000, // to prevent next screen to be shown before redirect
     on_finish: function () {
       if (options.completionFailLink.length > 0) {
@@ -263,7 +263,7 @@ function headphoneScreener(options) {
     }
   }
 
-  headPhoneScreenerTrial.push(if_node)
+  headphoneScreenerTrial.push(if_node)
 
-  return headPhoneScreenerTrial;
+  return headphoneScreenerTrial;
 }
