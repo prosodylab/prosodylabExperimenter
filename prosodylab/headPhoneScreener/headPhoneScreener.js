@@ -3,7 +3,7 @@
 // optionally can be repeated if participant fails
 // optionally leads to end of experiment if participant fails
 
-function headPhoneScreener(options) {
+function headphoneScreener(options) {
 
   // timelines
   let headPhoneScreenerTrial = [];
@@ -21,12 +21,13 @@ function headPhoneScreener(options) {
 
   // set up correct choices and randomization of order
   let correctButton = [];
-  const correctChoice = [2, 1, 2, 1, 0, 0];
+  // S=Soft is the correct choice, e.g. for file IOS it's 3
+  const correctChoice = [3, 2, 3, 2, 1, 1];
   let randomOrder = [0, 1, 2, 3, 4, 5];
   randomOrder = jsPsych.randomization.shuffle(randomOrder);
 
   // set up stimuli to be used
-  let path = `prosodylab/headphonescreener/sequences/original`
+  let path = `prosodylab/headphoneScreener/sequences/original`
   let sounds = [];
   sounds =
     ['antiphase_HC_IOS.wav',
@@ -39,7 +40,7 @@ function headPhoneScreener(options) {
 
   // choose different set if desired
   if (options.stimuli == 'short') {
-    path = `prosodylab/headphonescreener/sequences/short`
+    path = `prosodylab/headphoneScreener/sequences/short`
     sounds = [
       `inPhaseShort_outOfPhaseShort_inPhaseSoftShort.wav`,
       `inPhaseShort_inPhaseSoftShort_outOfPhaseShort.wav`,
@@ -49,7 +50,7 @@ function headPhoneScreener(options) {
       `inPhaseSoftShort_outOfPhaseShort_inPhaseShort.wav`,
     ];
   } else if (options.stimuli == 'regularLengthGenerated') {
-    path = `prosodylab/headphonescreener/sequences/regular`
+    path = `prosodylab/headphoneScreener/sequences/regular`
     sounds = [
       `inPhase_outOfPhase_inPhaseSoft.wav`,
       `inPhase_inPhaseSoft_outOfPhase.wav`,
@@ -85,7 +86,8 @@ function headPhoneScreener(options) {
 
   for (let i = 0; i < 6; i++) {
 
-    correctButton = correctChoice[randomOrder[i]];
+    // save correct choice, correcting for fact that count button count starts with 0
+    correctButton = correctChoice[randomOrder[i]]-1;
 
     playSound = {
       type: 'audio-keyboard-response',
@@ -122,11 +124,13 @@ function headPhoneScreener(options) {
         correctButton: correctButton
       },
       on_finish: function (data) {
+
         if (data.button_pressed == data.correctButton) {
           data.correct = 1;
         } else {
           data.correct = 0;
         }
+        console.log(sounds[randomOrder[i]],' resp: ',data.button_pressed,'data.correctButton: ',data.correctButton,' correct:', data.correct);
       }
     }
     headPhoneLoop.push(question);

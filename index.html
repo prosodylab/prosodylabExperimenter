@@ -31,7 +31,7 @@
     <script src="javascripts/jspsych-6.1.0/plugins/jspsych-survey-html-form.js"></script>
 
     <script src="prosodylab/prosodylab-experimenter.js"></script>
-    <script src="prosodylab/headPhoneScreener/headPhoneScreener.js"></script>
+    <script src="prosodylab/headphoneScreener/headphoneScreener.js"></script>
 
     <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
     <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
@@ -112,7 +112,7 @@ study = {...study,
   soundCheck: false,
   micCheck: true,
   headphoneScreener: {
-    includeHeadPhoneScreener: false,
+    includeHeadphoneScreener: false,
     stimuli: 'original', // options: ['short','original'],
     numberChances: 2, // how many attempts do participants get?
     threshold: 5/6, // if equal or higher, participant passes,
@@ -266,8 +266,8 @@ if (!participantCode) {
 
  // ---- head phone screener ----
   
- if (study.headphoneScreener.includeHeadPhoneScreener&!study.experimentOnly){
-     timeline = [...timeline, ...headPhoneScreener(study.headphoneScreener)];
+ if (study.headphoneScreener.includeHeadphoneScreener&!study.experimentOnly){
+     timeline = [...timeline, ...headphoneScreener(study.headphoneScreener)];
   }
     
   // ---- language questionnaire ---
