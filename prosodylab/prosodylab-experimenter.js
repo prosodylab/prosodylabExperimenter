@@ -2,7 +2,6 @@
 
 prosodylab = {
 
-
   getURLParameters: function() {
   // get URL parameters from web address
   
