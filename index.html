@@ -5,54 +5,8 @@
   
   <head>
     <title>prosodylab</title>
-    
-    <!--general-->
     <meta charset="utf-8">
-        
-    <script src="javascripts/papaparse.min.js"></script>
-    <script src="javascripts/jquery.min.js"></script>
-    <script src="javascripts/showdown.min.js"></script>
-    <script src="javascripts/jquery-ui.min.js"></script>
-
-    <!-- jspsych -->
-    <script src="javascripts/jspsych-6.1.0/jspsych.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-call-function.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-fullscreen.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-button-response.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-audio-button-response.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-audio-keyboard-response.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-instructions.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-survey-text.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-survey-likert.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-html-slider-response.js"></script>
-    <script src="javascripts/jspsych-6.1.0/plugins/jspsych-survey-html-form.js"></script>
-
-    <script src="prosodylab/prosodylab-experimenter.js"></script>
-    <script src="prosodylab/headphoneScreener/headphoneScreener.js"></script>
-
-    <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js"></script>
-    <script src="javascripts/node_modules/country-region-dropdown-menu/assets/js/Gettext.js"></script>
-
-
-    <link rel="stylesheet" href="javascripts/jquery-ui.css">
-    <link rel="stylesheet" href="javascripts/node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css"/>
-
-    <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/en/LC_MESSAGES/en.po">
-    
-
-    <!-- Japanese country options -->
- <!--    <link rel="gettext" type="application/x-po" href="javascripts/node_modules/country-region-dropdown-menu/languages/ja/LC_MESSAGES/ja.po" />
-   -->  
-     
-    
-    
-    
-    
-    <!-- css -->
-    <link href="javascripts/jspsych-6.1.0/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+    <script src="prosodylab/setupHead.js"></script>
   </head>
   
   <body></body>
@@ -114,10 +68,10 @@ study = {...study,
   headphoneScreener: {
     includeHeadphoneScreener: false,
     stimuli: 'original', // options: ['short','original'],
-    numberChances: 2, // how many attempts do participants get?
+    numberChances: 1, // how many attempts do participants get?
     threshold: 5/6, // if equal or higher, participant passes,
     // exclude participant on fail?
-    excludeOnFail: true, // end experiment if participant fails after last attempt
+    excludeOnFail: false, // end experiment if participant fails after last attempt
     // set link if participant should be redirected:
     completionFailLink: "",
     // set fail message here, other default from prosodylab/messages.tsv will be used
@@ -136,12 +90,15 @@ study = {...study,
 // contact Email in case of problem with urlparameter transmission of participant info
 const contactEmail = ''
 
+// load messages for country and region dropdown in correct language
+setup.loadGeoDataMessages('en');
 
-//  Set basic parameters for the study 
+Promise.all(setup.scriptPromises(study.language))
+  .then(function () {
 
 // load messages for interaction with participant:
 
-const messages = prosodylab.getMessages(study.language);
+messages = prosodylab.getMessages(study.language);
 
 // Get urlParams if there are any
 let urlParams = prosodylab.getURLParameters();
@@ -388,6 +345,10 @@ if (!participantCode) {
         }
       }
   })
+
+}).catch((reason) => {
+      console.log(reason);
+    });
 
   </script>
 </html>

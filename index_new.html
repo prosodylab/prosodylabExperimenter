@@ -1,0 +1,353 @@
+<!doctype html>
+<!-- prosodylab-jspsych-experimenter Michael Wagner chael@mcgill.ca-->
+
+<html>
+
+<head>
+  <title>prosodylab</title>
+  <meta charset="utf-8">
+  <script src="prosodylab/setupHead.js"></script>
+</head>
+
+<body></body>
+
+<script>
+
+  // ---- settings ----
+
+  // path and study file:
+  let study = {
+    path: 'experiment', // contains folders with  audio/images if applicable
+    stimulusFile: 'rhymeShortest.tsv'
+  };
+
+  // other settings for study:
+  study = {
+    ...study,
+    //
+    testRun: true, // **if true, no data will be recorded**
+    //
+    align: true,
+    //
+    language: 'en', // set which language interaction will be in
+    //
+    logFile: `${study.path}/studyLog.json`, // this is where log will be saved
+    soundCheckFile: `prosodylab/soundcheck_da.mp3`,// file played for soundcheck
+    recordingTimeOut: 10000, // audio recording stops after x ms; default: 20000
+    // 
+    // completion code and completionLink are used, 
+    completionLink: "", // link to send participant after end, e.g. for Prolific studies
+    completionCode: "", // not necessary unless it will be displayed at the end
+    //
+    //
+    pListMethod: 'log',/* Some designs (Blocked, Between, LatinSquare, Within) 
+       assign different types of playlists to different participants. 
+       --  'log' = use log to count which playlist has been run least
+       --  'random' (assigns pList randomly)
+       -- or set an integer (like '1') to hardcode the pList here
+       */
+    participantCodeMethod: 'randomAndDisplay', /* alternative methods to determine participant ID. Options: 
+    * SESSION_ID  // default for prolific prosodylab, more confidential than PID
+    * PROLIFIC_PID
+    * random 
+    * randomAndDisplay // default in prosody for amazon
+    PROLIFIC_SESSION_ID and PROLIFIC_PID requires passing urlparams from prolific 
+    */
+    //
+    // Various options settings:
+    displayDataAfterFinish: false, // shows collected data in json format after
+    showProgressBar: true, // shows progress to participant during study
+    fullScreen: false, // doesn't work with IE, but will simply proceed anyway
+    //
+    // Switch certain components of study on or off
+    hello: true,
+    consent: true,
+    languageQuestionnaire: true,
+    soundCheck: false,
+    micCheck: false,
+    headphoneScreener: {
+      includeHeadphoneScreener: false,
+      stimuli: 'original', // options: ['short','original'],
+      numberChances: 1, // how many attempts do participants get?
+      threshold: 5 / 6, // if equal or higher, participant passes,
+      // exclude participant on fail?
+      excludeOnFail: false, // end experiment if participant fails after last attempt
+      // set link if participant should be redirected:
+      completionFailLink: "",
+      // set fail message here, other default from prosodylab/messages.tsv will be used
+      failMessage: ""
+    },
+    experimentSessions: true,
+    postExperimentQuestionnaire: true,
+    musicQuestionnaire: false,
+    goodbye: false,
+    thankYou: true,
+    experimentOnly: false // excludes pre-  and post-experiment parts, overrides prior flags, useful for testing
+    //
+  };
+
+
+  // load messages for country and region dropdown in correct language
+  setup.loadGeoDataMessages('en');
+
+  Promise.all(setup.scriptPromises(study.language))
+    .then(function () {
+
+      //  Set basic parameters for the study 
+
+      // load messages for interaction with participant:
+
+      const messages = prosodylab.getMessages(study.language);
+
+      // Get urlParams if there are any
+      let urlParams = prosodylab.getURLParameters();
+
+      let participantCode = prosodylab.assignParticipantcode(study.participantCodeMethod, urlParams)
+
+
+      //  ---- set-up timeline for experiment ----
+
+      let timeline = []; // this is where experiment will be stored
+      let mdFile = []; // used for filenames of .md files
+
+      // files that should be preloaded
+      preload = {
+        images: [],
+        audio: []
+      };
+
+      // Only continue if participantCode is defined
+      if (!participantCode) {
+
+        // urlParams weren't properly transmitted, throw error to participant
+        timeline.push(prosodylab.screen(`<em>Something didn't work!}
+      </em>`, 'noSessionIdError', 'Click here to leave experiment', 'center'));
+      } else {
+
+        // load spreadsheet with all experiments, global variable
+        stimuli = prosodylab.loadCSV(`${study.path}/${study.stimulusFile}`);
+
+        // console.log('stimuli',stimuli);
+
+        // set experiment mode if specified in urlParams
+        let mode = [];
+        if (urlParams.get('mode')) {
+          mode = urlParams.get('mode');
+
+          if (mode == 'test') {
+            study.testRun = true;
+          } else if (mode == 'experiment') {
+            study.experimentOnly = true;
+            study.fullScreen = false;
+          } else if (mode == 'finalPart') {
+            study.experimentOnly = true;
+          }
+        }
+
+        let selectSession = 'all';
+
+        if (urlParams.get('session')) {
+          selectSession = urlParams.get('session');
+          study.experimentOnly = true;
+          study.fullScreen = false;
+        }
+
+        // set recordOption if specified in urlParams
+        if (urlParams.get('recordOption')) {
+          let recordOption = urlParams.get('recordOption');
+          if (recordOption == 'rerecord') {
+            stimuli = stimuli.map(obj => ({ ...obj, recordOption: 'rerecord' }));
+          } else if (recordOption == 'play') {
+            stimuli = stimuli.map(obj => ({ ...obj, recordOption: 'play' }));
+          }
+
+        }
+
+
+        // Set name for response file with participant code
+        const dataFilename = `data_${participantCode}`;
+
+        // add experiment settings to experiment data json
+        timeline.push(prosodylab.storeExperimentSettings(study));
+
+        //  ---- hello page ----
+
+        if (study.hello & !study.experimentOnly) {
+          mdFile = [];
+          if (!stimuli[0].hello) {
+            mdFile = `${study.path}/hello.md`;
+          } else {
+            mdFile = `${study.path}/${stimuli[0].hello}`;
+          }
+          timeline.push(prosodylab.screenFromMD(mdFile, 'hello', 'left'));
+        }
+
+        // ----- warning flag if no data is recorded
+
+        if (study.testRun) {
+          timeline.push(prosodylab.noDataRecordedFlag());
+        }
+
+        // ---- sound check (if audio is involved)
+
+        if (study.soundCheck & !study.experimentOnly) {
+          preload.audio.push(study.soundCheckFile);
+          preload.images.push('prosodylab/headphones_frieda.jpg');
+          timeline = [...timeline, ...prosodylab.soundCheck(study.soundCheckFile)];
+        }
+
+        // ---- mic check (should be done if recording is involved)
+        // you can pass sentence that participant should produce as argument
+        if (study.micCheck & !study.experimentOnly) {
+          prosodylab.audioRecorder(study.testRun, true);
+          soundFilePath = `${study.path}/dataSound/`;
+          soundFileName = `$miccheck_{participantCode}`;
+          timeline = [...timeline, ...prosodylab.micCheck(soundFileName, soundFilePath, study.recordingTimeOut)];
+        }
+
+        //  ---- consent page  ----
+
+        // The last paragraph of the consent  form will be the  consent button
+        // and will  be stored with the participant's data:
+        if (study.consent & !study.experimentOnly) {
+          mdFile = [];
+          if (!stimuli[0].consent) {
+            mdFile = `${study.path}/consent.md`;
+          } else {
+            mdFile = `${study.path}/${stimuli[0].consent}`;
+          }
+          timeline.push(prosodylab.screenFromMD(mdFile, 'consent', 'left'));
+        }
+
+        // ---- head phone screener ----
+
+        if (study.headphoneScreener.includeHeadphoneScreener & !study.experimentOnly) {
+          timeline = [...timeline, ...headphoneScreener(study.headphoneScreener)];
+        }
+
+        // ---- language questionnaire ---
+
+        if (study.languageQuestionnaire & !study.experimentOnly) {
+          timeline.push(prosodylab.languageQuestionnaire(study.language));
+        }
+
+        // ---- full screen mode if applicable --
+
+        if (study.fullScreen & !study.experimentOnly) {
+          timeline.push(prosodylab.fullScreenOn());
+        }
+
+        //  
+        //  ---- build sessions of experiment trials and add to timeline  ----
+        //
+
+        if ((study.experimentSessions || experimentOnly) & !(mode == 'finalPart')) {
+          experiment =
+            prosodylab.createSessions(stimuli, study, participantCode, messages, selectSession);
+
+          timeline = [...timeline, ...experiment.timeline];
+        }
+
+        // Post Experiment 
+
+        // ---- post-experiment questionnaire ---
+
+        if (study.postExperimentQuestionnaire & (!study.experimentOnly || mode == 'finalPart')) {
+          timeline.push(prosodylab.postExperimentQuestionnaire(study.language));
+        }
+
+        // ---- music questionnaire ---
+
+        if (study.musicQuestionnaire & (!study.experimentOnly || mode == 'finalPart')) {
+          timeline.push(prosodylab.musicQuestionnaire('MusicianShip'));
+        }
+
+        // ----  save data ----
+
+        if (!study.testRun) {
+          // use 'csv' as second argument if you want to save  as .csv instead of json
+          timeline.push(prosodylab.saveData(`${study.path}/data/${dataFilename}`, 'json'));
+
+          if (mode != 'finalPart') {
+            timeline.push(prosodylab.appendJsonCallFunction(
+              experiment.newStudyLogEntries, study.logFile));
+          }
+        }
+
+        // exit full screen
+
+        if ((study.fullScreen & !study.experimentOnly)) {
+          timeline.push({
+            type: 'fullscreen',
+            fullscreen_mode: false
+          });
+        }
+
+
+        // ---- goodbye screen (with completion code if applicable )----
+
+        if (study.goodbye & (!study.experimentOnly || mode == 'finalPart')) {
+          if (study.participantCodeMethod == 'randomAndDisplay') {
+            mdFile = [];
+            if (!stimuli[0].goodbye) {
+              mdFile = `${study.path}/goodbye.md`;
+            } else {
+              mdFile = `${study.path}/${stimuli[0].goodbye}`;
+            }
+            timeline.push(prosodylab.screenFromMD(mdFile, 'goodbye', 'center', participantCode));
+
+          } else if (study.completionCode) {
+            timeline.push(prosodylab.screenFromMD(mdFile, 'goodBye', 'center', completionCode));
+          } else {
+            timeline.push(prosodylab.screenFromMD(mdFile, 'goodBye', 'center'));
+          }
+        }
+
+        // ---- thank you message
+
+        if (study.thankYou & (!study.experimentOnly || mode == 'finalPart')) {
+          timeline.push(prosodylab.thankYouFlag());
+        }
+
+      }
+
+      //  ---- general settings  ----
+
+      if (preload.images.length != 0) {
+        console.log('Number of images to preload: ', preload.images.length);
+      }
+
+      if (preload.audio.length != 0) {
+        console.log('Number of soundfiles to preload: ', preload.audio.length);
+      }
+
+      jsPsych.init({
+        timeline: timeline,
+        preload_audio: preload.audio,
+        preload_images: preload.images,
+        //// uncomment to save data on close (but closing the tab could mean wihdrawn consent!)
+        //on_close:  function(){
+        //  prosodylab.saveData(`${study.path}/data/${dataFilename}.json, jsPsych.data.get().json());
+        //  prosodylab.saveData(`${study.path}/data/${dataFilename}.csv, jsPsych.data.get().csv());
+        //},
+        show_progress_bar: study.showProgressBar,
+        on_finish: function () {
+          if (study.displayDataAfterFinish) {
+            // output full data to tab
+            jsPsych.data.displayData();
+          }
+          if (study.completionLink && participantCode) {
+            if (study.completionLink.length > 0) {
+              location.href = study.completionLink
+            }
+          }
+        }
+      })
+
+    }).catch((reason) => {
+      console.log(reason);
+    });
+
+</script>
+
+</html>

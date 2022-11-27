@@ -83,13 +83,19 @@ importData <- function(partsToKeep='question1',pathStimulusFile,pathData='data')
                         "recordingTimeOut", "completionLink", "completionCode", "pListMethod", 
                         "participantCodeMethod", "displayDataAfterFinish", "showProgressBar", 
                         "fullScreen", "hello", "consent", "languageQuestionnaire", "soundCheck", 
-                        "micCheck", "headphoneScreener", "experimentSessions", "postExQuestionnaire", 
+                        "micCheck", "headphoneScreener.includeHeadphoneScreener", 
+                        "headphoneScreener.stimuli", "headphoneScreener.numberChances", 
+                        "headphoneScreener.threshold", "headphoneScreener.excludeOnFail", 
+                        "headphoneScreener.completionFailLink", "headphoneScreener.failMessage", "experimentSessions", "postExperimentQuestionnaire", 
                         "musicQuestionnaire", "goodbye", "experimentOnly"))) 
     d = d %>%  dplyr::select(-c("path", "stimulusFile", "testRun", "language", "logFile", "soundCheckFile", 
                                 "recordingTimeOut", "completionLink", "completionCode", "pListMethod", 
                                 "participantCodeMethod", "displayDataAfterFinish", "showProgressBar", 
                                 "fullScreen", "hello", "consent", "languageQuestionnaire", "soundCheck", 
-                                "micCheck", "headphoneScreener", "experimentSessions", "postExQuestionnaire", 
+                                "micCheck", "headphoneScreener.includeHeadphoneScreener", 
+                                "headphoneScreener.stimuli", "headphoneScreener.numberChances", 
+                                "headphoneScreener.threshold", "headphoneScreener.excludeOnFail", 
+                                "headphoneScreener.completionFailLink", "headphoneScreener.failMessage", "experimentSessions", "postExperimentQuestionnaire", 
                                 "musicQuestionnaire", "goodbye", "experimentOnly"))
   }
   
