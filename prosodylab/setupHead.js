@@ -70,7 +70,7 @@ setup = {
         let scripts = [
             // prosodyExperimenter scripts
             'prosodylab/prosodylab-experimenter.js',
-            'prosodylab/headPhoneScreener/headPhoneScreener.js',
+            'prosodylab/headphoneScreener/headphoneScreener.js',
 
             // jspsych scripts
             "javascripts/jspsych-6.1.0/jspsych.js",
