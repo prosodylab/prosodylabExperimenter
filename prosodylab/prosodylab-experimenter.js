@@ -1603,8 +1603,8 @@ So far only implemented: Module 1, musicianship
         
         stimulusDisplay = stimulusDisplay + `<br><br>`;
         
-        if (trial.context){
-        	stimulusDisplay = stimulusDisplay + `${trial.context}<br>`;
+        if (trial.plannedProductionContext){
+        	stimulusDisplay = stimulusDisplay + `${trial.plannedProductionContext}<br>`;
         }
         
         stimulusDisplay = stimulusDisplay + `<br><br> <b>${trial.plannedProduction}</b>`;

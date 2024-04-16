@@ -24,13 +24,19 @@ convertColumnsExperimenter <- function(df) {
 
 # imports json files and process them, returning to data frames, one with the particiants information
 # one with the participant information
-importData <- function(partsToKeep='question1',pathStimulusFile,pathData='data') {
+importData <- function(partsToKeep=c('question1','question1'),
+                       experimentFolder='.',
+                       pathStimulusFile,
+                       pathData='data') {
+  
+  pathData = paste0(experimentFolder,'/',pathData)
   
   # determine name of stimulusFile based on index.html file
   if (missing(pathStimulusFile)) {
     #
     # load index.html file
-    pathStimulusFile = readLines('../index.html')
+    
+    pathStimulusFile = readLines(paste0(experimentFolder,'/../index.html'))
     # keep only the line with the text we're looking for
     pathStimulusFile <- pathStimulusFile[grepl(pattern = "  stimulusFile: ", x = pathStimulusFile, fixed = TRUE)]
     # extract stimulusFile name:
@@ -44,7 +50,7 @@ importData <- function(partsToKeep='question1',pathStimulusFile,pathData='data')
   require(tidyverse)
   
   # import experiment spreadsheet and turn columns into factors
-  studyFile = read.csv(pathStimulusFile,
+  studyFile = read.csv(paste0(experimentFolder,'/',pathStimulusFile),
                        sep="\t", header=TRUE) %>% convertColumnsExperimenter()
   
   # create a list of the "data*"  files from your target directory
@@ -75,28 +81,27 @@ importData <- function(partsToKeep='question1',pathStimulusFile,pathData='data')
   # how to convert json cell into  columns (there might be an easier way using  jsonlite more directly?): https://stackoverflow.com/questions/41988928/how-to-parse-json-in-a-dataframe-column-using-r
   
   
-  #  extract study parameters into variable:
+  #  extract study parameters into separate variable
+  #  only select existing columns:
+  
+  selectColumns = c("path", "stimulusFile", "testRun", "language", "logFile", "soundCheckFile", 
+                    "recordingTimeOut", "completionLink", "completionCode", "pListMethod", 
+                    "participantCodeMethod", "displayDataAfterFinish", "showProgressBar", 
+                    "fullScreen", "hello", "consent", "languageQuestionnaire", "soundCheck", 
+                    "micCheck", "headphoneScreener.includeHeadphoneScreener", 
+                    "headphoneScreener.stimuli", "headphoneScreener.numberChances", 
+                    "headphoneScreener.threshold", "headphoneScreener.excludeOnFail", 
+                    "headphoneScreener.completionFailLink", "headphoneScreener.failMessage", "experimentSessions", "postExperimentQuestionnaire", 
+                    "musicQuestionnaire", "goodbye", "experimentOnly")
+  
+  selectColumns = intersect(selectColumns,colnames(d))
+  
+  #
   if (nrow(filter(d,component=='experimentSettings'))!=0){
     experimentSettings <- d %>% 
       filter(component=='experimentSettings') %>% 
-      dplyr::select(c(c("path", "stimulusFile", "testRun", "language", "logFile", "soundCheckFile", 
-                        "recordingTimeOut", "completionLink", "completionCode", "pListMethod", 
-                        "participantCodeMethod", "displayDataAfterFinish", "showProgressBar", 
-                        "fullScreen", "hello", "consent", "languageQuestionnaire", "soundCheck", 
-                        "micCheck", "headphoneScreener.includeHeadphoneScreener", 
-                        "headphoneScreener.stimuli", "headphoneScreener.numberChances", 
-                        "headphoneScreener.threshold", "headphoneScreener.excludeOnFail", 
-                        "headphoneScreener.completionFailLink", "headphoneScreener.failMessage", "experimentSessions", "postExperimentQuestionnaire", 
-                        "musicQuestionnaire", "goodbye", "experimentOnly"))) 
-    d = d %>%  dplyr::select(-c("path", "stimulusFile", "testRun", "language", "logFile", "soundCheckFile", 
-                                "recordingTimeOut", "completionLink", "completionCode", "pListMethod", 
-                                "participantCodeMethod", "displayDataAfterFinish", "showProgressBar", 
-                                "fullScreen", "hello", "consent", "languageQuestionnaire", "soundCheck", 
-                                "micCheck", "headphoneScreener.includeHeadphoneScreener", 
-                                "headphoneScreener.stimuli", "headphoneScreener.numberChances", 
-                                "headphoneScreener.threshold", "headphoneScreener.excludeOnFail", 
-                                "headphoneScreener.completionFailLink", "headphoneScreener.failMessage", "experimentSessions", "postExperimentQuestionnaire", 
-                                "musicQuestionnaire", "goodbye", "experimentOnly"))
+      dplyr::select(all_of(selectColumns))
+    d = d %>%  dplyr::select(-all_of(selectColumns))
   }
   
   #  add post-experiment questionnaire data to participant data frame:

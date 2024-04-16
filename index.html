@@ -203,7 +203,7 @@ if (!participantCode) {
   if (study.micCheck&!study.experimentOnly){
     prosodylab.audioRecorder(study.testRun,true);
     soundFilePath = `${study.path}/dataSound/`;
-    soundFileName = `${participantCode}_miccheck`;
+    soundFileName = `miccheck_${participantCode}`;
     timeline = [...timeline, ...prosodylab.micCheck(soundFileName,soundFilePath,study.recordingTimeOut)];
   }
 
