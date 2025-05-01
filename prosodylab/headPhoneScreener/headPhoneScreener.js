@@ -140,7 +140,8 @@ function headphoneScreener(options) {
     func: function () {
       // get results from headphone screener questions
 
-      let hpResponses = jsPsych.data.get().filter({ stimulus: "Which sound was quietest?" }).last(6).values();
+      let hpResponses = jsPsych.data.get().filter({ trialPart: "Head phone screener question" }).last(6).values();
+console.log('hpResponses',messages.questionHeadphoneTest,hpResponses);
 
       //let hpResponses = jsPsych.data.get().last(21).values();
       // only take trials with responses (relevant trial information: [0,4,8,12,16,20])
