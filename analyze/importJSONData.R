@@ -22,12 +22,17 @@ convertColumnsExperimenter <- function(df) {
 }
 
 
-# imports json files and process them, returning to data frames, one with the particiants information
-# one with the participant information
+# imports json files and process them, returning a list with two data frames
+# one called experimentSettings
+# one with the data called experimentTrials
+
 importData <- function(partsToKeep=c('question1','question1'),
                        experimentFolder='.',
                        pathStimulusFile,
                        pathData='data') {
+                       
+  require(jsonlite)
+  require(tidyverse)
   
   pathData = paste0(experimentFolder,'/',pathData)
   
@@ -46,8 +51,6 @@ importData <- function(partsToKeep=c('question1','question1'),
     #str_extract(stimulusFile, "\'.*?\'")
   }
   
-  require(jsonlite)
-  require(tidyverse)
   
   # import experiment spreadsheet and turn columns into factors
   studyFile = read.csv(paste0(experimentFolder,'/',pathStimulusFile),

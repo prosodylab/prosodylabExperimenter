@@ -219,6 +219,8 @@ if (!participantCode) {
       mdFile = `${study.path}/${stimuli[0].consent}`;
     }
     timeline.push(prosodylab.screenFromMD(mdFile,'consent','left'));
+    // use this if consentform has choice between two consent buttons:
+    // timeline.push(prosodylab.screenFromMD2Buttons(mdFile,'consent','left'));
   }
 
  // ---- head phone screener ----
@@ -332,6 +334,7 @@ if (!participantCode) {
       //  prosodylab.saveData(`${study.path}/data/${dataFilename}.json, jsPsych.data.get().json());
       //  prosodylab.saveData(`${study.path}/data/${dataFilename}.csv, jsPsych.data.get().csv());
       //},
+      message_progress_bar: messages.progressBar,
       show_progress_bar: study.showProgressBar,
       on_finish: function(){
         if (study.displayDataAfterFinish) {

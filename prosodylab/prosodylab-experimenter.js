@@ -216,6 +216,21 @@ prosodylab = {
  
   },
 
+  // checks whether messages specified in spreadsheet, if not, get it from messages array
+  getMessage:  function(trial, messageName){
+    let message = [];
+    // gets message (i) from spreadsheet if the column exists, 
+    // or else (ii) from messages file that was loaded in
+    if (trial[messageName]&&trial[messageName] !='') {
+      message = trial[messageName];
+    } else if (messages[messageName]) {
+      message = messages[messageName];
+    } else {
+      message = '';
+      console.error(`Couldn't find message: `,messageName);
+    }
+    return message;
+  },
 
   saveData: function(fileName,format){
     // save  as json by default
@@ -272,7 +287,7 @@ prosodylab = {
       let align = 'left';
     }
     if (!choice) { // default button text
-      choice = messages.continueButton;
+      choice = this.getMessage(trial, 'continueButton');
     }
     text = `<div style="text-align: ${align}"> ${text} 
        </div><br>`;
@@ -297,7 +312,7 @@ prosodylab = {
     return screenObject;
   },
   
-    // render screen with button to press
+    // render screen with button to press from md
   screenFromMD: function(file, name, align, completionCode) {
   
     // load markdown and convert into html
@@ -312,7 +327,7 @@ prosodylab = {
     text =  `<div style="text-align: ${align}">${text}</div><br><br>`;
     // display participant code if desired (for final screen)
     if (completionCode) { // completion code for final screen
-      text = `${text} <b>${messages.completionCode}: ${completionCode}</b> <br><br><br>`
+      text = `${text} <b>${this.getMessage(trial, 'completionCode')}: ${completionCode}</b> <br><br><br>`
     }
     // screen object
     const screenObject = {
@@ -334,7 +349,120 @@ prosodylab = {
     };
     return screenObject;
   },
+
+  // render screen with button to press (2 buttons from last 2 paragraphs of text)
+  // render screen with two buttons (button texts = last two paragraphs of text)
+screenFromMD2Buttons: function(file, name, align, completionCode) {
   
+  // load markdown and convert into html
+  let text = prosodylab.loadMD(file);
+
+  // default alignment is left-alignment
+  if (!align) {
+    align = 'left';
+  }
+
+  // find last two <p> ... </p> blocks
+  let lastPIndex = text.lastIndexOf('<p>');
+  let lastPEndIndex = text.lastIndexOf('</p>');
+  let lastParagraph = text.substring(lastPIndex + 3, lastPEndIndex);
+
+  let textBeforeLast = text.substring(0, lastPIndex);
+  let secondLastPIndex = textBeforeLast.lastIndexOf('<p>');
+  let secondLastPEndIndex = textBeforeLast.lastIndexOf('</p>');
+  let secondLastParagraph = textBeforeLast.substring(secondLastPIndex + 3, secondLastPEndIndex);
+
+  // create choices from the last two paragraphs
+  let choices = [secondLastParagraph, lastParagraph];
+
+  // remove both from the displayed text
+  text = text.substring(0, secondLastPIndex);
+  text = `<div style="text-align: ${align}">${text}</div><br><br>`;
+
+  // display participant code if desired (for final screen)
+  if (completionCode) { 
+    text = `${text} <b>${messages.completionCode}: ${completionCode}</b> <br><br><br>`;
+  }
+
+  // screen object
+  const screenObject = {
+    type: 'html-button-response',
+    choices: choices,
+    button_html: `<button class="jspsych-btn" 
+          style="white-space:normal; text-align: center; font-size: 18px;width:95%;"> 
+          <b>%choice%</b>
+          </button><br><br><br><br>`,
+    stimulus: text,
+    is_html: true,
+    data: {
+      component: name,
+      buttonResponseText: choices
+    }
+  };
+
+  return screenObject;
+},
+  
+   // render screen with from md with instruction sound
+   screenWithRecording: function(file, name, align, soundFile,trial) {
+  
+    // load markdown and convert into html
+    let text = prosodylab.loadMD(file);
+
+    // default is left-alignment
+    if (!align) {
+      let align = 'left';
+    }
+    // 
+    let choice = [text.substring(text.lastIndexOf('<p>')+3,text.lastIndexOf("</p>"))];
+    text = text.substring(0,text.lastIndexOf('<p>'))
+    text =  `<div style="text-align: ${align}">${text}</div><br><br>`;
+
+    const choiceOne = this.getMessage(trial, 'playAgain');
+    const choiceTwo = choice;
+    
+    // Show instructions and play recording
+    const screenSoundObject =  {
+      type: 'audio-keyboard-response',
+      prompt: text,
+      stimulus: soundFile,
+      choices: jsPsych.NO_KEYS,
+      trial_ends_after_audio: true,
+      data: {
+        component: name
+      }
+    };
+
+    const screenChoiceObject = {
+      type: 'html-button-response',
+      timing_post_trial: 0,
+      choices: [choiceOne, choiceTwo],
+      button_html: `<button class="jspsych-btn" 
+            style="white-space:normal; text-align: center; font-size: 18px;width:95%;"> 
+            <b>%choice%</b>
+            </button><br><br><br><br>`,
+      stimulus: text,
+      is_html: true,
+      data: {
+        component: name,
+        buttonResponseText: [choiceOne, choiceTwo]
+      }
+    };
+
+    const loop_node = {
+      timeline: [screenSoundObject,screenChoiceObject],
+      loop_function: function(data) {
+        console.log('data.values()',data.values(),data.values()[1].button_pressed)
+        if ('0' == data.values()[1].button_pressed) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+
+    return loop_node;
+  },
   
   // Post-experiment questions
   postExperimentQuestionnaire: function(language) {
@@ -342,7 +470,7 @@ prosodylab = {
     let postEx = [];
     postEx.html = prosodylab.loadTxt(`prosodylab/postExperimentQuestionnaire/postExperiment_${language}.html`);
     postEx.type = 'survey-html-form';
-    postEx.button_label = messages.continueButton,
+    postEx.button_label =  messages.continueButton,
     postEx.data = {
         component: 'Post-experiment Questionnaire'
     };
@@ -1323,9 +1451,8 @@ So far only implemented: Module 1, musicianship
     }
     
      // dialogue
-    if (trial.dialogueContext&&trial.dialogueContext!='no') {
+     if (trial.dialogueContext&&trial.dialogueContext!='no') {
     
-       
       // set text for .lab file that will be saved with soundfile 
       if (trial.lab) {
           lab = trial.lab;
@@ -1337,7 +1464,16 @@ So far only implemented: Module 1, musicianship
       session.push(this.fixation(trialInfo,fixationDuration)); 
       
       if (trial.dialogueImage){
-        var image = `${study.path}/images/${trial.dialogueImage}`;
+
+        if (trial.dialogueImagePath){
+          imagePath=trial.dialogueImagePath;
+        } else {imagePath='images'}
+
+        if (trial.dialogueImageSize&&trial.dialogueImageSize>1){
+          imageSize=trial.dialogueImageSize;
+        } else {imageSize=300}
+
+        var image = `${study.path}/${imagePath}/${trial.dialogueImage}`;
         if (!preload.images.includes(image)) {
           preload.images.push(image);
         }
@@ -1346,14 +1482,14 @@ So far only implemented: Module 1, musicianship
       htmlFunction = function(message) {
           var html =  `<br> <style> .centered {position: fixed; top: 50%; 
           left: 50%; transform: translate(-50%, -50%);}</style>
-          ${trial.dialogueContext}<br>`
+         <b>${trial.dialogueContext}</b><br><br>`
 
           if (trial.dialogueImage) {
-             html = html + `<img src="${image}" 
-             alt="image" width="800"><br>`
+             html = html + `<br><img src="${image}" 
+              width="${imageSize}" alt="image"><br><br>`
           }
           if (trial.dialogueResponse) {
-             html = html + `<br><b>${trial.dialogueResponse}</b><br><br>`
+             html = html + `<br><b> ${trial.dialogueResponse}</b><br><br>`
           } 
           html = html + `<em>${message}</em><br>`
               
@@ -1363,11 +1499,11 @@ So far only implemented: Module 1, musicianship
       var readStimulus =  {
         type: 'html-button-response',
         stimulus: htmlFunction(prosodylab.md2html(trial.dialogueMessage)),
-        choices: [messages.recordDialogue],
+        choices: [this.getMessage(trial,'recordDialogue')],
         button_html: '<button class="jspsych-btn">%choice% </button>',
         data: {...trialInfo,
                trialPart:  'dialogue',
-               options: messages.recordDialogue
+               options: this.getMessage(trial,'recordDialogue')
                }
       }
 
@@ -1388,7 +1524,6 @@ So far only implemented: Module 1, musicianship
       var loop_node = [];
       
       if (trial.dialogueContextFile&&trial.dialogueContextFile !='') {
-      
       
         var listenToContext =  {
           type: 'audio-keyboard-response',
@@ -1420,7 +1555,7 @@ So far only implemented: Module 1, musicianship
          trialInfo,
          soundFileName,
          lab,
-         messages.doneRecording,
+         this.getMessage(trial,'doneRecording'),
          trial.recordOption,
          trial.contextFile
          )
@@ -1891,7 +2026,7 @@ So far only implemented: Module 1, musicianship
       if (trial[`question${questionN}Image`]) {
           var image = eval(`trial.question${questionN}Image`);
           if (image !='') {
-          question.stimulus = `<img src="${study.path}/images/${image}" alt="headphones" width="90">` + question.stimulus;
+          question.stimulus = `<img src="${study.path}/images/${image}" alt="headphones" width="90"><br>` + question.stimulus;
           }
       } 
       

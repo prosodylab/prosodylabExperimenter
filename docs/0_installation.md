@@ -3,8 +3,36 @@
 
 ## Mac issues with local server when running on Monterrey 
 
-* to run the experiment locally, you need php. The Monterey operating system no longer includes php. It can be installed using homebrew (https://stackoverflow.com/questions/69786222/zsh-command-not-found-php):    
-    brew install php
+* to run the experiment locally, you need php. As of  Monterey operating system no longer includes php. It can be installed using homebrew (https://stackoverflow.com/questions/69786222/zsh-command-not-found-php):    
+    brew install php    
+
+    follow additional instructions in Terminal if any to make sure php will be found
+
+    Try now whether you can start a local server with this command (it should show something like "Development Server (http://localhost:3000) started" after you run this command):
+
+    php -S localhost:3000
+
+    If this does not work, it might not be able to find the local address. Check whether a local host is listed with this command:
+
+    more /etc/hosts
+
+    If this does not list a local host, you can add the address with this command (you will be promppted for a password:)
+
+    echo "127.0.0.1       localhost" | sudo tee -a  /etc/hosts
+
+
+* To convert to .wav files (for production studies), you'll also need to install ffmpeg:
+
+     brew install ffmpeg
+
+Try now to install to run experiemnt locally in terminal by changing to experiment directory, and entering:
+
+    sh runLocally.sh
+
+
+
+
+
 
 ## Instructions for running on Windows
 
