@@ -131,5 +131,65 @@ setup = {
 
         return promises
 
+    },
+
+    // ---------------------------------------------------------------------
+    // Sequential loader. Use this INSTEAD of Promise.all(scriptPromises()).
+    // Scripts load strictly in order (each finishes before the next starts),
+    // so dependencies are guaranteed ready before dependents run. This fixes
+    // the intermittent blank-screen race (e.g. a plugin running before
+    // jspsych.js, or code running before jQuery defines `$`), which showed up
+    // mainly offline because resource timing shifts when there is no network.
+    // CSS still loads in parallel since stylesheets have no execution order.
+    // Returns a single Promise, so the existing .then(...) block works as-is.
+    // ---------------------------------------------------------------------
+    loadAll: function (language) {
+
+        // Order matters: dependencies FIRST, dependents LAST.
+        let scripts = [
+            // core dependencies first
+            "javascripts/jquery.min.js",
+            "javascripts/jquery-ui.min.js",
+            "javascripts/papaparse.min.js",
+            "javascripts/showdown.min.js",
+
+            // jspsych core BEFORE its plugins
+            "javascripts/jspsych-6.1.0/jspsych.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-call-function.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-fullscreen.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-html-keyboard-response.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-html-slider-response.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-image-keyboard-response.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-html-button-response.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-audio-button-response.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-audio-keyboard-response.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-instructions.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-survey-text.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-survey-likert.js",
+            "javascripts/jspsych-6.1.0/plugins/jspsych-survey-html-form.js",
+
+            // geo scripts (need jQuery) BEFORE your code
+            "javascripts/node_modules/country-region-dropdown-menu/assets/js/geodatasource-cr.min.js",
+            "javascripts/node_modules/country-region-dropdown-menu/assets/js/Gettext.js",
+
+            // your code LAST (uses $, jsPsych, plugins)
+            "prosodylab/prosodylab-experimenter.js",
+            "prosodylab/headphoneScreener/headphoneScreener.js",
+        ];
+
+        let cssFiles = [
+            "javascripts/jquery-ui.css",
+            "javascripts/node_modules/country-region-dropdown-menu/assets/css/geodatasource-countryflag.css",
+            "javascripts/jspsych-6.1.0/css/jspsych.css"
+        ];
+
+        // CSS has no execution-order dependency: load in parallel.
+        cssFiles.forEach(function (url) { setup.loadCSS(url); });
+
+        // Scripts strictly sequential: each .then awaits the previous load.
+        return scripts.reduce(function (chain, url) {
+            return chain.then(function () { return setup.loadScript(url); });
+        }, Promise.resolve());
+
     }
 }

@@ -93,7 +93,7 @@ const contactEmail = ''
 // load messages for country and region dropdown in correct language
 setup.loadGeoDataMessages('en');
 
-Promise.all(setup.scriptPromises(study.language))
+setup.loadAll(study.language)
   .then(function () {
 
 // load messages for interaction with participant:
