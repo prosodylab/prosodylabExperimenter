@@ -1656,6 +1656,9 @@ So far only implemented: Module 1, musicianship
    // planned production
     if (trial.plannedProduction&&trial.plannedProduction!='NA') {
        
+      // fixation cross at beginning of trial
+      session.push(this.fixation(trialInfo,1000)); 
+
       // set text for .lab file that will be saved with soundfile 
       if (trial.lab) {
           lab = trial.lab;
